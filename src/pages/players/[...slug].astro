@@ -1,0 +1,91 @@
+---
+// src/pages/players/[slug].astro
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+// 1. GetStaticPaths (you already have this, but for completeness)
+export async function getStaticPaths() {
+  const allPlayers = await getCollection('players');
+  return allPlayers.map(player => ({
+    params: { slug: player.slug },
+    props: { player },
+  }));
+}
+
+// 2. Get the data
+const { player } = Astro.props;
+const team = await getEntry('teams', player.data.team);
+const { Content } = await player.render();
+
+// 3. Create Cloudinary URLs
+const headshotUrl = player.data.headshot
+  ? player.data.headshot.replace('/upload/', '/upload/e_background_removal,w_1000,c_fit,f_auto,q_auto:best/')
+  : null;
+
+const teamLogoUrl = team?.data.logo
+  ? team.data.logo.replace('/upload/', '/upload/w_100,h_100,c_pad,f_auto,q_auto/')
+  : null;
+---
+
+<BaseLayout title={player.data.name}>
+  <div class="max-w-5xl mx-auto">
+
+    <div class="relative overflow-hidden bg-gray-900 rounded-lg shadow-xl" style="height: 500px;">
+      
+      {player.data.flagUrl && (
+        <img 
+          src={player.data.flagUrl} 
+          alt={player.data.country}
+          class="absolute inset-0 w-full h-full object-cover opacity-10"
+        />
+      )}
+
+      <div class="relative z-20 p-8 md:p-12">
+        
+        {team && (
+          <a href={`/teams/${team.slug}/`} class="flex items-center group mb-4">
+            {teamLogoUrl && (
+              <img src={teamLogoUrl} alt={team.data.name} class="w-12 h-12 object-contain mr-3" />
+            )}
+            <span class="text-xl text-gray-300 group-hover:underline">
+              {team.data.name}
+            </span>
+          </a>
+        )}
+        
+        <h1 class="text-7xl font-bold text-white font-title" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">
+          {player.data.name}
+        </h1>
+        
+        {player.data.fullName && (
+          <p class="text-3xl text-gray-300">{player.data.fullName}</p>
+        )}
+        
+        <p class="text-4xl font-bold mt-2
+          ${player.data.role === 'Tank' && 'text-blue-400'}
+          ${player.data.role === 'Damage' && 'text-red-400'}
+          ${player.data.role === 'Support' && 'text-green-400'}
+        ">
+          {player.data.role}
+        </p>
+      </div>
+
+      {headshotUrl && (
+        <div class="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <img 
+            src={headshotUrl} 
+            alt={player.data.name}
+            class="absolute bottom-0 -right-16 md:right-0 h-full max-h-[500px] w-auto object-contain"
+          />
+        </div>
+      )}
+    </div>
+    
+    <div class="prose prose-invert prose-lg max-w-none bg-gray-900 p-8 rounded-lg mt-8 border border-gray-800">
+      <h2 class="font-title text-3xl">About {player.data.name}</h2>
+      <Content />
+    </div>
+
+  </div>
+</BaseLayout>

@@ -1,0 +1,42 @@
+---
+// src/layouts/BaseLayout.astro
+import '../styles/global.css'; // <-- THIS IS THE CRITICAL LINE
+
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title} | OWCS Wiki</title>
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  
+  <body class="bg-gray-950 text-gray-200">
+    
+    {/* Header for the "OWCS Wiki" title */}
+    <header class="py-10 mb-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <a href="/" class="text-5xl font-bold text-white font-title"> {/* <-- ADDED 'font-title' */}
+          OWCS Wiki
+        </a>
+      </div>
+    </header>
+
+    <main class="container mx-auto">
+      <slot />
+    </main>
+    
+    <footer class="mt-24 py-8 border-t border-gray-800">
+      <p class="text-center text-gray-500">
+        Built with Astro. Not affiliated with Blizzard or OWCS.
+      </p>
+    </footer>
+
+  </body>
+</html>

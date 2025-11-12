@@ -1,0 +1,48 @@
+---
+// src/pages/players/index.astro
+
+// 1. Import your main layout
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// 2. Import Astro's function to get your content
+import { getCollection } from 'astro:content';
+
+// 3. Fetch all entries from your "players" collection
+// This line finds all .md files in /src/content/players/
+const allPlayers = await getCollection('players');
+---
+
+<BaseLayout title="All OWCS Players">
+
+  <h1 class="text-4xl font-bold text-white mb-6">OWCS Players</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    {
+      // 7. Loop over each player and render a "card"
+      allPlayers.map(player => (
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 text-center">
+          
+          {player.data.headshot && (
+            <img 
+              src={player.data.headshot} 
+              alt={`Headshot of ${player.data.name}`}
+              class="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-gray-600"
+              loading="lazy"
+            />
+          )}
+          
+          <h2 class="text-2xl font-bold text-white">{player.data.name}</h2>
+          <p class="text-lg text-yellow-400">{player.data.role}</p>
+
+          <a
+            href={`/players/${player.slug}/`}
+            class="text-blue-400 hover:underline mt-2 inline-block"
+          >
+            View Profile →
+          </a>
+        </div>
+      ))
+    }
+  </div>
+
+</BaseLayout>
