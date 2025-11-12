@@ -20,14 +20,14 @@ const allPlayers = await getCollection('players');
     {
       // 7. Loop over each player and render a "card"
       allPlayers.map(player => (
-        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 text-center">
+        <div class="bg-neutral-900 rounded-lg p-4 border border-neutral-800 text-center">
           
           {player.data.headshot && (
             <img 
               src={player.data.headshot} 
               alt={`Headshot of ${player.data.name}`}
-              class="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-gray-600"
-              loading="lazy"
+              class="w-24 h-24 rounded-full mx-auto mb-3 border-2 border-neutral-700"
+              loading="eager"
             />
           )}
           

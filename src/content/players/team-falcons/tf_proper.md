@@ -14,6 +14,26 @@ signatureHeroes:
 socials:
   twitter: 'https://x.com/proper'
   twitch: 'https://twitch.tv/proper'
+
+career:
+  - date: '2024 - Present'
+    team: 'Team Falcons'
+    notes:
+      - '🏆 Won 2024 OWCS World Finals'
+  - date: '2023 - 2024'
+    team: 'Florida Mayhem'
+    notes:
+      - '🏆 Won OWL 2023 Grand Finals'
+  - date: '2022 - 2023'
+    team: 'San Francisco Shock'
+    notes:
+      - '⭐ OWL 2022 MVP'
+      - '🚀 OWL 2022 Rookie of the Year'
+      - '🎯 Role Star'
+  - date: '2020 - 2021'
+    team: 'O2 Blast'
+    notes:
+      - '🏆 Won Contenders Korea'
 ---
 
 ## About Proper
