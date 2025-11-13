@@ -1,11 +1,12 @@
 ---
 // src/pages/players/[...slug].astro
+// Template per le pagine dei giocatori
 
-// --- 1. IMPORTS ---
+// --- 1. IMPORT ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 
-// --- 2. DATA FETCHING (getStaticPaths) ---
+// --- 2. DATA FETCHING DEI DATI DEL GIOCATORE SCELTO ---
 export async function getStaticPaths() {
   const allPlayers = await getCollection('players');
   return allPlayers.map(player => ({
@@ -14,13 +15,13 @@ export async function getStaticPaths() {
   }));
 }
 
-// --- 3. DATA PREPARATION ---
+// --- 3. DEFINIZIONE DI COSTANTI ---
 const { player } = Astro.props;
-const team = await getEntry('teams', player.data.team);
+const team = await getEntry('teams', player.data.team); //per il nome della squadra attuale del giocatore
 const { Content } = await player.render();
-const allTeams = await getCollection('teams'); // For timeline
+const allTeams = await getCollection('teams'); // per la linea temporale del giocatore
 
-// Cloudinary URL Helpers
+// URL per i PNG della pagina (eroi giocati, logo squadra, bandiera paese, immagine giocatore)
 const headshotUrl = player.data.headshot
   ? player.data.headshot.replace('/upload/', '/upload/e_background_removal,w_1000,c_fit,f_auto,q_auto:best/')
   : null;
@@ -79,15 +80,11 @@ const cloudinaryBaseUrl = player.data.headshot
           <p class="text-2xl md:text-3xl text-gray-300">{player.data.fullName}</p>
         )}
         
-        <p class="
-          text-3xl md:text-4xl font-bold mt-2
-          ${player.data.role === 'Tank' && 'text-blue-400'}
-          ${player.data.role === 'Damage' && 'text-red-400'}
-          ${player.data.role === 'Support' && 'text-green-400'}
-        ">
+        <p class="text-3xl md:text-4xl font-bold mt-2">
           {player.data.role}
         </p>
 
+        {/*DIV DELL'IMMAGINE DEGLI EROI PIU GIOCATI */}
         {player.data.signatureHeroes && player.data.signatureHeroes.length > 0 && (
           <div class="flex flex-wrap gap-3 mt-6">
             {cloudinaryBaseUrl && player.data.signatureHeroes.map(heroFilename => {
@@ -109,10 +106,11 @@ const cloudinaryBaseUrl = player.data.headshot
         )}
       </div>
 
+      {/*DIV DELL'IMMAGINE DEL GIOCATORE */}
       <div class="
         relative z-10 
-        order-2 /* Mobile: Appears second */
-        md:absolute md:inset-0 md:pointer-events-none /* Desktop: Full-card absolute positioning */
+        order-2 
+        md:absolute md:inset-0 md:pointer-events-none 
       ">
         {headshotUrl && (
           <img 
@@ -127,11 +125,13 @@ const cloudinaryBaseUrl = player.data.headshot
       </div>
     </div>
     
+    {/*DIV DELLA DESCRIZIONE DEL GIOCATORE */}
     <div class="prose prose-invert prose-lg max-w-none bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
       <h2 class="font-title text-3xl">About {player.data.name}</h2>
       <Content />
     </div>
 
+    {/*DIV DELLA LINEA TEMPORALE DEL GIOCATORE */}
     {player.data.career && player.data.career.length > 0 && (
       <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
         <h2 class="font-title text-3xl text-white mb-6">Career Timeline</h2>
@@ -166,6 +166,7 @@ const cloudinaryBaseUrl = player.data.headshot
       </div>
     )}
 
+    {/*DIV DEI SOCIAL DEL GIOCATORE */}
     {player.data.socials && (
       <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
         <h2 class="font-title text-3xl text-white mb-6">Follow</h2>

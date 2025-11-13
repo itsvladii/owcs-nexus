@@ -1,6 +1,6 @@
 ---
 name: 'Team Liquid'
-region: 'North America'
+region: 'NA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898089/tl_logo_j1k74p.png'
 socials:
     twitter: 'https://twitter.com/teamliquid'

@@ -1,6 +1,6 @@
 ---
 name: 'Spacestation Gaming'
-region: 'North America'
+region: 'NA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762902212/ssg_logo_kv9ngy.png'
 socials:
     twitter: 'https://twitter.com/spacestation'

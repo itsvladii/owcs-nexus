@@ -1,58 +1,98 @@
 ---
-// src/pages/teams/[slug].astro
+// src/pages/teams/[...slug].astro
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 
-// 1. Tell Astro to build a page for every team
+// 1. Fetches all teams to tell Astro which pages to build
 export async function getStaticPaths() {
   const allTeams = await getCollection('teams');
+  // This 'map' needs the '=>'
   return allTeams.map(team => ({
     params: { slug: team.slug },
     props: { team },
   }));
 }
 
-// 2. Get this specific team's data
+// 2. Get all the data for *this* specific page
 const { team } = Astro.props;
-
-// 3. Find all players on this team (the "reverse lookup")
 const allPlayers = await getCollection('players');
-const roster = allPlayers.filter(player => player.data.team === team.slug);
-
-// 4. Get the main content from the team's .md file
 const { Content } = await team.render();
 
-// 5. Get a big, nice logo URL
+// 3. Find all players whose 'team' reference matches this team's slug
+// This 'filter' also needs the '=>'
+const roster = allPlayers.filter(player => player.data.team === team.slug);
+
+// 4. Build the URL for the team's logo
 const logoUrl = team.data.logo
-  ? team.data.logo.replace('/upload/', '/upload/w_256,h_256,c_pad,f_auto,q_auto/')
+  ? team.data.logo.replace('/upload/', '/upload/w_200,h_200,c_pad,f_auto,q_auto/')
+  : null;
+
+// 5. Build the dynamic URL for the namecard banner
+const cloudinaryBaseUrl = team.data.logo
+  ? team.data.logo.split('/upload/')[0] + '/upload'
+  : null;
+
+const regionSlug = team.data.region.toLowerCase();
+const namecardFilename = `owcs_${regionSlug}.webp`;
+
+const namecardUrl = cloudinaryBaseUrl
+  ? `${cloudinaryBaseUrl}/${namecardFilename}`
   : null;
 ---
 
 <BaseLayout title={team.data.name}>
-  <div class="max-w-4xl mx-auto">
+  <div class="max-w-5xl mx-auto">
 
-    <div class="flex flex-col sm:flex-row items-center bg-gray-900 p-6 rounded-lg border border-gray-800">
-      {logoUrl && (
-        <img 
-          src={logoUrl} 
-          alt={`${team.data.name} Logo`}
-          class="w-48 h-48 object-contain"
-          width="256"
-          height="256"
-        />
-      )}
-      <div class="sm:ml-6 mt-4 sm:mt-0 text-center sm:text-left">
-        <p class="text-xl text-gray-400">{team.data.region}</p>
-        <h1 class="text-5xl font-bold text-white font-title">{team.data.name}</h1>
+    {namecardUrl ? (
+      <div 
+        class="relative overflow-hidden rounded-lg shadow-xl h-48 md:h-56 bg-neutral-800 bg-cover bg-center"
+        style={`background-image: url(${namecardUrl})`}
+      >
+        {/* Dark overlay for text readability */}
+        <div class="absolute inset-0 flex items-center p-6 md:p-10 bg-black/20"> 
+          
+          {logoUrl && (
+            <img 
+              src={logoUrl} 
+              alt={`${team.data.name} Logo`}
+              class="
+                w-24 h-24 md:w-32 md:h-32 object-contain 
+                flex-shrink-0  border-white/10
+              "
+            />
+          )}
+          
+          <div class="ml-4 md:ml-6">
+            <p 
+              class="text-xl md:text-2xl font-bold text-white" 
+              style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);"
+            >
+              {team.data.region}
+            </p>
+            <h1 
+              class="text-4xl md:text-6xl font-bold text-white font-title" 
+              style="text-shadow: 2px 2px 6px rgba(0,0,0,0.8);"
+            >
+              {team.data.name}
+            </h1>
+          </div>
+        </div>
       </div>
-    </div>
+    ) : (
+      <div class="bg-neutral-900 p-8 rounded-lg border border-neutral-800">
+        <h1 class_:"text-5xl font-bold text-white font-title"> {team.data.name} </h1>
+      </div>
+    )}
 
+    
     <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">Active Roster</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {/* This 'map' needs the '=>' */}
       {roster.map(player => (
         <a 
           href={`/players/${player.slug}/`} 
-          class="bg-gray-800 rounded-lg p-4 text-center border border-gray-700 transition-transform duration-300 hover:scale-105"
+          class="bg-neutral-900 rounded-lg p-4 text-center border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-105"
         >
           <h3 class="text-2xl font-semibold text-white">{player.data.name}</h3>
           <p class="text-lg text-yellow-400">{player.data.role}</p>
@@ -60,7 +100,7 @@ const logoUrl = team.data.logo
       ))}
     </div>
 
-    <div class="prose prose-invert prose-lg max-w-none bg-gray-900 p-6 rounded-lg mt-6 border border-gray-800">
+    <div class="prose prose-invert prose-lg max-w-none bg-neutral-900 p-8 rounded-lg mt-6 border border-neutral-800">
       <Content />
     </div>
 

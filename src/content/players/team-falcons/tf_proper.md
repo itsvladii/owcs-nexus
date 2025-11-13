@@ -19,27 +19,39 @@ career:
   - date: '2024 - Present'
     team: 'Team Falcons'
     notes:
+      - '🏆 Won 2024 OWCS Korea Stage 1'
+      - '🏆 Won 2024 OWCS Korea Stage 2'
+      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
       - '🏆 Won 2024 OWCS World Finals'
+      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
+      - '🏆 Won 2025 OWCS Midseason Championship'
+      - '⭐ 2025 OWCS Midseason Championship MVP'
+      - '⭐🎯 2024 OWCS Felx DPS MVP'
   - date: '2023 - 2024'
-    team: 'Florida Mayhem'
+    team: 'Hamster'
     notes:
-      - '🏆 Won OWL 2023 Grand Finals'
-  - date: '2022 - 2023'
+      - ''
+  - date: '2021 - 2023'
     team: 'San Francisco Shock'
     notes:
       - '⭐ OWL 2022 MVP'
-      - '🚀 OWL 2022 Rookie of the Year'
-      - '🎯 Role Star'
-  - date: '2020 - 2021'
+      - '🚀 OWL 2022 Alarm Rookie of the Year'
+      - '🎯 OWL 2022 Role Star'
+  - date: '2019 - 2021'
     team: 'O2 Blast'
     notes:
-      - '🏆 Won Contenders Korea'
+      - '🏆 Won Overwatch Contenders 2020 Season 1: Korea'
+      - '🏆 Won Overwatch Contenders 2021 Season 1: Korea'
+      - '🏆 Won Overwatch Contenders 2021 Season 2: Korea'
+  - date: '2018 - 2019'
+    team: 'StormQuake'
+    notes:
+      - '🏆 Won Overwatch Contenders 2018 Season 3 Trials: Korea'
+  - date: '2018'
+    team: 'BlossoM'
+    notes:
+      - ''
 ---
 
-## About Proper
 
-Kim "Proper" Dong-hyun is a Korean prodigy widely regarded as one
-of the most mechanically gifted players in the history of the game.
-
-His ability to take over games on carry heroes like Tracer and
-Sojourn was a critical factor in Team Falcons' championship victories.
+Proper is a player that really needs no introduction:

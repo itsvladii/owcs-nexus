@@ -38,7 +38,7 @@ const teamsByRegion = allTeams.reduce((acc, team) => {
         {featuredPlayers.map((player, index) => {
           
           const headshotUrl = player.data.headshot
-            ? player.data.headshot.replace('/upload/', '/upload/e_background_removal,w_600,c_fit,f_auto,q_auto:best/')
+            ? player.data.headshot.replace('/upload/', '/upload/c_fit,b_transparent,f_auto,q_auto:best/')
             : null;
           
           const zIndex = 4 - index;
@@ -49,27 +49,28 @@ const teamsByRegion = allTeams.reduce((acc, team) => {
               class="
                 relative block w-72 h-96  
                 transition-transform duration-300 ease-in-out hover:-translate-y-2
-                font-title"
+              "
               style={`z-index: ${zIndex};`}
               title={`View ${player.data.name}`}
             >
-              {/* THE ANGLED FRAME (now with shadow instead of border) */}
+              {/* THE ANGLED FRAME */}
               <div class="
                 relative h-full w-full 
                 overflow-hidden -skew-y-3 
-                bg-gray-900/50
-                shadow-[0_0_0_2px_rgba(234,88,12,0.3)] 
-                hover:shadow-[0_0_0_3px_rgba(234,88,12,0.6)] 
+                shadow-[0_0_0_2px_rgba(245,158,11,0.4)] /* Using the amber shadow */
+                hover:shadow-[0_0_0_3px_rgba(245,158,11,0.6)]
                 transition-shadow duration-300
+                bg-neutral-900/50
               ">
+                {/* THE PLAYER IMAGE */}
                 {headshotUrl && (
                   <img 
                     src={headshotUrl} 
                     alt={player.data.name}
                     class="
                       relative w-full h-full 
-                      object-cover object-top 
-                      skew-y-3
+                      object-contain /* <-- CHANGED from object-cover */ 
+                      skew-y-3 /* <-- REMOVED scale-125 & object-top */
                     "
                     width="600"
                     height="840" 
@@ -83,7 +84,7 @@ const teamsByRegion = allTeams.reduce((acc, team) => {
     </div>
 
    <h2 class="text-4xl font-bold text-white mb-8 font-title">
-      All Partner Teams
+      All Featured Teams
     </h2>
     
     {/* We use Object.entries to loop over our new 'teamsByRegion' object */}
@@ -104,7 +105,7 @@ const teamsByRegion = allTeams.reduce((acc, team) => {
             return (
               <a 
                 href={`/teams/${team.slug}/`} 
-                class="bg-gray-900 rounded-lg p-6 border border-gray-800 transition-all duration-300 hover:border-gray-700 hover:scale-105 flex flex-col justify-center items-center h-48"
+                class="bg-neutral-900 rounded-lg p-6 border border-gray-800 transition-all duration-300 hover:border-gray-700 hover:scale-105 flex flex-col justify-center items-center h-48"
               >
                 {logoUrl && (
                   <img 
