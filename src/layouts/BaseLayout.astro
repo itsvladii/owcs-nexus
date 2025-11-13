@@ -1,7 +1,7 @@
 ---
 // src/layouts/BaseLayout.astro
 import '../styles/global.css'; // <-- THIS IS THE CRITICAL LINE
-
+import { ClientRouter } from "astro:transitions";
 export interface Props {
   title: string;
 }
@@ -10,11 +10,13 @@ const { title } = Astro.props;
 
 <!doctype html>
 <html lang="en">
+  
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title} | OWCS Wiki</title>
     <meta name="generator" content={Astro.generator} />
+    <ClientRouter/>
   </head>
   
   <body class="bg-neutral-950 text-gray-200">

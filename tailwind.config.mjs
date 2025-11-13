@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // This creates a new 'font-title' utility class
-        title: ["Big Noodle Titling", ...defaultTheme.fontFamily.sans],
+        // This 'title' name creates the 'font-title' class
+        title: ['"Big Noodle Titling"', ...defaultTheme.fontFamily.sans],
       },
     },
   },

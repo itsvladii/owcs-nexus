@@ -1,11 +1,12 @@
 /* src/styles/global.css */
-
+@import "tailwindcss";
 @font-face {
-  font-family: "Big Noodle Titling";
-  src: url('public/fonts/big_noodle_titling.ttf') format('truetype');
+  font-family: 'Big Noodle Titling';
+  src: url('/public/fonts/big_noodle_titling.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap; /* This helps it load smoothly */
 }
-
-@import "tailwindcss";
+.font-title {
+  font-family: 'Big Noodle Titling';
+}

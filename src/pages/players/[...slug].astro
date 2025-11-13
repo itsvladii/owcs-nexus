@@ -1,8 +1,9 @@
 ---
-// src/pages/players/[slug].astro
+// src/pages/players/[..slug].astro
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, getEntry } from "astro:content";
+import '../.././styles/global.css'
 
 export async function getStaticPaths() {
   const allPlayers = await getCollection("players");
