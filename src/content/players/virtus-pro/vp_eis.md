@@ -7,7 +7,7 @@ headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/
 country: "Germany"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057817/de_gdy145.png"
 signatureHeroes:
-  - 'D.Va'
+  - 'DVa'
   - 'Doomfist'
   - 'Winston'
 socials:

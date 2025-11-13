@@ -1,5 +1,6 @@
 // tailwind.config.mjs
 import defaultTheme from 'tailwindcss/defaultTheme';
+import typography from '@tailwindcss/typography'; // <-- 1. IMPORT IT
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -7,10 +8,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // This 'title' name creates the 'font-title' class
         title: ['"Big Noodle Titling"', ...defaultTheme.fontFamily.sans],
       },
     },
   },
-  plugins: [],
+  plugins: [
+    typography(), // <-- 2. ADD IT HERE
+  ],
 }

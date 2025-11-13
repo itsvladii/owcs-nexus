@@ -13,6 +13,42 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/fielder_ow'
   twitch: 'https://www.twitch.tv/fielder_ow'
+career:
+  - date: '2024-Present'
+    team: 'Team Falcons'
+    notes:
+      - '🏆 Won 2024 OWCS Korea Stage 1'
+      - '🏆 Won 2024 OWCS Korea Stage 2'
+      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
+      - '🏆 Won 2024 OWCS World Finals'
+      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
+      - '🏆 Won 2025 OWCS Midseason Championship'
+  - date: '2023-2024'
+    team: 'Hamster'
+    notes:
+      - ''
+  - date: '2022-2023'
+    team: 'Atlanta Reign'
+    notes:
+      - '🏆 Won Overwatch League 2023 - Midseason Madness'
+      - '💊 2023 OWL Role Star - Support'
+  - date: '2020 - 2022'
+    team: 'Dallas Fuel'
+    notes:
+      - '🏆 Won Overwatch League 2021 - May Melee'
+      - '🏆 Won Overwatch League 2022 - Summer Showdown'
+      - '🏆 Won Overwatch League 2022 - Regular Season'
+      - '🏆 Won Overwatch League 2022 - Grand Finals'
+      - '💊 2021 OWL Role Star - Support'
+      - '💊 2022 OWL Role Star - Support'
+  - date: '2020'
+    team: 'Paris Eternal'
+    notes:
+      - '🏆 Won Overwatch League 2020 - Summer Showdown'
+  - date: '2018-2020'
+    team: 'GC Busan Wave'
+    notes:
+      - '🏆 Won Open Division 2018 Season 2 - Korea'
 ---
 
 ## About Proper

@@ -8,9 +8,9 @@ isFeatured: true
 country: "Denmark"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057545/dk_gequy2.png"
 signatureHeroes:
-  - 'D.Va'
-  - 'Doomfist'
-  - 'Winston'
+  - 'Widowmaker'
+  - 'Ashe'
+  - 'Sojourn'
 socials:
   twitter: 'https://twitter.com/sHockWaveOW'
   twitch: 'https://www.twitch.tv/shockwaveyy'

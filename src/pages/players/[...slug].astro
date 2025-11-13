@@ -88,7 +88,7 @@ const cloudinaryBaseUrl = player.data.headshot
         {player.data.signatureHeroes && player.data.signatureHeroes.length > 0 && (
           <div class="flex flex-wrap gap-3 mt-6">
             {cloudinaryBaseUrl && player.data.signatureHeroes.map(heroFilename => {
-              const heroIconUrl = `${cloudinaryBaseUrl}/f_auto,q_auto:best/${heroFilename}.png`;
+              const heroIconUrl = `${cloudinaryBaseUrl}/f_auto,q_auto:best/v1762938909/${heroFilename.toLowerCase()}.png`;
               const cleanHeroName = heroFilename.split('_')[0];
               return (
                 <img 
@@ -96,7 +96,7 @@ const cloudinaryBaseUrl = player.data.headshot
                   alt={cleanHeroName}
                   title={cleanHeroName}
                   class="w-20 h-20 rounded-lg border-2 border-gray-700 bg-gray-800"
-                  loading="lazy"
+                  loading="eager"
                   width="48"
                   height="48"
                 />
@@ -126,7 +126,7 @@ const cloudinaryBaseUrl = player.data.headshot
     </div>
     
     {/*DIV DELLA DESCRIZIONE DEL GIOCATORE */}
-    <div class="prose prose-invert prose-lg max-w-none bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+    <div class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
       <h2 class="font-title text-3xl">About {player.data.name}</h2>
       <Content />
     </div>

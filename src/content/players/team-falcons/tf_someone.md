@@ -13,6 +13,44 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/someone0424'
   twitch: 'https://www.twitch.tv/someone_ow_'
+career:
+  - date: '2025-Present'
+    team: 'Team Falcons'
+    notes:
+      - '🏆 Won OWCS 2025 Midseason Championship' 
+  - date: '2023-2025'
+    team: 'Toronto Defiant'
+    notes:
+      - '🏆 Won OWCS 2024 NA Stage 1'
+      - '🏆 Won OWCS 2024 NA Stage 2'
+      - '🏆 Won FACEIT League Master Season 1 - NA'
+      - '🏆 Won OWCS 2024 NA Stage 3'
+      - '🏆 Won OWCS 2024 NA Stage 4'
+  - date: '2023'
+    team: 'ISOHAN'
+    notes:
+      - ''
+  - date: '2022-2023'
+    team: 'Florida Mayhem'
+    notes:
+      - '🏆 Won OWL 2022 - Countdown Cup'
+      - '🏆 Won OWL 2023 - Pro-Am'
+      - '🏆 Won OWL 2023 Grand Finals'
+      - '⭐ 2023 OWL Regular Season MVP'
+      - '🛡️ 2023 OWL Role Star - Tank'
+      - '🤝 2023 Dennis Hawelka Award Winner'
+  - date: '2022'
+    team: 'Team CC'
+    notes:
+      - '🏆 Won Overwatch Contenders 2021 Season 1 Trials: Korea'
+  - date: '2020-2021'
+    team: 'Gen.G'
+    notes:
+      - '🏆 Won Overwatch Contenders 2019 Season 2: China'
+  - date: '2019 - 2020'
+    team: 'Gen.B'
+    notes:
+      - ''
 ---
 
 ## About Proper

@@ -13,6 +13,44 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/ChiYo_ow1'
   twitch: 'https://www.twitch.tv/chiyo_ow'
+career:
+  - date: '2024-Present'
+    team: 'Team Falcons'
+    notes:
+      - '🏆 Won 2024 OWCS Korea Stage 1'
+      - '🏆 Won 2024 OWCS Korea Stage 2'
+      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
+      - '🏆 Won 2024 OWCS World Finals'
+      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
+      - '🏆 Won 2025 OWCS Midseason Championship'
+  - date: '2023-2024'
+    team: 'Hamster'
+    notes:
+      - ''
+  - date: '2022-2023'
+    team: 'Atlanta Reign'
+    notes:
+      - '🏆 Won Overwatch League 2023 - Midseason Madness'
+      - '💊 2023 OWL Role Star - Support'
+  - date: '2021 - 2022'
+    team: 'Dallas Fuel'
+    notes:
+      - '🏆 Won Overwatch League 2022 - Summer Showdown'
+      - '🏆 Won Overwatch League 2022 - Regular Season'
+      - '🏆 Won Overwatch League 2022 - Grand Finals'
+      - '💊 2022 OWL Role Star - Support'
+  - date: '2021'
+    team: 'O2 Blast'
+    notes:
+      - '🏆 Won Overwatch Contenders 2021 Season 2: Korea'
+  - date: '2019-2021'
+    team: 'RunAway'
+    notes:
+      - ''
+  - date: '2019'
+    team: 'Team Griffin'
+    notes:
+      - ''
 ---
 
 ## About Proper

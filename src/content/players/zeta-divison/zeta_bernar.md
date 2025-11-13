@@ -8,7 +8,7 @@ country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 
 signatureHeroes:
-  - 'D.Va'
+  - 'DVa'
   - 'Zarya'
   - 'Sigma'
 socials:

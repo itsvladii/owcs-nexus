@@ -8,7 +8,7 @@ country: "United States"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/us_noaxgh.png"
 signatureHeroes:
   - 'Reinhardt'
-  - 'Wrecking Ball'
+  - 'Wrecking-Ball'
   - 'Winston'
 socials:
   twitter: 'https://twitter.com/InfektedOW'

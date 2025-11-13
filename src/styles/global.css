@@ -10,3 +10,6 @@
 .font-title {
   font-family: 'Big Noodle Titling';
 }
+.prose p + p {
+  margin-top: 1.25em; 
+}

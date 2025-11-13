@@ -7,7 +7,7 @@ headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:
-  - 'Wrecking Ball'
+  - 'Wrecking-Ball'
   - 'Winston'
   - 'Doomfist'
 socials:
