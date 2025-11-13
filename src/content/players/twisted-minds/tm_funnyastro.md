@@ -4,7 +4,6 @@ fullName: 'Daniel Hathaway'
 role: 'Flex Support'
 team: 'twisted-minds'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TM/tm_funnyastro_p2.png'
-isFeatured: true
 country: "United Kingdom"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057572/gb_dqo1cy.png"
 signatureHeroes:

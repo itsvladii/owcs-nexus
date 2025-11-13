@@ -4,7 +4,6 @@ fullName: 'Maximilian Otter'
 role: 'Flex DPS'
 team: 'twisted-minds'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TM/tm_seicoe_p2.png'
-isFeatured: true
 country: "Austria"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057436/at_rhrrlb.png"
 signatureHeroes:

@@ -4,7 +4,6 @@ fullName: 'Jung Jun-young'
 role: 'Hitscan DPS'
 team: 'zeta-division'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1762959982/zeta_probe_p1_uyibwi.png'
-isFeatured: true
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 

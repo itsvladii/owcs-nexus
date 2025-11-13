@@ -4,7 +4,6 @@ fullName: 'Elliot Chu'
 role: 'Hitscan DPS'
 team: 'team-liquid'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/TL/tl_tr33_p2.png'
-isFeatured: true
 country: "United States"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/us_noaxgh.png"
 signatureHeroes:

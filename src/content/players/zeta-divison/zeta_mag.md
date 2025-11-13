@@ -4,7 +4,6 @@ fullName: 'Kim Tae-sung'
 role: 'Tank'
 team: 'zeta-division'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/zeta_mag_p1_hkzxo8.png'
-isFeatured: true
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

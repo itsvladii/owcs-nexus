@@ -4,7 +4,6 @@ fullName: 'Oh Se-hyun'
 role: 'Flex DPS'
 team: 'zeta-division'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1762959893/zeta_pelican_p1_lulhse.png'
-isFeatured: true
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 

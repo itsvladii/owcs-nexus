@@ -4,7 +4,6 @@ fullName: 'Choi Han-been'
 role: 'Tank'
 team: 'team-falcons'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TF/tf_hanbin_p2.png'
-isFeatured: true
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

@@ -6,7 +6,6 @@ team: 'crazy-raccoons'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053666/overwatch/CR/cr_shu_p2.png'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
-isFeatured: true
 signatureHeroes:
   - 'Baptiste'
   - 'Zenyatta'

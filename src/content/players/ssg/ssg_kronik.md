@@ -4,7 +4,6 @@ fullName: 'Rocco Iacobacci'
 role: 'Hitscan DPS'
 team: 'ssg'
 headshot: "https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1762958492/ssg_kronik_p1_hkpgut.png"
-isFeatured: true
 country: "United States"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/us_noaxgh.png"
 signatureHeroes:

@@ -4,7 +4,6 @@ fullName: 'Kim Ji-sung'
 role: 'Main Support'
 team: 'twisted-minds'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TM/tm_simple_p2.png'
-isFeatured: true
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

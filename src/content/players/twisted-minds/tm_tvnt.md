@@ -4,7 +4,6 @@ fullName: 'Abdualziz Altmimi'
 role: 'Tank'
 team: 'twisted-minds'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TM/tm_tvnt_p2.png'
-isFeatured: true
 country: "Saudi Arabia"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057518/sa_oc9ami.png"
 signatureHeroes:
