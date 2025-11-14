@@ -28,18 +28,27 @@ const namecardFilename = `owcs_${regionSlug}.png`;
 const namecardUrl = `${cloudinaryBaseUrl}/f_auto,q_auto,w_1024/${namecardFilename}`;
 
 // --- 5. FETCH LIVE MATCH DATA ---
-let upcomingMatches = [];
+/*let upcomingMatches = [];
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
-const teamName = teamEntry.data.name; // <-- Use teamEntry.data.name
+const teamName = teamEntry.data.liquipediaName; // <-- Use teamEntry.data.name
 
 try {
   if (apiKey) {
     // --- THIS IS THE NEW TEST ---
     // We are removing the complex 'conditions' parameter completely
     // to see if it's the cause of the 403.
+    /*const endpoint = new URL('https://api.liquipedia.net/api/v3/team');
+    endpoint.searchParams.set('wiki', 'overwatch');
+    endpoint.searchParams.set('query', `name`);
+    endpoint.searchParams.set('conditions','[[name:: ]]');
+
     const endpoint = new URL('https://api.liquipedia.net/api/v3/match');
     endpoint.searchParams.set('wiki', 'overwatch');
-    endpoint.searchParams.set('limit', '3'); 
+    endpoint.searchParams.set('conditions','[[pagename::Overwatch_Champions_Series/2024/World_Finals]]')
+    endpoint.searchParams.set('order', `date DESC`);
+    endpoint.searchParams.set('limit', `5`);
+    endpoint.searchParams.set('query','match2opponents')
+
 
     console.log("Fetching SIMPLEST URL:", endpoint.toString());
     
@@ -75,7 +84,7 @@ try {
   }
 } catch (error) {
   console.error("Error fetching Liquipedia matches:", error);
-}
+}*/
 ---
 
 <BaseLayout title={teamEntry.data.name}>
@@ -122,28 +131,6 @@ try {
       </div>
     )}
 
-    {upcomingMatches.length > 0 && (
-      <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-        <h2 class="font-title text-3xl text-white mb-6">Upcoming Matches</h2>
-        <div class="flex flex-col gap-4">
-          {upcomingMatches.map(match => (
-            <div class="flex items-center justify-between p-4 bg-neutral-800 rounded-lg">
-              <div class="flex-1 text-right">
-                <span class="text-xl font-bold text-white">{match.teamLeft}</span>
-              </div>
-              <div class="text-center px-4">
-                <span class="text-xs text-neutral-400 block">{match.tournament}</span>
-                <span class="text-lg font-bold text-amber-500 block">VS</span>
-                <span class="text-xs text-neutral-300 block">{match.countdown}</span>
-              </div>
-              <div class="flex-1 text-left">
-                <span class="text-xl font-bold text-white">{match.teamRight}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
 
     
     <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">Active Roster</h2>
