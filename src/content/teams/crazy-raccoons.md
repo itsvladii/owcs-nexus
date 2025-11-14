@@ -1,5 +1,6 @@
 ---
 name: 'Crazy Raccoons'
+liquipediaName: 'Crazy_Raccoons'
 region: 'Korea'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898093/cr_logo_qzmjyw.png'
 socials:
