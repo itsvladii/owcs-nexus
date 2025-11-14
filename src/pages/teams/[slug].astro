@@ -1,47 +1,84 @@
 ---
 // src/pages/teams/[...slug].astro
+export const prerender = false; // Make the page dynamic (SSR)
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 
-// 1. Fetches all teams to tell Astro which pages to build
-export async function getStaticPaths() {
-  const allTeams = await getCollection('teams');
-  // This 'map' needs the '=>'
-  return allTeams.map(team => ({
-    params: { slug: team.slug },
-    props: { team },
-  }));
+// --- 1. GET THE SLUG & THE TEAM ENTRY ---
+const { slug } = Astro.params;
+const teamEntry = await getEntry('teams', slug); // <-- We fetch the team here
+
+// 2. IF TEAM NOT FOUND, STOP EVERYTHING
+if (!teamEntry) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
-// 2. Get all the data for *this* specific page
-const { team } = Astro.props;
+// 3. GET ALL OTHER DATA (Now that we know the team exists)
 const allPlayers = await getCollection('players');
-const { Content } = await team.render();
+const { Content } = await teamEntry.render(); // <-- Use teamEntry.render()
+const roster = allPlayers.filter(player => player.data.team === teamEntry.slug);
 
-// 3. Find all players whose 'team' reference matches this team's slug
-// This 'filter' also needs the '=>'
-const roster = allPlayers.filter(player => player.data.team === team.slug);
+// --- 4. PREPARE URLS ---
+// We use 'teamEntry.data' instead of 'team.data'
+const logoUrl = teamEntry.data.logo.replace('/upload/', '/upload/w_200,h_200,c_pad,f_auto,q_auto/');
+const cloudinaryBaseUrl = teamEntry.data.logo.split('/upload/')[0] + '/upload';
+const regionSlug = teamEntry.data.region.toLowerCase();
+const namecardFilename = `owcs_${regionSlug}.png`;
+const namecardUrl = `${cloudinaryBaseUrl}/f_auto,q_auto,w_1024/${namecardFilename}`;
 
-// 4. Build the URL for the team's logo
-const logoUrl = team.data.logo
-  ? team.data.logo.replace('/upload/', '/upload/w_200,h_200,c_pad,f_auto,q_auto/')
-  : null;
+// --- 5. FETCH LIVE MATCH DATA ---
+let upcomingMatches = [];
+const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
+const teamName = teamEntry.data.name; // <-- Use teamEntry.data.name
 
-// 5. Build the dynamic URL for the namecard banner
-const cloudinaryBaseUrl = team.data.logo
-  ? team.data.logo.split('/upload/')[0] + '/upload'
-  : null;
+try {
+  if (apiKey) {
+    // --- THIS IS THE NEW TEST ---
+    // We are removing the complex 'conditions' parameter completely
+    // to see if it's the cause of the 403.
+    const endpoint = new URL('https://api.liquipedia.net/api/v3/match');
+    endpoint.searchParams.set('wiki', 'overwatch');
+    endpoint.searchParams.set('limit', '3'); 
 
-const regionSlug = team.data.region.toLowerCase();
-const namecardFilename = `owcs_${regionSlug}.webp`;
+    console.log("Fetching SIMPLEST URL:", endpoint.toString());
+    
+    // THIS IS THE MOST CRITICAL PART:
+    // Have you replaced this with your actual contact email?
+    // If this is still a generic string, the server will block you.
+    const myUserAgent = 'OWCS-Wiki (your-email@example.com)';
 
-const namecardUrl = cloudinaryBaseUrl
-  ? `${cloudinaryBaseUrl}/${namecardFilename}`
-  : null;
+    const response = await fetch(endpoint.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Apikey ${apiKey}`,
+        'Accept': 'application/json',
+        'User-Agent': myUserAgent
+      },
+      keepalive: false
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // This will just log the 3 most recent matches
+      console.log("✅ SUCCESS! API Connection works. Data:", data);
+      
+      // We'll add the filtering back in the next step
+      // ...
+      
+    } else {
+      // This will still say 403 Forbidden
+      console.warn(`Liquipedia API error: ${response.status} ${response.statusText}`);
+    }
+  } else {
+    console.warn("Fetch skipped: LIQUIPEDIA_API_KEY is not set.");
+  }
+} catch (error) {
+  console.error("Error fetching Liquipedia matches:", error);
+}
 ---
 
-<BaseLayout title={team.data.name}>
+<BaseLayout title={teamEntry.data.name}>
   <div class="max-w-5xl mx-auto">
 
     {namecardUrl ? (
@@ -55,7 +92,7 @@ const namecardUrl = cloudinaryBaseUrl
           {logoUrl && (
             <img 
               src={logoUrl} 
-              alt={`${team.data.name} Logo`}
+              alt={`${teamEntry.data.name} Logo`}
               class="
                 w-24 h-24 md:w-32 md:h-32 object-contain 
                 flex-shrink-0  border-white/10
@@ -68,20 +105,43 @@ const namecardUrl = cloudinaryBaseUrl
               class="text-xl md:text-2xl font-bold text-white" 
               style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);"
             >
-              {team.data.region}
+              {teamEntry.data.region}
             </p>
             <h1 
               class="text-4xl md:text-6xl font-bold text-white font-title" 
               style="text-shadow: 2px 2px 6px rgba(0,0,0,0.8);"
             >
-              {team.data.name}
+              {teamEntry.data.name}
             </h1>
           </div>
         </div>
       </div>
     ) : (
       <div class="bg-neutral-900 p-8 rounded-lg border border-neutral-800">
-        <h1 class_:"text-5xl font-bold text-white font-title"> {team.data.name} </h1>
+        <h1 class_:"text-5xl font-bold text-white font-title"> {teamEntry.data.name} </h1>
+      </div>
+    )}
+
+    {upcomingMatches.length > 0 && (
+      <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+        <h2 class="font-title text-3xl text-white mb-6">Upcoming Matches</h2>
+        <div class="flex flex-col gap-4">
+          {upcomingMatches.map(match => (
+            <div class="flex items-center justify-between p-4 bg-neutral-800 rounded-lg">
+              <div class="flex-1 text-right">
+                <span class="text-xl font-bold text-white">{match.teamLeft}</span>
+              </div>
+              <div class="text-center px-4">
+                <span class="text-xs text-neutral-400 block">{match.tournament}</span>
+                <span class="text-lg font-bold text-amber-500 block">VS</span>
+                <span class="text-xs text-neutral-300 block">{match.countdown}</span>
+              </div>
+              <div class="flex-1 text-left">
+                <span class="text-xl font-bold text-white">{match.teamRight}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )}
 

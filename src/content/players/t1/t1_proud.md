@@ -7,9 +7,9 @@ headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:
-  - 'ashe_e2qlho'
-  - 'cassidy_fsdjay'
-  - 'widowmaker_fjqodu'
+  - 'Ashe'
+  - 'Cassidy'
+  - 'Widowmaker'
 socials:
   twitter: 'https://twitter.com/Proud1002_ow'
   twitch: 'https://www.twitch.tv/ow_proud'
