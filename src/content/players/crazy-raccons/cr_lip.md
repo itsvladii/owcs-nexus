@@ -56,10 +56,10 @@ career:
       - ''
 ---
 
-Ranked as one of the most successful players in the history of OW E-sports, LIP is a player who has made history on numerous occasions during his long career.
+Regarded as one of the most accomplished players in the history of Overwatch Esports, LIP is a player who has made history on numerous occasions during his long career.
 
-His stint with the Shanghai Dragons between 2019 and 2022 perfectly sums up his career: a career studded with trophies and individual titles, where he is still the only player in history to have won the Role Star award four times in a row, as well as six intercontinental tournaments and the 2020 Grand Finals.
+His stint with the Shanghai Dragons between 2019 and 2022 perfectly sums up his career: a career studded with trophies and individual titles, where he is still the only player in history to have won the Role Star award four times in a row, while also winning six international tournaments and, most importantly, the 2020 Overwatch LeagueGrand Finals.
 
-Nicknamed “8'9'' gaming warlord” due to his height, LIP is a player with unique flexibility: mainly known for playing hitscan given his extraordinary aim, he does not shy away from playing flex dps when necessary. 
+Nicknamed "the 8'9'' Gaming Warlord” due to his height, LIP is a player with unique flexibility: mainly known for playing hitscan given his extraordinary aim, he however does not shy away from playing Flex DPS when necessary. 
 
-Currently playing for Crazy Raccoons, LIP certainly has no intention of stopping winning, and with the World Finals coming up in Stockholm, he will undoubtedly want to win his second intercontinental title and definitively become second to none in the history books of Overwatch.
+Currently playing for Crazy Raccoons, LIP certainly has no intention to stop winning titles, and with the 2025 World Finals coming up in Stockholm, he'll undoubtedly want to win his second intercontinental title and definitively become second to none in the history books of Overwatch Esports.

@@ -26,7 +26,7 @@ career:
       - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
       - '🏆 Won 2025 OWCS Midseason Championship'
       - '⭐ 2025 OWCS Midseason Championship MVP'
-      - '⭐🎯 2024 OWCS Felx DPS MVP'
+      - '⭐🎯 2024 OWCS Flex DPS MVP'
   - date: '2023 - 2024'
     team: 'Hamster'
     notes:
