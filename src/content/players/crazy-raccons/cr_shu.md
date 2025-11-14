@@ -13,6 +13,53 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/shu_overwatch'
   twitch: 'https://www.twitch.tv/owl_shu'
+career:
+  - date: '2024 - Present'
+    team: 'Crazy Raccoons'
+    notes:
+      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
+      - '🏆 Won 2024 OWCS Major'
+      - '🏆 Won 2024 Esports World Cup'
+      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
+      - '🏆 Won 2025 OWCS Korea Stage 1'
+      - '🏆 Won 2025 OWCS Champions Clash'
+      - '🏆 Won 2025 OWCS Korea Stage 3'
+      - '⭐ 2024 Esports World Cup MVP'
+      - '⭐ 2025 OWCS Champions Clash MVP'
+      - '⭐💊 2024 OWCS Flex Support MVP'
+  - date: '2024'
+    team: 'WAC'
+    notes:
+      - ""
+  - date: '2022 - 2023'
+    team: 'Houston Outlaws'
+    notes:
+      - ''
+  - date: '2020 - 2022'
+    team: 'Los Angeles Gladiators'
+    notes:
+      - '🏆 Won Overwatch League 2020 - May Melee'
+      - '🏆 Won Overwatch League 2021 - Countdown Cup'
+      - '🏆 Won Overwatch League 2022 - Kickoff Clash'
+      - '🏆 Won Overwatch League 2022 - Midseason Madness'
+      - '💊 OWL 2021 Role Star - Support'
+      - '💊 OWL 2022 Role Star - Support'
+  - date: '2018-2020'
+    team: 'Guangzhou Charge'
+    notes:
+      - '🏆 Won Overwatch League 2020 - Summer Showdown'
+  - date: '2018'
+    team: 'Toronto Esports'
+    notes:
+      - ''
+  - date: '2017-2018'
+    team: 'Meta Athena'
+    notes:
+      - ''
+  - date: '2017'
+    team: 'Flash Lux'
+    notes:
+      - ''
 ---
 
 ## About Proper

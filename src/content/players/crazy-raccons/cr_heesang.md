@@ -13,6 +13,42 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/Ow_HeeSang'
   twitch: 'https://www.twitch.tv/heesang_ow'
+career:
+  - date: '2024 - Present'
+    team: 'Crazy Raccoons'
+    notes:
+      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
+      - '🏆 Won 2024 OWCS Major'
+      - '🏆 Won 2024 Esports World Cup'
+      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
+      - '🏆 Won 2025 OWCS Korea Stage 1'
+      - '🏆 Won 2025 OWCS Champions Clash'
+      - '🏆 Won 2025 OWCS Korea Stage 3'
+  - date: '2024'
+    team: 'WAC'
+    notes:
+      - ""
+  - date: '2023'
+    team: 'Vancouver Titans'
+    notes:
+      - ''
+  - date: '2022-2023'
+    team: 'San Francisco Shock'
+    notes:
+      - ''
+  - date: '2022'
+    team: 'O2 Blast'
+    notes:
+      - '🏆 Won Overwatch Contenders 2022 Summer Series: Korea A-Sides'
+      - '🏆 Won Overwatch Contenders 2022 Summer Series: Korea B-Sides'
+      - '🏆 Won Overwatch Contenders 2022 Run It Back: Korea'
+      - '🏆 Won Overwatch Contenders 2022 Pacific Showdown'
+  - date: '2021-2022'
+    team: 'Talon Esports'
+    notes:
+  - date: '2019-2021'
+    team: 'Element Mystic'
+    notes:
 ---
 
 ## About Proper
