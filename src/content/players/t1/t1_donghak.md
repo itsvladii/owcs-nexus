@@ -13,6 +13,33 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/Donghak_ow'
   twitch: 'https://www.twitch.tv/d0nghak2'
+career:
+  - date: '2025 - Present'
+    team: 'T1'
+    notes: 
+      - '🏆 Won Soop Overwatch Cup 2025 Season 1 - Korea'
+  - date: '2024-2025'
+    team: 'FNATIC'
+    notes: 
+      - ''
+  - date: '2023 - 2024'
+    team: 'YETI'
+    notes: 
+      - ''
+  - date: '2023'
+    team: 'Atlanta Reign'
+    notes: 
+      - '🏆 Won 2023 Overwatch League - Midseason Madness'
+      - '🚀 OWL 2023 Alarm Rookie of the Year'
+  - date: '2022'
+    team: 'Talon Esports'
+    notes: 
+      - ''
+  - date: '2021'
+    team: 'RunAway'
+    notes: 
+      - ''
+---
 ---
 
 ## About Proper

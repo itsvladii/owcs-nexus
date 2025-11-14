@@ -32,7 +32,7 @@ career:
     notes: 
       - ''
 ---
----
+
 
 
 ## About Proper
