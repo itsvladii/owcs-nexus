@@ -24,7 +24,6 @@ const heroClipIDs = [
   'varrel_clip',
   'vp_clip',
   'aq_clip',
-  'agg_clip',
   'ntmp_clip',
   'tm_clip',
   't1_clip',
@@ -32,7 +31,7 @@ const heroClipIDs = [
 ];
 
 // 2. Build the *correct* video base URL
-const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto,w_1920/v1763230992`;
+const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto:good,w_1280,br_1.5m/v1763230992`;
 
 const heroClipUrls = heroClipIDs.map(id => {
   // We'll use the format that we know works!
@@ -71,7 +70,55 @@ const heroClipUrls = heroClipIDs.map(id => {
       </div>
     </div>
 
-   <h2 class="text-4xl font-bold text-white mb-8 font-title">
+    <div class="mb-24 -mt-12 relative z-20"> {/* -mt-12 pulls it up slightly over the video */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <a 
+          href="#featured-teams" 
+          class="
+            block p-8 bg-neutral-900 
+            border border-neutral-800 rounded-lg 
+            transition-all duration-300 
+            hover:border-amber-500/50 hover:scale-[1.02]
+            shadow-lg
+          "
+        >
+          <h3 class="font-title text-3xl font-bold text-white">
+            Know Your Teams
+          </h3>
+          <p class="text-lg text-neutral-400 mt-2 mb-4">
+            Browse all the official partner teams of the OWCS and some notable mentions, sorted by region.
+          </p>
+          <span class="font-bold text-amber-500">
+            Scroll to Teams &rarr;
+          </span>
+        </a>
+
+        <a 
+          href="/players" 
+          class="
+            block p-8 bg-neutral-900 
+            border border-neutral-800 rounded-lg 
+            transition-all duration-300 
+            hover:border-amber-500/50 hover:scale-[1.02]
+            shadow-lg
+          "
+        >
+          <h3 class="font-title text-3xl font-bold text-white">
+            Find a Player
+          </h3>
+          <p class="text-lg text-neutral-400 mt-2 mb-4">
+            Want to know more about a specific player? Check the complete database of players!
+          </p>
+          <span class="font-bold text-amber-500">
+            Browse Players &rarr;
+          </span>
+        </a>
+
+      </div>
+    </div>
+
+   <h2 id="featured-teams" class="text-4xl font-bold text-white mb-8 font-title">
       All Featured Teams
     </h2>
     
