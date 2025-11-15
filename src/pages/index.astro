@@ -1,85 +1,73 @@
 ---
 // src/pages/index.astro
-import { Image } from 'astro:assets';
+export const prerender = false;
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import '../styles/global.css'
-
-const allPlayers = await getCollection('players');
-const featuredPlayers = allPlayers
-  .filter(player => player.data.isFeatured)
-  .slice(0, 4);
 
 const allTeams = await getCollection('teams');
-
-// We use .reduce() to create an object where keys are regions
-// and values are arrays of teams.
 const teamsByRegion = allTeams.reduce((acc, team) => {
-  const region = team.data.region; // e.g., 'NA', 'EMEA', 'Asia'
-  
-  // If this region isn't an array in our object yet, create it
+  const region = team.data.region;
   if (!acc[region]) {
     acc[region] = [];
   }
-  
-  // Add the current team to its region's array
   acc[region].push(team);
   return acc;
 }, {});
+
+// 1. Get your Cloudinary cloud name from the logo URL.
+// e.g., "https://res.cloudinary.com/dm1bfprgq/image/upload/..."
+const cloudName = allTeams[0].data.logo.split('/')[3];
+const heroClipIDs = [
+  'crazy_raccoons_clip',
+  'wbg_clip',
+  'varrel_clip',
+  'vp_clip',
+  'aq_clip',
+  'agg_clip',
+  'ntmp_clip',
+  'tm_clip',
+  't1_clip',
+
+];
+
+// 2. Build the *correct* video base URL
+const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto,w_1920/v1763230992`;
+
+const heroClipUrls = heroClipIDs.map(id => {
+  // We'll use the format that we know works!
+  return `${videoBaseUrl}/${id}.mp4`;
+});
 ---
 
 <BaseLayout title="Home">
-  <div class="text-center max-w-7xl mx-auto px-4">
+  <div class="max-w-7xl mx-auto px-4">
     
-    {/*div con i png dei giocatori nella homepage */}
-    <div class="relative mb-24">
+    <div 
+      class="relative h-[600px] w-full rounded-lg overflow-hidden 
+             flex justify-center items-center text-center 
+             bg-neutral-900 mb-24 shadow-xl"
+    >
+      <video 
+        id="hero-video" data-clips={JSON.stringify(heroClipUrls)}
+        class="absolute z-0 w-full h-full object-cover"
+        autoplay
+        loop
+        muted
+        playsinline
+      >
+        Your browser does not support the video tag.
+      </video>
       
-      <div class="flex justify-center items-end -space-x-12">
-        {featuredPlayers.map((player, index) => {
-          
-          const headshotUrl = player.data.headshot
-            ? player.data.headshot.replace('/upload/', '/upload/c_fit,b_transparent,f_auto,q_auto:best/')
-            : null;
-          
-          const zIndex = 4 - index;
-
-          return (
-            <a 
-              href={`/players/${player.slug}/`} 
-              class="
-                relative block w-72 h-96  
-                transition-transform duration-300 ease-in-out hover:-translate-y-2
-              "
-              style={`z-index: ${zIndex};`}
-              title={`View ${player.data.name}`}
-            >
-              {/* THE ANGLED FRAME */}
-              <div class="
-                relative h-full w-full 
-                overflow-hidden -skew-y-3 
-                shadow-[0_0_0_2px_rgba(245,158,11,0.4)] /* Using the amber shadow */
-                hover:shadow-[0_0_0_3px_rgba(245,158,11,0.6)]
-                transition-shadow duration-300
-                bg-neutral-900/50
-              ">
-                {/* THE PLAYER IMAGE */}
-                {headshotUrl && (
-                  <img 
-                    src={headshotUrl} 
-                    alt={player.data.name}
-                    class="
-                      relative w-full h-full 
-                      object-contain /* <-- CHANGED from object-cover */ 
-                      skew-y-3 /* <-- REMOVED scale-125 & object-top */
-                    "
-                    width="600"
-                    height="840" 
-                  />
-                )}
-              </div>
-            </a>
-          );
-        })}
+      <div class="absolute inset-0 bg-black/40 z-10"></div>
+      
+      <div class="relative z-20 p-8">
+        <h1 class="text-7xl md:text-8xl font-bold text-white font-title" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);">
+          OWCS For Dummies
+        </h1>
+        <p class="text-2xl md:text-3xl text-neutral-200 mt-2" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.5);">
+          All of OWCS, right at your fingertips.
+        </p>
       </div>
     </div>
 
@@ -127,3 +115,51 @@ const teamsByRegion = allTeams.reduce((acc, team) => {
 
   </div>
 </BaseLayout>
+
+<script>
+  function startVideoRotation() {
+    const video = document.getElementById('hero-video');
+    if (!video || typeof (video as HTMLVideoElement).play !== 'function') {
+      return;
+    }
+    
+    const videoPlayer = video as HTMLVideoElement;
+    
+    // 1. Get the list of clips from the data attribute
+    const clips = JSON.parse(videoPlayer.dataset.clips || '[]');
+    
+    if (clips.length === 0) return; // Do nothing if no clips
+
+    let currentClipIndex = -1; // Keep track of the last clip
+
+    function playRandomClip() {
+      let nextIndex = currentClipIndex;
+      // 2. Pick a new clip, but make sure it's not the same one as last time
+      while (nextIndex === currentClipIndex && clips.length > 1) {
+        nextIndex = Math.floor(Math.random() * clips.length);
+      }
+      currentClipIndex = nextIndex;
+
+      // 3. Set the new video source and load it
+      videoPlayer.src = clips[currentClipIndex];
+      videoPlayer.load();
+      
+      // 4. Play the video
+      const playPromise = videoPlayer.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.warn("Browser blocked video autoplay:", error);
+        });
+      }
+    }
+
+    // 5. When the video ends, play a new random one
+    videoPlayer.addEventListener('ended', playRandomClip);
+    
+    // 6. Play the *first* random clip on page load
+    playRandomClip();
+  }
+
+  // 7. This still handles the "back button" issue
+  document.addEventListener('astro:page-load', startVideoRotation);
+</script>
