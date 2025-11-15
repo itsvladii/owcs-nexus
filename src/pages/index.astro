@@ -2,10 +2,10 @@
 // src/pages/index.astro
 export const prerender = false;
 
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 
-const allTeams = await getCollection('teams');
+const allTeams = await getCollection("teams");
 const teamsByRegion = allTeams.reduce((acc, team) => {
   const region = team.data.region;
   if (!acc[region]) {
@@ -17,23 +17,22 @@ const teamsByRegion = allTeams.reduce((acc, team) => {
 
 // 1. Get your Cloudinary cloud name from the logo URL.
 // e.g., "https://res.cloudinary.com/dm1bfprgq/image/upload/..."
-const cloudName = allTeams[0].data.logo.split('/')[3];
+const cloudName = allTeams[0].data.logo.split("/")[3];
 const heroClipIDs = [
-  'crazy_raccoons_clip',
-  'wbg_clip',
-  'varrel_clip',
-  'vp_clip',
-  'aq_clip',
-  'ntmp_clip',
-  'tm_clip',
-  't1_clip',
-
+  "crazy_raccoons_clip",
+  "wbg_clip",
+  "varrel_clip",
+  "vp_clip",
+  "aq_clip",
+  "ntmp_clip",
+  "tm_clip",
+  "t1_clip",
 ];
 
 // 2. Build the *correct* video base URL
 const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto:good,w_1280,br_1.5m/v1763230992`;
 
-const heroClipUrls = heroClipIDs.map(id => {
+const heroClipUrls = heroClipIDs.map((id) => {
   // We'll use the format that we know works!
   return `${videoBaseUrl}/${id}.mp4`;
 });
@@ -41,14 +40,14 @@ const heroClipUrls = heroClipIDs.map(id => {
 
 <BaseLayout title="Home">
   <div class="max-w-7xl mx-auto px-4">
-    
-    <div 
-      class="relative h-[600px] w-full rounded-lg overflow-hidden 
-             flex justify-center items-center text-center 
+    <div
+      class="relative h-[600px] w-full rounded-lg overflow-hidden
+             flex justify-center items-center text-center
              bg-neutral-900 mb-24 shadow-xl"
     >
-      <video 
-        id="hero-video" data-clips={JSON.stringify(heroClipUrls)}
+      <video
+        id="hero-video"
+        data-clips={JSON.stringify(heroClipUrls)}
         class="absolute z-0 w-full h-full object-cover"
         autoplay
         loop
@@ -57,124 +56,132 @@ const heroClipUrls = heroClipIDs.map(id => {
       >
         Your browser does not support the video tag.
       </video>
-      
+
       <div class="absolute inset-0 bg-black/40 z-10"></div>
-      
+
       <div class="relative z-20 p-8">
-        <h1 class="text-7xl md:text-8xl font-bold text-white font-title" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);">
+        <h1
+          class="text-7xl md:text-8xl font-bold text-white font-title"
+          style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);"
+        >
           OWCS For Dummies
         </h1>
-        <p class="text-2xl md:text-3xl text-neutral-200 mt-2" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.5);">
+        <p
+          class="text-2xl md:text-3xl text-neutral-200 mt-2"
+          style="text-shadow: 1px 1px 4px rgba(0,0,0,0.5);"
+        >
           All of OWCS, right at your fingertips.
         </p>
       </div>
     </div>
 
-    <div class="mb-24 -mt-12 relative z-20"> {/* -mt-12 pulls it up slightly over the video */}
+    <div class="mb-24 -mt-12 relative z-20">
+      {/* -mt-12 pulls it up slightly over the video */}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <a 
-          href="#featured-teams" 
-          class="
-            block p-8 bg-neutral-900 
-            border border-neutral-800 rounded-lg 
-            transition-all duration-300 
+        <a
+          href="#featured-teams"
+          class="block p-8 bg-neutral-900
+            border border-neutral-800 rounded-lg
+            transition-all duration-300
             hover:border-amber-500/50 hover:scale-[1.02]
-            shadow-lg
-          "
+            shadow-lg"
         >
           <h3 class="font-title text-3xl font-bold text-white">
             Know Your Teams
           </h3>
           <p class="text-lg text-neutral-400 mt-2 mb-4">
-            Browse all the official partner teams of the OWCS and some notable mentions, sorted by region.
+            Browse all the official partner teams of the OWCS and some notable
+            mentions, sorted by region.
           </p>
-          <span class="font-bold text-amber-500">
-            Scroll to Teams &rarr;
-          </span>
+          <span class="font-bold text-amber-500"> Scroll to Teams &rarr; </span>
         </a>
 
-        <a 
-          href="/players" 
-          class="
-            block p-8 bg-neutral-900 
-            border border-neutral-800 rounded-lg 
-            transition-all duration-300 
+        <a
+          href="/players"
+          class="block p-8 bg-neutral-900
+            border border-neutral-800 rounded-lg
+            transition-all duration-300
             hover:border-amber-500/50 hover:scale-[1.02]
-            shadow-lg
-          "
+            shadow-lg"
         >
           <h3 class="font-title text-3xl font-bold text-white">
             Find a Player
           </h3>
           <p class="text-lg text-neutral-400 mt-2 mb-4">
-            Want to know more about a specific player? Check the complete database of players!
+            Want to know more about a specific player? Check the complete
+            database of players!
           </p>
-          <span class="font-bold text-amber-500">
-            Browse Players &rarr;
-          </span>
+          <span class="font-bold text-amber-500"> Browse Players &rarr; </span>
         </a>
-
       </div>
     </div>
 
-   <h2 id="featured-teams" class="text-4xl font-bold text-white mb-8 font-title">
+    <h2
+      id="featured-teams"
+      class="text-4xl font-bold text-white mb-8 font-title"
+    >
       All Featured Teams
     </h2>
-    
-    {/* We use Object.entries to loop over our new 'teamsByRegion' object */}
-    {Object.entries(teamsByRegion).map(([region, teamsInRegion]) => (
-      <div class="mb-12">
-        {/* 1. Add a heading for the region */}
-        <h3 class="text-3xl font-bold text-white mb-6 font-title text-left">
-          {region}
-        </h3>
-        
-        {/* 2. Create a grid *just* for this region's teams */}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {teamsInRegion.map(team => {
-            const logoUrl = team.data.logo
-              ? team.data.logo.replace('/upload/', '/upload/w_200,h_200,c_pad,f_auto,q_auto/')
-              : null;
-            
-            return (
-              <a 
-                href={`/teams/${team.slug}/`} 
-                class="bg-neutral-900 rounded-lg p-6 border border-gray-800 transition-all duration-300 hover:border-gray-700 hover:scale-105 flex flex-col justify-center items-center h-48"
-              >
-                {logoUrl && (
-                  <img 
-                    src={logoUrl} 
-                    alt={`${team.data.name} Logo`}
-                    class="w-24 h-24 object-contain"
-                    width="200"
-                    height="200"
-                    loading="lazy"
-                  />
-                )}
-                <h3 class="text-xl font-semibold text-white mt-4">{team.data.name}</h3>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    ))}
 
+    {/* We use Object.entries to loop over our new 'teamsByRegion' object */}
+    {
+      Object.entries(teamsByRegion).map(([region, teamsInRegion]) => (
+        <div class="mb-12">
+          {/* 1. Add a heading for the region */}
+          <h3 class="text-3xl font-bold text-white mb-6 font-title text-left">
+            {region}
+          </h3>
+
+          {/* 2. Create a grid *just* for this region's teams */}
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {teamsInRegion.map((team) => {
+              const logoUrl = team.data.logo
+                ? team.data.logo.replace(
+                    "/upload/",
+                    "/upload/w_200,h_200,c_pad,f_auto,q_auto/",
+                  )
+                : null;
+
+              return (
+                <a
+                  href={`/teams/${team.slug}/`}
+                  class="bg-neutral-900 rounded-lg p-6 border border-gray-800 transition-all duration-300 hover:border-gray-700 hover:scale-105 flex flex-col justify-center items-center h-48"
+                >
+                  {logoUrl && (
+                    <img
+                      src={logoUrl}
+                      alt={`${team.data.name} Logo`}
+                      class="w-24 h-24 object-contain"
+                      width="200"
+                      height="200"
+                      loading="lazy"
+                    />
+                  )}
+                  <h3 class="text-xl font-semibold text-white mt-4">
+                    {team.data.name}
+                  </h3>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      ))
+    }
   </div>
 </BaseLayout>
 
 <script>
   function startVideoRotation() {
-    const video = document.getElementById('hero-video');
-    if (!video || typeof (video as HTMLVideoElement).play !== 'function') {
+    const video = document.getElementById("hero-video");
+    if (!video || typeof (video as HTMLVideoElement).play !== "function") {
       return;
     }
-    
+
     const videoPlayer = video as HTMLVideoElement;
-    
+
     // 1. Get the list of clips from the data attribute
-    const clips = JSON.parse(videoPlayer.dataset.clips || '[]');
-    
+    const clips = JSON.parse(videoPlayer.dataset.clips || "[]");
+
     if (clips.length === 0) return; // Do nothing if no clips
 
     let currentClipIndex = -1; // Keep track of the last clip
@@ -190,23 +197,23 @@ const heroClipUrls = heroClipIDs.map(id => {
       // 3. Set the new video source and load it
       videoPlayer.src = clips[currentClipIndex];
       videoPlayer.load();
-      
+
       // 4. Play the video
       const playPromise = videoPlayer.play();
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
+        playPromise.catch((error) => {
           console.warn("Browser blocked video autoplay:", error);
         });
       }
     }
 
     // 5. When the video ends, play a new random one
-    videoPlayer.addEventListener('ended', playRandomClip);
-    
+    videoPlayer.addEventListener("ended", playRandomClip);
+
     // 6. Play the *first* random clip on page load
     playRandomClip();
   }
 
   // 7. This still handles the "back button" issue
-  document.addEventListener('astro:page-load', startVideoRotation);
+  document.addEventListener("astro:page-load", startVideoRotation);
 </script>

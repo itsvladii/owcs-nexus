@@ -1,155 +1,216 @@
 ---
 // src/pages/teams/[...slug].astro
-export const prerender = false; // Make the page dynamic (SSR)
+export const prerender = false;
 
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, getEntry } from "astro:content";
+import { generateTeamQuiz } from "../../lib/quizGenerator";
+import Quiz from "../../components/Quiz.tsx";
 
-// --- 1. GET THE SLUG & THE TEAM ENTRY ---
+// --- 2. Get all your data (this is your existing code) ---
 const { slug } = Astro.params;
-const teamEntry = await getEntry('teams', slug); // <-- We fetch the team here
+const teamEntry = await getEntry("teams", slug);
 
-// 2. IF TEAM NOT FOUND, STOP EVERYTHING
 if (!teamEntry) {
-  return new Response(null, { status: 404, statusText: 'Not Found' });
+  return new Response(null, { status: 404, statusText: "Not Found" });
 }
 
-// 3. GET ALL OTHER DATA (Now that we know the team exists)
-const allPlayers = await getCollection('players');
-const { Content } = await teamEntry.render(); // <-- Use teamEntry.render()
-const roster = allPlayers.filter(player => player.data.team === teamEntry.slug);
+const allPlayers = await getCollection("players");
+const { Content } = await teamEntry.render();
+const roster = allPlayers.filter((player) => player.data.team === teamEntry.slug);
+const allTeams = await getCollection('teams');
 
-// --- 4. PREPARE URLS ---
-// We use 'teamEntry.data' instead of 'team.data'
-const logoUrl = teamEntry.data.logo.replace('/upload/', '/upload/w_200,h_200,c_pad,f_auto,q_auto/');
-const cloudinaryBaseUrl = teamEntry.data.logo.split('/upload/')[0] + '/upload';
+// --- 3. Prepare URLs (this is your existing code) ---
+const logoUrl = teamEntry.data.logo.replace(
+  "/upload/",
+  "/upload/w_200,h_200,c_pad,f_auto,q_auto/",
+);
+const cloudinaryBaseUrl = teamEntry.data.logo.split("/upload/")[0] + "/upload";
 const regionSlug = teamEntry.data.region.toLowerCase();
 const namecardFilename = `owcs_${regionSlug}.png`;
 const namecardUrl = `${cloudinaryBaseUrl}/f_auto,q_auto,w_1024/${namecardFilename}`;
 
-// --- 5. FETCH LIVE MATCH DATA ---
-/*let upcomingMatches = [];
-const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
-const teamName = teamEntry.data.liquipediaName; // <-- Use teamEntry.data.name
-
-try {
-  if (apiKey) {
-    // --- THIS IS THE NEW TEST ---
-    // We are removing the complex 'conditions' parameter completely
-    // to see if it's the cause of the 403.
-    /*const endpoint = new URL('https://api.liquipedia.net/api/v3/team');
-    endpoint.searchParams.set('wiki', 'overwatch');
-    endpoint.searchParams.set('query', `name`);
-    endpoint.searchParams.set('conditions','[[name:: ]]');
-
-    const endpoint = new URL('https://api.liquipedia.net/api/v3/match');
-    endpoint.searchParams.set('wiki', 'overwatch');
-    endpoint.searchParams.set('conditions','[[pagename::Overwatch_Champions_Series/2024/World_Finals]]')
-    endpoint.searchParams.set('order', `date DESC`);
-    endpoint.searchParams.set('limit', `5`);
-    endpoint.searchParams.set('query','match2opponents')
-
-
-    console.log("Fetching SIMPLEST URL:", endpoint.toString());
-    
-    // THIS IS THE MOST CRITICAL PART:
-    // Have you replaced this with your actual contact email?
-    // If this is still a generic string, the server will block you.
-    const myUserAgent = 'OWCS-Wiki (your-email@example.com)';
-
-    const response = await fetch(endpoint.toString(), {
-      method: 'GET',
-      headers: {
-        'Authorization': `Apikey ${apiKey}`,
-        'Accept': 'application/json',
-        'User-Agent': myUserAgent
-      },
-      keepalive: false
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      // This will just log the 3 most recent matches
-      console.log("✅ SUCCESS! API Connection works. Data:", data);
-      
-      // We'll add the filtering back in the next step
-      // ...
-      
-    } else {
-      // This will still say 403 Forbidden
-      console.warn(`Liquipedia API error: ${response.status} ${response.statusText}`);
-    }
-  } else {
-    console.warn("Fetch skipped: LIQUIPEDIA_API_KEY is not set.");
-  }
-} catch (error) {
-  console.error("Error fetching Liquipedia matches:", error);
-}*/
+// 4. Generate the questions
+const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTeams);
 ---
 
 <BaseLayout title={teamEntry.data.name}>
   <div class="max-w-5xl mx-auto">
-
-    {namecardUrl ? (
-      <div 
-        class="relative overflow-hidden rounded-lg shadow-xl h-48 md:h-56 bg-neutral-800 bg-cover bg-center"
-        style={`background-image: url(${namecardUrl})`}
-      >
-        {/* Dark overlay for text readability */}
-        <div class="absolute inset-0 flex items-center p-6 md:p-10 bg-black/20"> 
-          
-          {logoUrl && (
-            <img 
-              src={logoUrl} 
-              alt={`${teamEntry.data.name} Logo`}
-              class="
-                w-24 h-24 md:w-32 md:h-32 object-contain 
-                flex-shrink-0  border-white/10
-              "
-            />
-          )}
-          
-          <div class="ml-4 md:ml-6">
-            <p 
-              class="text-xl md:text-2xl font-bold text-white" 
-              style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);"
-            >
-              {teamEntry.data.region}
-            </p>
-            <h1 
-              class="text-4xl md:text-6xl font-bold text-white font-title" 
-              style="text-shadow: 2px 2px 6px rgba(0,0,0,0.8);"
-            >
-              {teamEntry.data.name}
-            </h1>
+    {
+      namecardUrl && (
+        <div
+          class="relative overflow-hidden rounded-lg shadow-xl h-48 md:h-56 bg-neutral-800 bg-cover bg-center"
+          style={`background-image: url(${namecardUrl})`}
+        >
+          <div class="absolute inset-0 flex items-center p-6 md:p-10 bg-black/20">
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt={`${teamEntry.data.name} Logo`}
+                class="w-24 h-24 md:w-32 md:h-32 object-contain flex-shrink-0 border-white/10"
+              />
+            )}
+            <div class="ml-4 md:ml-6">
+              <p
+                class="text-xl md:text-2xl font-bold text-white"
+                style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);"
+              >
+                {teamEntry.data.region}
+              </p>
+              <h1
+                class="text-4xl md:text-6xl font-bold text-white font-title"
+                style="text-shadow: 2px 2px 6px rgba(0,0,0,0.8);"
+              >
+                {teamEntry.data.name}
+              </h1>
+            </div>
           </div>
         </div>
-      </div>
-    ) : (
-      <div class="bg-neutral-900 p-8 rounded-lg border border-neutral-800">
-        <h1 class_:"text-5xl font-bold text-white font-title"> {teamEntry.data.name} </h1>
-      </div>
-    )}
+      )
+    }
 
+    <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">
+      Active Roster
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {
+        roster.map((player) => {
+          // 1. Get the headshot URL
+          // We'll use 'object-contain', so a high-res, 'fit' image is best.
+          const headshotUrl = player.data.headshot
+            ? player.data.headshot.replace(
+                "/upload/",
+                "/upload/w_600,c_fit,b_transparent,f_auto,q_auto:best/",
+              )
+            : null;
 
-    
-    <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">Active Roster</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {/* This 'map' needs the '=>' */}
-      {roster.map(player => (
-        <a 
-          href={`/players/${player.slug}/`} 
-          class="bg-neutral-900 rounded-lg p-4 text-center border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-105"
-        >
-          <h3 class="text-2xl font-semibold text-white">{player.data.name}</h3>
-          <p class="text-lg text-yellow-400">{player.data.role}</p>
-        </a>
-      ))}
+          return (
+            <a
+              href={`/players/${player.slug}/`}
+              class="
+              relative block h-80 w-full /* Set a fixed height */
+              rounded-lg 
+              border border-neutral-800 
+              transition-all duration-300 
+              hover:border-amber-500/50 hover:scale-[1.02]
+              shadow-lg overflow-hidden group
+            "
+            >
+              {/* 1. The Angled Frame (holds the image) */}
+              <div
+                class="
+              absolute inset-0 h-full w-full 
+              overflow-hidden -skew-y-3 
+              bg-neutral-800/50
+              shadow-[0_0_0_1px_rgba(245,158,11,0.2)]
+            "
+              >
+                {headshotUrl ? (
+                  <img
+                    src={headshotUrl}
+                    alt={player.data.name}
+                    class="
+                    relative w-full h-full 
+                    object-contain object-top /* Use 'object-contain' */
+                    skew-y-3 /* Un-skew the image */
+                    transition-transform duration-300
+                    group-hover:scale-105
+                  "
+                    width="600"
+                    height="600"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="h-full w-full skew-y-3" />
+                )}
+              </div>
+
+              {/* 2. Dark Gradient Overlay (for text) */}
+              <div
+                class="
+              absolute bottom-0 left-0 right-0 h-1/2 
+              bg-gradient-to-t from-black/90 via-black/70 to-transparent
+            "
+              />
+
+              {/* 3. Player Info (at the bottom) */}
+              <div class="absolute bottom-0 left-0 right-0 p-4">
+                <h3 class="text-3xl font-bold text-white font-title">
+                  {player.data.name}
+                </h3>
+                <p class="text-xl text-yellow-400">{player.data.role}</p>
+              </div>
+            </a>
+          );
+        })
+      }
     </div>
 
-    <div class="prose prose-invert prose-lg max-w-none bg-neutral-900 p-8 rounded-lg mt-6 border border-neutral-800">
+    <div
+      class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800"
+    >
       <Content />
     </div>
 
+    {
+      teamEntry.data.achievements && teamEntry.data.achievements.length > 0 && (
+        <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+          <h2 class="font-title text-3xl text-white mb-6">
+            Major Achievements
+          </h2>
+          <ul class="list-none pl-0">
+            {teamEntry.data.achievements.map((note) => (
+              <li class="text-md text-gray-300 border-b border-neutral-800 py-2">
+                {note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      teamEntry.data.socials && (
+        <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+          <h2 class="font-title text-3xl text-white mb-6">Follow</h2>
+          <div class="flex flex-wrap gap-4">
+            {/* Twitter / X */}
+            {teamEntry.data.socials.twitter && (
+              <a
+                href={teamEntry.data.socials.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-blue-400"
+              >
+                <span class="font-bold text-white">Twitter / X</span>
+              </a>
+            )}
+
+            {/* Website */}
+            {teamEntry.data.socials.website && (
+              <a
+                href={teamEntry.data.socials.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-amber-500"
+              >
+                <span class="font-bold text-white">Official Website</span>
+              </a>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+      <h2 class="font-title text-3xl text-white mb-6">Team Quiz</h2>
+
+      {
+        /* We just re-use your existing Quiz component,
+        but we pass it our new team-specific questions!
+      */
+      }
+      <Quiz questions={teamQuizQuestions} client:load />
+    </div>
   </div>
 </BaseLayout>
