@@ -13,13 +13,12 @@ A dynamic and comprehensive fan-made wiki for the Overwatch Champions Series (OW
 
 * **Static Player Pages (SSG):** Pre-built pages for maximum speed and performance.
     * Fetches "Most Recent POV" from YouTube *at build time* to save API quota.
-    * Detailed career timelines with accolades.
+    * Detailed career timelines with accolades and general description of the player
     * Signature hero portraits.
 * **Dynamic Team Pages (SSR):** Server-renders on request to provide live data.
-    * **Live Match Results:** Fetches the 3 most recent matches from the Liquipedia API.
-    * **Random Team Quiz:** A different quiz is generated every time the page is loaded.
-    * **Custom Banners:** Displays unique regional banners for each team.
-* **Interactive Player List:** A React "island" lets users instantly search and filter all players by name, role, and team.
+    * **Random Team Quiz:** A different quiz is generated every time the page is loaded, to test your knowledge on your favourite team.
+    * **Custom Banners:** Displays unique regional banners for each team and country flags for each player.
+* **Interactive Player List:** A React "island" that lets users instantly search and filter all players by name, role, and team.
 * **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
 
 ## 🛠️ Tech Stack
