@@ -1,43 +1,59 @@
-# Astro Starter Kit: Minimal
+# OWCS For Dummies
 
+[![Built with Astro](https://astro.build/badge.svg)](https://astro.build/)
+
+A dynamic and comprehensive fan-made wiki for the Overwatch Champions Series (OWCS), made for both casual fans who want to learn more about the best teams in the world and for the more hardcore fans who want to "revise" their knowledge, all built with Astro. This site features detailed player profiles, team rosters, career timelines, and most recent Player POV's (courtesy of @ObsSojourn's Youtube channel for them, shoutout to the goat!) and interactive quizzes.
+
+
+### Preview
+
+![OWCS Wiki Homepage](<PASTE_A_LINK_TO_YOUR_HOMEPAGE_SCREENSHOT_HERE.jpg>)
+
+## ✨ Features
+
+* **Static Player Pages (SSG):** Pre-built pages for maximum speed and performance.
+    * Fetches "Most Recent POV" from YouTube *at build time* to save API quota.
+    * Detailed career timelines with accolades.
+    * Signature hero portraits.
+* **Dynamic Team Pages (SSR):** Server-renders on request to provide live data.
+    * **Live Match Results:** Fetches the 3 most recent matches from the Liquipedia API.
+    * **Random Team Quiz:** A different quiz is generated every time the page is loaded.
+    * **Custom Banners:** Displays unique regional banners for each team.
+* **Interactive Player List:** A React "island" lets users instantly search and filter all players by name, role, and team.
+* **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
+
+## 🛠️ Tech Stack
+
+* **Framework:** [Astro](https://astro.build/)
+* **UI:** [React](https://react.dev/) (for interactive islands like the Quiz and Player Filter)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/) (with the Vite plugin)
+* **Content:** [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
+* **Deployment:** [Vercel](https://vercel.com/)
+
+## 🚀 Getting Started
+
+If you want to make your own fork of the project, or you're just curious about the structure of it, follow these steps to run the project locally:
+
+### 0. Premise
+This project a Google Cloud API key for the YouTube Player POV implementation in the .env file in the root. The site will still run without it, but the "Player POV" sections will not load data so if you plan on implementing the feature, remember to get an API key from Google Cloud!.
+
+### 1. Clone the Repository
+
+Paste this into your Terminal of choice
 ```sh
-npm create astro@latest -- --template minimal
+git clone [https://github.com/your-username/owcs-wiki.git](https://github.com/your-username/owcs-wiki.git)
+cd owcs-wiki
+```
+### 2. Run the Dev Server
+Now that you've got the source code, you can localy run this site by pasting this in your Terminal:
+```sh
+npm run dev
+(npm run dev -- --host will let you visit the site from other devices, as long as you are connected on the same network as yout host!)
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+##⚖️ Disclaimer
 
-## 🚀 Project Structure
+OWCS Wiki is an unofficial fan project. This site is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment or the OWCS.
 
-Inside of your Astro project, you'll see the following folders and files:
+All Overwatch content © Blizzard Entertainment, Inc. All other trademarks, team logos, and player images are the property of their respective owners.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
