@@ -1,4 +1,4 @@
-// --- Helper Functions (not exported, just used internally) ---
+//funzione che "mischia" randomicamente le domande
 function shuffle(array) {
   let newArr = [...array];
   for (let i = newArr.length - 1; i > 0; i--) {
@@ -12,36 +12,34 @@ function getDistractors(array, correctAnswer, count) {
   return shuffle(array.filter(item => item !== correctAnswer)).slice(0, count);
 }
 
+//funzione che rimuove le emoji
 function cleanAchievementText(text) {
-  // This regex removes one or more emojis from the start of the string, plus a space
   return text.replace(/^[🏆⭐🚀🛡️🥈🎯✚📈📊🔥⚖️🏅🤝]+\s*/, '');
 }
 
-// --- Data for Distractors ---
-const ALL_HERO_SLUGS = [
+// --- Main Generator Function (EXPORTED) ---
+export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
+  const questionPool = [];
+
+  //DATI UTILIZZATI PER POPOLARE LE RISPOSTE
+  const ALL_PLAYER_NAMES = allPlayers.map(p => p.data.name); //nomi giocatori
+  const ALL_REGIONS = ['NA', 'EMEA', 'Korea', 'China','Pacific','Japan']; //regioni
+  const ALL_ROLES = ['Tank', 'Flex DPS','Hitscan DPS', 'Main Support','Flex Support']; //ruoli
+  const ALL_COUNTRIES = [...new Set(allPlayers.map(p => p.data.country).filter(Boolean))]; //paesi
+  const ALL_TEAM_NAMES = allTeams.map(t => t.data.name); //nomi squadre
+  const allRawAchievements = allTeams.flatMap(t => t.data.achievements || []); //risultati 
+  const uniqueCleanAchievements = [...new Set(allRawAchievements.map(cleanAchievementText))]; //risultati "puliti" (senza emoji)
+  const ALL_HERO_SLUGS = [
   'Ana', 'Ashe', 'Baptiste', 'Bastion', 'Brigitte', 'Cassidy', 'D.Va', 
   'Doomfist', 'Echo', 'Genji', 'Hanzo', 'Illari', 'Junker Queen', 'Junkrat', 
   'Kiriko', 'Lifeweaver', 'Lucio', 'Mauga', 'Mei', 'Mercy', 'Moira', 
   'Orisa', 'Pharah', 'Ramattra', 'Reaper', 'Reinhardt', 'Roadhog', 'Sigma', 
   'Sojourn', 'Soldier: 76', 'Sombra', 'Symmetra', 'Torbjörn', 'Tracer', 
   'Venture', 'Widowmaker', 'Winston', 'Wrecking Ball', 'Zarya', 'Zenyatta'
-];
+]; //tutti gli eroi
 
-// --- Main Generator Function (EXPORTED) ---
-export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
-  const questionPool = [];
-
-  // Get dynamic data for distractors
-  const ALL_PLAYER_NAMES = allPlayers.map(p => p.data.name);
-  const ALL_REGIONS = ['NA', 'EMEA', 'Korea', 'China','Pacific','Japan'];
-  const ALL_ROLES = ['Tank', 'Flex DPS','Hitscan DPS', 'Main Support','Flex Support'];
-  const ALL_COUNTRIES = [...new Set(allPlayers.map(p => p.data.country).filter(Boolean))];
-  const ALL_TEAM_NAMES = allTeams.map(t => t.data.name);
-  // Create a pool of distractor achievements ---
-  const allRawAchievements = allTeams.flatMap(t => t.data.achievements || []);
-  const uniqueCleanAchievements = [...new Set(allRawAchievements.map(cleanAchievementText))];
-
-  // --- Q-Type 1: Team Region ---
+// --- CREAZIONE DOMANDE ---
+  // --- Tipologia 1: Regione Squadra ---
   const correctRegion = team.data.region;
   const regionDistractors = getDistractors(ALL_REGIONS, correctRegion, 2);
   const regionOptions = shuffle([correctRegion, ...regionDistractors]);
@@ -51,7 +49,7 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
     correctAnswerIndex: regionOptions.indexOf(correctRegion),
   });
 
-  // --- Q-Type 2: "Who is on this team?" ---
+  // ---Tipologia 2: Squadra del giocatore ---
   if (playersOnRoster.length > 0) {
     const rosterNames = playersOnRoster.map(p => p.data.name);
     const correctPlayer = rosterNames[Math.floor(Math.random() * rosterNames.length)];
@@ -64,10 +62,10 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
     });
   }
 
-  // --- Generate questions for EACH player on the roster ---
+  // --- Generazione per ogni giocatore della squadra---
   for (const player of playersOnRoster) {
     
-    // --- Q-Type 3: Player Role ---
+    // --- Tipologia 3: Ruolo giocatore ---
     const correctRole = player.data.role;
     const roleDistractors = getDistractors(ALL_ROLES, correctRole, 2);
     const roleOptions = shuffle([correctRole, ...roleDistractors]);
@@ -77,7 +75,7 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
       correctAnswerIndex: roleOptions.indexOf(correctRole),
     });
 
-    // --- Q-Type 4: Player Nationality ---
+    // --- Tipologia 4: Paese giocatore ---
     if (player.data.country) {
       const correctCountry = player.data.country;
       const countryDistractors = getDistractors(ALL_COUNTRIES, correctCountry, 2);
@@ -89,7 +87,7 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
       });
     }
     
-    // --- Q-Type 5: Signature Hero ---
+    // --- Tipoliga 5: Signature hero---
     if (player.data.signatureHeroes && player.data.signatureHeroes.length > 0) {
       const correctHero = player.data.signatureHeroes[Math.floor(Math.random() * player.data.signatureHeroes.length)];
       const heroDistractors = getDistractors(ALL_HERO_SLUGS.map(s => s.charAt(0).toUpperCase() + s.slice(1)), correctHero, 2);
@@ -101,7 +99,7 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
       });
     }
 
-    // --- Q-Type 6: "Did NOT play for" ---
+    // --- Tipologia 6: Dove il giocatore NON ha giocato" ---
     if (player.data.career && player.data.career.length >= 2) {
       const playedForTeams = player.data.career.map(entry => entry.team);
       const distractorTeam = ALL_TEAM_NAMES.find(name => !playedForTeams.includes(name));
@@ -118,21 +116,22 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
       }
     }
 
+    // --- Tipologia 7: Risultati squadra" ---
     if (team.data.achievements && team.data.achievements.length > 0) {
-    // 1. Get *only* the clean text of this team's achievements
+    //ricavo gli achievements del team
     const teamCleanAchievements = team.data.achievements.map(cleanAchievementText);
     
-    // 2. Pick a random clean achievement
+    // prendo quello corretto
     const correctCleanAchievement = teamCleanAchievements[Math.floor(Math.random() * teamCleanAchievements.length)];
     
-    // 3. Find distractors (clean achievements this team *doesn't* have)
+    // prendo le risposte errate 
     const achievementDistractors = getDistractors(
       uniqueCleanAchievements.filter(ach => !teamCleanAchievements.includes(ach)),
       correctCleanAchievement,
       2
     );
     
-    // 4. Build the question
+    // costruisco la domanda
     if (achievementDistractors.length === 2) {
       const achievementOptions = shuffle([correctCleanAchievement, ...achievementDistractors]);
       questionPool.push({
@@ -144,6 +143,6 @@ export function generateTeamQuiz(team, playersOnRoster, allPlayers, allTeams) {
   }
   }
   
-  // --- FINAL STEP: Shuffle the entire pool and pick 5 ---
+  // --- mischio le domande ---
   return shuffle(questionPool).slice(0, 5);
 }
