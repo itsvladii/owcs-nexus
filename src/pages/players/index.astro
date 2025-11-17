@@ -1,11 +1,12 @@
 ---
-// src/pages/players/index.astro
+//pagina che mostra TUTTI i giocatori registrati
 
+// --- IMPORT DI TUTTO IL NECESSARIO ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import FilteredPlayerList from '../../components/FilteredPlayerList.tsx'; // 1. Import your new component
+import FilteredPlayerList from '../../components/FilteredPlayerList.tsx'; // importo il componente che fa da "filtro" per i giocatori
 
-// 2. Fetch ALL players and teams
+//recupero tutti i giocatori e squadre
 const allPlayers = await getCollection('players');
 const allTeams = await getCollection('teams');
 ---
@@ -14,10 +15,7 @@ const allTeams = await getCollection('teams');
 
   <h1 class="text-4xl font-bold text-white mb-8 font-title">OWCS Players</h1>
 
-  {/* 3. Render the React island
-    We pass all the data to it as props.
-    'client:load' tells Astro to load the JavaScript immediately.
-  */}
+  {/*in base ai filtri applicati, mostriamo i giocatori. se non sono applicati filtri, mostriamo tutti */}
   <FilteredPlayerList 
     players={allPlayers} 
     teams={allTeams} 

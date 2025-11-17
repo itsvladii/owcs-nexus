@@ -1,26 +1,28 @@
 ---
-// src/pages/teams/[...slug].astro
 export const prerender = false;
 
+//--- IMPORT DI TUTTO IL NECESSARIO ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, getEntry } from "astro:content";
 import { generateTeamQuiz } from "../../lib/quizGenerator";
 import Quiz from "../../components/Quiz.tsx";
 
-// --- 2. Get all your data (this is your existing code) ---
+//--- RICAVO TUTTE LE SQUADRE REGISTRATE ---
 const { slug } = Astro.params;
 const teamEntry = await getEntry("teams", slug);
 
+//se team non trovato, riporta un errore
 if (!teamEntry) {
   return new Response(null, { status: 404, statusText: "Not Found" });
 }
 
+//--- RICAVO TUTTI I GIOCATORI REGISTRATI ---
 const allPlayers = await getCollection("players");
 const { Content } = await teamEntry.render();
 const roster = allPlayers.filter((player) => player.data.team === teamEntry.slug);
 const allTeams = await getCollection('teams');
 
-// --- 3. Prepare URLs (this is your existing code) ---
+//--- RICAVO TUTTI GLI ASSET (PNG ED IMG) NECESSARI ---
 const logoUrl = teamEntry.data.logo.replace(
   "/upload/",
   "/upload/w_200,h_200,c_pad,f_auto,q_auto/",
@@ -30,12 +32,21 @@ const regionSlug = teamEntry.data.region.toLowerCase();
 const namecardFilename = `owcs_${regionSlug}.png`;
 const namecardUrl = `${cloudinaryBaseUrl}/f_auto,q_auto,w_1024/${namecardFilename}`;
 
-// 4. Generate the questions
+//--- GENERAZIONE DEI QUIZ DEI TEAM ---
+//creo le domande, basandosi sulle informazioni del team
 const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTeams);
+
+/* --- parametri per l'API (non usato, da rivedere l'utilizzo)
+const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
+const teamName = teamEntry.data.name;
+const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to change this !!*/
+
 ---
 
 <BaseLayout title={teamEntry.data.name}>
+
   <div class="max-w-5xl mx-auto">
+    {/*DIV CON LOGO E NOME DEL TEAM */}
     {
       namecardUrl && (
         <div
@@ -69,6 +80,7 @@ const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTea
       )
     }
 
+    {/*ROSTER E GIOCATORI*/}
     <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">
       Active Roster
     </h2>
@@ -146,12 +158,11 @@ const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTea
       }
     </div>
 
-    <div
-      class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800"
-    >
+    <div class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
       <Content />
     </div>
 
+    {/*TROFEI E STORICO DEL TEAM */}
     {
       teamEntry.data.achievements && teamEntry.data.achievements.length > 0 && (
         <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
@@ -169,6 +180,7 @@ const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTea
       )
     }
 
+    {/*SOCIAL DEL TEAM */}
     {
       teamEntry.data.socials && (
         <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
@@ -202,14 +214,10 @@ const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTea
       )
     }
 
+    {/*QUIZ DEL TEAM */}
     <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
       <h2 class="font-title text-3xl text-white mb-6">Team Quiz</h2>
-
-      {
-        /* We just re-use your existing Quiz component,
-        but we pass it our new team-specific questions!
-      */
-      }
+      {/*richiamo il componente React che crea il quiz basandosi sulle domande create prima*/}
       <Quiz questions={teamQuizQuestions} client:load />
     </div>
   </div>
