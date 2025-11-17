@@ -38,6 +38,7 @@ export async function fetchRecentPov(
       }
     } else {
       console.warn(`YouTube API error: ${response.status} ${response.statusText}`);
+      console.log(response)
     }
   } catch (error) {
     console.error("Error fetching YouTube POV:", error);
