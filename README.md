@@ -1,7 +1,4 @@
 # OWCS For Dummies
-
-[![Built with Astro](https://astro.build/badge.svg)](https://astro.build/)
-
 A dynamic and comprehensive fan-made wiki for the Overwatch Champions Series (OWCS), made for both casual fans who want to learn more about the best teams in the world and for the more hardcore fans who want to "revise" their knowledge, all built with Astro. This site features detailed player profiles, team rosters, career timelines, and most recent Player POV's (courtesy of @ObsSojourn's Youtube channel for them, shoutout to the goat!) and interactive quizzes.
 
 
