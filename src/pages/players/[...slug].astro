@@ -4,6 +4,7 @@
 // --- 1. IMPORT ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
+import { fetchRecentPov } from '../../lib/fetchPOV';
 
 // --- 2. DATA FETCHING DEI DATI DEL GIOCATORE SCELTO ---
 export async function getStaticPaths() {
@@ -32,6 +33,13 @@ const teamLogoUrl = team?.data.logo
 const cloudinaryBaseUrl = player.data.headshot
   ? player.data.headshot.split('/upload/')[0] + '/upload'
   : null;
+
+
+const youtubeKey = import.meta.env.YOUTUBE_API_KEY;
+const playerName = player.data.name;
+
+const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg";
+const mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, youtubeKey);
 ---
 
 <BaseLayout title={player.data.name}>
@@ -165,6 +173,31 @@ const cloudinaryBaseUrl = player.data.headshot
       </div>
     )}
 
+    {mostRecentPovUrl && (
+      <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+        <h2 class="font-title text-3xl text-white mb-6">Most Recent POV (Courtesy of ObsSojourn!)</h2>
+        
+        {/* THIS IS THE FIX:
+          1. The outer 'div' is set to 'position: relative'.
+          2. We set 'padding-bottom: 56.25%'. This (9 / 16) * 100% 
+             forces the div's height to be 56.25% of its width,
+             creating a perfect 16:9 ratio.
+        */}
+        <div class="relative w-full" style="padding-bottom: 56.25%;">
+          <iframe 
+            src={mostRecentPovUrl}
+            title={`Recent POV for ${player.data.name}`}
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+            class="
+              absolute top-0 left-0 w-full h-full /* 3. The iframe is set to fill this parent div */
+              rounded-lg
+            "
+          ></iframe>
+        </div>
+      </div>
+    )}
     {/*DIV DEI SOCIAL DEL GIOCATORE */}
     {player.data.socials && (
       <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">

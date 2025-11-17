@@ -73,8 +73,10 @@ export default function FilteredPlayerList({ players, teams }: Props) {
           >
             <option>All</option>
             <option>Tank</option>
-            <option>Damage</option>
-            <option>Support</option>
+            <option>Flex DPS</option>
+            <option>Hitscan DPS</option>
+            <option>Flex Support</option>
+            <option>Main Support</option>
           </select>
         </div>
         <div>
