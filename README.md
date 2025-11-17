@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 # OWCS For Dummies
 A dynamic and comprehensive fan-made wiki for the Overwatch Champions Series (OWCS), made for both casual fans who want to learn more about the best teams in the world and for the more hardcore fans who want to "revise" their knowledge, all built with Astro. This site features detailed player profiles, team rosters, career timelines, and most recent Player POV's (courtesy of @ObsSojourn's Youtube channel for them, shoutout to the goat!) and interactive quizzes.
 
+=======
+<<<<<<< HEAD
+# Astro Starter Kit: Minimal
+
+=======
+# OWCS For Dummies
+A dynamic and comprehensive fan-made wiki for the Overwatch Champions Series (OWCS), made for both casual fans who want to learn more about the best teams in the world and for the more hardcore fans who want to "revise" their knowledge, all built with Astro. This site features detailed player profiles, team rosters, career timelines, and most recent Player POV's (courtesy of @ObsSojourn's Youtube channel for them, shoutout to the goat!) and interactive quizzes.
+
+>>>>>>> fb4b74e (Remove Astro badge from README)
 
 ### Preview
 
@@ -36,6 +46,10 @@ This project a Google Cloud API key for the YouTube Player POV implementation in
 ### 1. Clone the Repository
 
 Paste this into your Terminal of choice
+<<<<<<< HEAD
+=======
+>>>>>>> 191d517 (Remove Astro badge from README)
+>>>>>>> fb4b74e (Remove Astro badge from README)
 ```sh
 git clone [https://github.com/your-username/owcs-wiki.git](https://github.com/your-username/owcs-wiki.git)
 cd owcs-wiki
