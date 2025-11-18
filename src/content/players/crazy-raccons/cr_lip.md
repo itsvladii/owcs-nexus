@@ -10,6 +10,7 @@ signatureHeroes:
   - 'Sombra'
   - 'Sojourn'
   - 'Widowmaker'
+featuredPovId: 'mfjYCtvLGDE'
 socials:
   twitter: 'https://twitter.com/socutelip'
   twitch: 'https://www.twitch.tv/owl_lip'

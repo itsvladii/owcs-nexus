@@ -16,16 +16,25 @@ export async function getStaticPaths() {
   const pages = await Promise.all(
     allPlayers.map(async (playerEntry) => {
       
-      // Fetch the POV URL *at build time*
-      const youtubeKey = import.meta.env.YOUTUBE_API_KEY;
-      const playerName = playerEntry.data.name;
-      const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg"; // Example: OW_Esports
-      
-      const mostRecentPovUrl = await fetchRecentPov(
-        playerName, 
-        POV_CHANNEL_ID, 
-        youtubeKey
-      );
+      let mostRecentPovUrl = null; 
+      if (playerEntry.data.featuredPovId) {
+        // 1. If a manual ID exists, use it!
+        // This is instant and costs 0 API quota.
+        mostRecentPovUrl = `https://www.youtube.com/embed/${playerEntry.data.featuredPovId}`;
+        console.log(`[POV] Using manual override for ${playerEntry.data.name}`);
+      } 
+      else {
+        // 2. If no manual ID, try to auto-fetch from YouTube
+        const youtubeKey = import.meta.env.YOUTUBE_API_KEY;
+        const playerName = playerEntry.data.name;
+        const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg"; 
+        
+        mostRecentPovUrl = await fetchRecentPov(
+          playerName, 
+          POV_CHANNEL_ID, 
+          youtubeKey
+        );
+      }
 
       // Find this player's team entry
       const teamEntry = allTeams.find(t => t.slug === playerEntry.data.team);
