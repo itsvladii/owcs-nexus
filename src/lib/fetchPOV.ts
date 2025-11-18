@@ -7,6 +7,13 @@ export async function fetchRecentPov(
   apiKey: string
 ): Promise<string | null> {
   
+  if (import.meta.env.DEV) {
+    console.log(`[DEV MODE] Skipping YouTube fetch for ${playerName}`);
+    // Optional: Return a hardcoded "placeholder" video if you want to test the UI
+    return "https://www.youtube.com/embed/dQw4w9WgXcQ"; 
+    //return null; 
+  }
+
   if (!apiKey) {
     console.warn("YouTube fetch skipped: YOUTUBE_API_KEY is not set.");
     return null;

@@ -1,68 +1,70 @@
 ---
-// Template per le pagine dei giocatori
-//TODO: sistemare in modo tale che la pagina del giocatore è statica per Vercel
+// src/pages/players/[...slug].astro
+// We've REMOVED 'export const prerender = false;'. This page is now STATIC.
 
-// --- 1. IMPORT ---
+// --- 1. ALL YOUR IMPORTS ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
-//import { fetchRecentPov } from '../../lib/fetchPOV';
+import { fetchRecentPov } from '../../lib/fetchPOV';
 
-// --- 2. DATA FETCHING DEI DATI DEL GIOCATORE SCELTO ---
+// --- 2. GETSTATICPATHS (This runs ONCE at build time) ---
 export async function getStaticPaths() {
   const allPlayers = await getCollection('players');
-  return allPlayers.map(player => ({
-    params: { slug: player.slug },
-    props: { player },
-  }));
+  const allTeams = await getCollection('teams');
 
-  const pages= await Promise.all(
-    allPlayers.map(async (player)=>{
-      POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg";
-      playerName=player.data.name;
-      y_key=import.meta.env.YOUTUBE_API_KEY
+  const pages = await Promise.all(
+    allPlayers.map(async (playerEntry) => {
+      
+      // Fetch the POV URL *at build time*
+      const youtubeKey = import.meta.env.YOUTUBE_API_KEY;
+      const playerName = playerEntry.data.name;
+      const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg"; // Example: OW_Esports
+      
+      const mostRecentPovUrl = await fetchRecentPov(
+        playerName, 
+        POV_CHANNEL_ID, 
+        youtubeKey
+      );
 
-      mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, y_Key);
+      // Find this player's team entry
+      const teamEntry = allTeams.find(t => t.slug === playerEntry.data.team);
 
       return {
-        params: { slug: player.slug }, // e.g., "team-falcons/proper"
+        params: { slug: playerEntry.slug }, // e.g., "team-falcons/proper"
         props: { 
-          player, 
-          team,
+          playerEntry, 
+          teamEntry,
           mostRecentPovUrl // Pass the fetched URL as a prop
         },
       };
     })
-  )
+  );
+
+  return pages;
 }
 
-// --- 3. DEFINIZIONE DI COSTANTI ---
-const { player } = Astro.props;
-const team = await getEntry('teams', player.data.team); //per il nome della squadra attuale del giocatore
-const { Content } = await player.render();
-const allTeams = await getCollection('teams'); // per la linea temporale del giocatore
+// --- 3. GET DATA FROM PROPS ---
+const { playerEntry, teamEntry, mostRecentPovUrl } = Astro.props;
 
-// URL per i PNG della pagina (eroi giocati, logo squadra, bandiera paese, immagine giocatore)
-const headshotUrl = player.data.headshot
-  ? player.data.headshot.replace('/upload/', '/upload/e_background_removal,w_1000,c_fit,f_auto,q_auto:best/')
+// --- 4. GET DATA NEEDED BY THE PAGE ---
+const allTeams = await getCollection('teams'); // For the career timeline logo lookup
+const { Content } = await playerEntry.render(); // Get the markdown body
+
+// --- 5. PREPARE ALL URLS (Cloudinary) ---
+const headshotUrl = playerEntry.data.headshot
+  ? playerEntry.data.headshot.replace('/upload/', '/upload/e_background_removal,w_1000,c_fit,f_auto,q_auto:best/')
   : null;
 
-const teamLogoUrl = team?.data.logo
-  ? team.data.logo.replace('/upload/', '/upload/w_100,h_100,c_pad,f_auto,q_auto/')
+const teamLogoUrl = teamEntry?.data.logo
+  ? teamEntry.data.logo.replace('/upload/', '/upload/w_100,h_100,c_pad,f_auto,q_auto/')
   : null;
 
-const cloudinaryBaseUrl = player.data.headshot
-  ? player.data.headshot.split('/upload/')[0] + '/upload'
+const cloudinaryBaseUrl = playerEntry.data.headshot
+  ? playerEntry.data.headshot.split('/upload/')[0] + '/upload'
   : null;
 
-
-const youtubeKey = import.meta.env.YOUTUBE_API_KEY;
-const playerName = player.data.name;
-
-/*const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg";
-const mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, youtubeKey);*/
 ---
-
-<BaseLayout title={player.data.name}>
+<BaseLayout title={playerEntry.data.name}>
   <div class="max-w-5xl mx-auto">
 
     <div class="
@@ -71,50 +73,50 @@ const mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, youtub
       md:flex-row md:h-[500px] /* Desktop: Side-by-side with fixed height */
     ">
       
-      {player.data.flagUrl && (
+      {playerEntry.data.flagUrl && (
         <img 
-          src={player.data.flagUrl} 
-          alt={player.data.country}
+          src={playerEntry.data.flagUrl} 
+          alt={playerEntry.data.country}
           class="absolute inset-0 w-full h-full object-cover opacity-10"
         />
       )}
 
       <div class="
         relative z-20 p-6 
-        md:p-12 md:w-1/2 md:flex-shrink-0 /* Desktop: takes left half */
-        order-1 /* Mobile: Appears first */
+        md:p-12 md:w-1/2 md:flex-shrink-0
+        order-1
       ">
         
-        {team && (
-          <a href={`/teams/${team.slug}/`} class="flex items-center group mb-4">
+        {teamEntry && (
+          <a href={`/teams/${teamEntry.slug}/`} class="flex items-center group mb-4">
             {teamLogoUrl && (
-              <img src={teamLogoUrl} alt={team.data.name} class="w-12 h-12 object-contain mr-3" />
+              <img src={teamLogoUrl} alt={teamEntry.data.name} class="w-12 h-12 object-contain mr-3" />
             )}
             <span class="text-xl text-gray-300 group-hover:underline font-title">
-              {team.data.name}
+              {teamEntry.data.name}
             </span>
           </a>
         )}
         
-        <h1 class="
-          text-6xl md:text-8xl /* Smaller font on mobile */
-          font-bold text-white font-title
-        " style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">
-          {player.data.name}
+        <h1 class="text-6xl md:text-8xl font-bold text-white font-title" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">
+          {playerEntry.data.name}
         </h1>
         
-        {player.data.fullName && (
-          <p class="text-2xl md:text-3xl text-gray-300">{player.data.fullName}</p>
+        {playerEntry.data.fullName && (
+          <p class="text-2xl md:text-3xl text-gray-300">{playerEntry.data.fullName}</p>
         )}
         
-        <p class="text-3xl md:text-4xl font-bold mt-2">
-          {player.data.role}
+        <p class="text-3xl md:text-4xl font-bold mt-2
+          ${playerEntry.data.role === 'Tank' && 'text-blue-400'}
+          ${playerEntry.data.role === 'Damage' && 'text-red-400'}
+          ${playerEntry.data.role === 'Support' && 'text-green-400'}
+        ">
+          {playerEntry.data.role}
         </p>
 
-        {/*DIV DELL'IMMAGINE DEGLI EROI PIU GIOCATI */}
-        {player.data.signatureHeroes && player.data.signatureHeroes.length > 0 && (
+        {playerEntry.data.signatureHeroes && playerEntry.data.signatureHeroes.length > 0 && (
           <div class="flex flex-wrap gap-3 mt-6">
-            {cloudinaryBaseUrl && player.data.signatureHeroes.map(heroFilename => {
+            {cloudinaryBaseUrl && playerEntry.data.signatureHeroes.map(heroFilename => {
               const heroIconUrl = `${cloudinaryBaseUrl}/f_auto,q_auto:best/v1762938909/${heroFilename.toLowerCase()}.png`;
               const cleanHeroName = heroFilename.split('_')[0];
               return (
@@ -133,53 +135,63 @@ const mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, youtub
         )}
       </div>
 
-      {/*DIV DELL'IMMAGINE DEL GIOCATORE */}
       <div class="
         relative z-10 
-        order-2 
-        md:absolute md:inset-0 md:pointer-events-none 
+        order-2
+        md:absolute md:inset-0 md:pointer-events-none
       ">
         {headshotUrl && (
           <img 
             src={headshotUrl} 
-            alt={player.data.name}
+            alt={playerEntry.data.name}
             class="
-              block w-full max-w-sm mx-auto /* Mobile: Centered, smaller */
-              md:absolute md:bottom-0 md:-right-16 md:h-full md:max-h-[500px] md:w-auto md:object-contain md:max-w-none /* Desktop: Original styles */
+              block w-full max-w-sm mx-auto
+              md:absolute md:bottom-0 md:-right-16 md:h-full md:max-h-[500px] md:w-auto md:object-contain md:max-w-none
             "
           />
         )}
       </div>
     </div>
     
-    {/*DIV DELLA DESCRIZIONE DEL GIOCATORE */}
     <div class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-      <h2 class="font-title text-3xl">About {player.data.name}</h2>
+      <h2 class="font-title text-3xl">About {playerEntry.data.name}</h2>
       <Content />
     </div>
 
-    {/*DIV DELLA LINEA TEMPORALE DEL GIOCATORE */}
-    {player.data.career && player.data.career.length > 0 && (
+    {playerEntry.data.career && playerEntry.data.career.length > 0 && (
       <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
         <h2 class="font-title text-3xl text-white mb-6">Career Timeline</h2>
         <div class="relative">
           <div class="absolute left-5 top-0 w-0.5 h-full bg-neutral-700" aria-hidden="true"></div>
           <div class="relative flex flex-col gap-8">
-            {player.data.career.map(entry => {
+            {playerEntry.data.career.slice().reverse().map(entry => {
               const foundTeam = allTeams.find(t => t.data.name === entry.team);
               const isCurrent = entry.date.includes('Present');
+              
+              let logoUrl = null;
+              if (foundTeam) {
+                logoUrl = foundTeam.data.logo.replace('/upload/', '/upload/w_24,h_24,c_pad,f_auto,q_auto:best/');
+              } else if (entry.logo) {
+                logoUrl = entry.logo.replace('/upload/', '/upload/w_24,h_24,c_pad,f_auto,q_auto:best/');
+              }
+              const teamUrl = foundTeam ? `/teams/${foundTeam.slug}/` : null;
+
               return (
                 <div class="relative pl-12">
                   <div class={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-4 border-neutral-900 ${isCurrent ? 'bg-green-500 scale-110' : 'bg-amber-500'}`}></div>
                   <p class={`text-sm ${isCurrent ? 'text-green-400 font-bold' : 'text-gray-400'}`}>{entry.date}</p>
-                  {foundTeam ? (
-                    <a href={`/teams/${foundTeam.slug}/`} class="flex items-center gap-2 group">
-                      <img src={foundTeam.data.logo.replace('/upload/', '/upload/c_pad,f_auto,q_auto:best/')} alt={foundTeam.data.name} class="w-7 h-7 object-contain"/>
-                      <h3 class="text-xl font-bold text-white group-hover:underline">{entry.team}</h3>
-                    </a>
-                  ) : (
-                    <h3 class="text-xl font-bold text-white">{entry.team}</h3>
-                  )}
+                  
+                  <div class="flex items-center gap-2">
+                    {logoUrl && (
+                      <img src={logoUrl} alt={entry.team} class="w-6 h-6 object-contain rounded-full bg-neutral-800"/>
+                    )}
+                    {teamUrl ? (
+                      <a href={teamUrl}><h3 class="text-xl font-bold text-white hover:underline">{entry.team}</h3></a>
+                    ) : (
+                      <h3 class="text-xl font-bold text-white">{entry.team}</h3>
+                    )}
+                  </div>
+                  
                   {entry.notes && (
                     <ul class="list-none pl-0 mt-1">
                       {entry.notes.map(note => <li class="text-md text-gray-300">{note}</li>)}
@@ -193,14 +205,13 @@ const mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, youtub
       </div>
     )}
 
-    {/*{mostRecentPovUrl && (
+    {mostRecentPovUrl && (
       <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-        <h2 class="font-title text-3xl text-white mb-6">Most Recent POV</h2>
+        <h2 class="font-title text-3xl text-white mb-6">Most Recent POV (Courtesy of ObsSojourn!)</h2>
         <div class="relative w-full" style="padding-bottom: 56.25%;">
           <iframe 
             src={mostRecentPovUrl}
             title={`Recent POV for ${playerEntry.data.name}`}
-            frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen
             class="absolute top-0 left-0 w-full h-full rounded-lg"
@@ -208,25 +219,26 @@ const mostRecentPovUrl = await fetchRecentPov(playerName, POV_CHANNEL_ID, youtub
         </div>
       </div>
     )}
-    )}*/}
 
-    {/*DIV DEI SOCIAL DEL GIOCATORE */}
-    {player.data.socials && (
+    {playerEntry.data.socials && (
       <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
         <h2 class="font-title text-3xl text-white mb-6">Follow</h2>
         <div class="flex flex-wrap gap-4">
-          {player.data.socials.twitter && (
-            <a href={player.data.socials.twitter} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-blue-400">
-              
+          
+          {playerEntry.data.socials.twitter && (
+            <a href={playerEntry.data.socials.twitter} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-blue-400">
               <span class="font-bold text-white">Twitter / X</span>
             </a>
           )}
-          {player.data.socials.twitch && (
-            <a href={player.data.socials.twitch} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-purple-400">
-             
+          
+          {playerEntry.data.socials.twitch && (
+            <a href={playerEntry.data.socials.twitch} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-purple-400">
               <span class="font-bold text-white">Twitch</span>
             </a>
           )}
+          
+          {/* Add other socials like YouTube here if you have them in your schema */}
+
         </div>
       </div>
     )}
