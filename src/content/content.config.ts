@@ -20,7 +20,7 @@ const playerSchema=z.object({
     flagUrl: z.string().url().optional(), // URL to a flag image (e.g., from Cloudinary)
     
     signatureHeroes:z.array(z.string()).optional(),
-    featuredPovId: z.string().optional(), //POV piu nuovo in caso in cui l'auto-fetch non dia risultati sperati
+    //featuredPovId: z.string().optional(), //POV piu nuovo in caso in cui l'auto-fetch non dia risultati sperati
 
     socials:z.object({
         twitter: z.string().url().optional(),
