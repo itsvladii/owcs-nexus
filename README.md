@@ -48,7 +48,7 @@ npm run dev
 ```
 If you want to test it on multiple devices, just add the "-- --host" flags on the command!
 
-##⚖️ Disclaimer
+## ⚖️ Disclaimer
 
 OWCS Wiki is an unofficial fan project. This site is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment or the OWCS.
 
