@@ -4,6 +4,7 @@ export const prerender = false;
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const allTeams = await getCollection("teams");
 const teamsByRegion = allTeams.reduce((acc, team) => {
@@ -39,6 +40,7 @@ const heroClipUrls = heroClipIDs.map((id) => {
 ---
 
 <BaseLayout title="Home">
+  <SpeedInsights />
   <div class="max-w-7xl mx-auto px-4">
     <div
       class="relative h-[600px] w-full rounded-lg overflow-hidden
