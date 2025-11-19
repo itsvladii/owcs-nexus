@@ -62,6 +62,7 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
         src={teamPhotoUrl} 
         alt={`${teamEntry.data.name} Team Photo`} 
         class="w-full h-full object-cover object-top filter brightness-90 saturate-110"
+        loading="eager"
       />
 
       {/* 1. Dark Gradient Overlay (Top to Bottom) - Blends into page */}
@@ -178,7 +179,11 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
       }
     </div>
 
+    
     <div class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
+      <h2 class="font-title text-3xl text-white mb-6">
+      About {teamEntry.data.name}
+      </h2>
       <Content />
     </div>
 

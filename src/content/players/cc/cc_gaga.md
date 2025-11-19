@@ -1,5 +1,5 @@
 ---
-name: 'GA9A'
+name: 'GAGA'
 fullName: 'Qui Jiaxin'
 role: 'Tank'
 team: 'cc'
