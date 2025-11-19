@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import PlayerComparison from '../components/PlayerComparison.tsx';
+
+// Get all players and sort them alphabetically
+const allPlayers = (await getCollection('players')).sort((a, b) => 
+  a.data.name.localeCompare(b.data.name)
+);
+---
+
+<BaseLayout title="Compare Players">
+  <div class="max-w-6xl mx-auto px-4 py-12">
+    
+    <div class="text-center mb-12">
+      <h1 class="text-6xl font-title text-white mb-4">Player Comparison</h1>
+      <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
+        Compare careers, signature heroes, and trophy cabinets to see who really is the GOAT.
+      </p>
+    </div>
+    
+    
+    <PlayerComparison players={allPlayers} client:load />
+    <br>
+    <div class="text-center mb-12">
+    <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
+        DISCLAMER: This isn't a scientific way to mesure who's the better player and its made just for fun. Trophies don't tell the full story!
+      </p>
+      </div>
+  </div>
+</BaseLayout>

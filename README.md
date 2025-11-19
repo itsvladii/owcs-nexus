@@ -18,9 +18,10 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 * **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
 
 ## 📔 TODO list
-* - [] Coaching staff for all the teams
-* - [] Updated Player and Team Info
-* - [] Player and Team Comparison
+* [ ] Coaching staff for all the teams
+* [ ] Updated Player and Team Info
+* [ ] Player and Team Comparison
+* [ ] Team Power Rankings (a la LoL Esports)
 
 ## 🛠️ Tech Stack
 
