@@ -8,6 +8,7 @@ socials:
 achievements:
     - ''
 banner: 'https://live.staticflickr.com/65535/54694866558_11a8d88732_k.jpg'
+colour: '#7e3898'
 ---
 
 ## About Crazy Raccoons

@@ -11,6 +11,7 @@ achievements:
     - '🏆 1st Place - 2025 OWCS Japan Stage 2'
     - '🏆 1st Place - 2025 OWCS Japan Stage 1'
 banner: 'https://live.staticflickr.com/65535/54694648941_b812949091_k.jpg'
+colour: '#ffffff'
 ---
 
 ## About Crazy Raccoons

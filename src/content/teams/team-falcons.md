@@ -12,6 +12,7 @@ achievements:
     - '🏆 1st Place - 2025 OWCS Midseason Championship'
     - '🥈 2nd Place - 2025 OWCS Champions Clash'
 banner: 'https://live.staticflickr.com/65535/54697744067_7955ad8c07_k.jpg'
+colour: '#50be6d'
 ---
 
 ## About Team Falcons

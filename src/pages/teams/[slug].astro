@@ -39,6 +39,8 @@ const teamPhotoUrl = teamEntry.data.banner
   ? teamEntry.data.banner.replace('/upload/', '/upload/f_auto,q_auto:best,e_sharpen/')
   : null;
 
+const teamColor=teamEntry.data.colour;
+
 /* --- parametri per l'API (non usato, da rivedere l'utilizzo)
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const teamName = teamEntry.data.name;
@@ -50,12 +52,8 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
 
   <div class="max-w-5xl mx-auto">
     {/*DIV CON LOGO E NOME DEL TEAM */}
-{/* ==============================================
-  ENHANCED TEAM HERO BANNER
-  ==============================================
-  */}
   {teamPhotoUrl && (
-    <div class="relative w-full h-[450px] sm:h-[500px] overflow-hidden -mt-[64px] mb-8"> {/* Adjusted height and negative margin to pull it up under the header */}
+    <div class="relative w-full h-[450px] sm:h-[500px] overflow-hidden -mt-[64px] mb-8" > {/* Adjusted height and negative margin to pull it up under the header */}
       
       {/* Background Image */}
       <img 
@@ -102,81 +100,96 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
   )}
 
     {/*ROSTER E GIOCATORI*/}
-    <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">
-      Active Roster
-    </h2>
+    {/* ==============================================
+    REHAULED "ACTIVE ROSTER" SECTION (Corrected)
+    ==============================================
+    */}
+    <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">Active Roster</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {
-        roster.map((player) => {
-          // 1. Get the headshot URL
-          // We'll use 'object-contain', so a high-res, 'fit' image is best.
-          const headshotUrl = player.data.headshot
-            ? player.data.headshot.replace(
-                "/upload/",
-                "/upload/w_600,c_fit,b_transparent,f_auto,q_auto:best/",
-              )
-            : null;
+      {roster.map((player) => {
+        
+        const headshotUrl = player.data.headshot
+          ? player.data.headshot.replace('/upload/', '/upload/w_600,c_fit,b_transparent,f_auto,q_auto:best/')
+          : null;
 
-          return (
-            <a
-              href={`/players/${player.slug}/`}
-              class="
-              relative block h-80 w-full /* Set a fixed height */
-              rounded-lg 
-              border border-neutral-800 
-              transition-all duration-300 
-              hover:border-amber-500/50 hover:scale-[1.02]
+        return (
+          <a 
+            href={`/players/${player.slug}/`} 
+            class="
+              relative block h-80 w-full
+              bg-neutral-900/80 backdrop-blur-sm rounded-lg 
+              border 
+              transition-all duration-500 ease-out
               shadow-lg overflow-hidden group
             "
+            style={`
+              border-color: ${teamColor}33; 
+              --hover-border: ${teamColor};
+              --hover-shadow: 0 0 20px ${teamColor}40;
+            `}
+          >
+            {/* We use a local <style> here to handle the hover state 
+               using the CSS variables we defined above.
+            */}
+            <style>
+              a:hover {
+                border-color: var(--hover-border) !important;
+                box-shadow: var(--hover-shadow) !important;
+                transform: translateY(-4px);
+              }
+            </style>
+
+            {/* 1. The Angled Frame */}
+            <div 
+              class="
+                absolute inset-0 h-full w-full 
+                overflow-hidden -skew-y-3 
+                bg-neutral-800/30
+              "
+              style={`box-shadow: 0 0 0 1px ${teamColor}1a;`} 
             >
-              {/* 1. The Angled Frame (holds the image) */}
-              <div
-                class="
-              absolute inset-0 h-full w-full 
-              overflow-hidden -skew-y-3 
-              bg-neutral-800/50
-              shadow-[0_0_0_1px_rgba(245,158,11,0.2)]
-            "
-              >
-                {headshotUrl ? (
-                  <img
-                    src={headshotUrl}
-                    alt={player.data.name}
-                    class="
+              {headshotUrl ? (
+                <img 
+                  src={headshotUrl}
+                  alt={player.data.name}
+                  class="
                     relative w-full h-full 
-                    object-contain object-top /* Use 'object-contain' */
-                    skew-y-3 /* Un-skew the image */
-                    transition-transform duration-300
+                    object-contain object-top 
+                    skew-y-3 
+                    transition-transform duration-500
                     group-hover:scale-105
                   "
-                    width="600"
-                    height="600"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="h-full w-full skew-y-3" />
-                )}
-              </div>
+                  width="400"
+                  height="400"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="h-full w-full skew-y-3"></div>
+              )}
+            </div>
+            
+            {/* 2. Gradient */}
+            <div class="
+              absolute bottom-0 left-0 right-0 h-2/3 
+              bg-gradient-to-t from-neutral-950 via-neutral-900/80 to-transparent
+            "></div>
 
-              {/* 2. Dark Gradient Overlay (for text) */}
-              <div
-                class="
-              absolute bottom-0 left-0 right-0 h-1/2 
-              bg-gradient-to-t from-black/90 via-black/70 to-transparent
-            "
-              />
-
-              {/* 3. Player Info (at the bottom) */}
-              <div class="absolute bottom-0 left-0 right-0 p-4">
-                <h3 class="text-3xl font-bold text-white font-title">
-                  {player.data.name}
-                </h3>
-                <p class="text-xl text-yellow-400">{player.data.role}</p>
-              </div>
-            </a>
-          );
-        })
-      }
+            {/* 3. Player Info */}
+            <div class="absolute bottom-0 left-0 right-0 p-4">
+              <h3 class="text-3xl font-bold text-white font-title tracking-wide group-hover:text-white transition-colors duration-300">
+                {player.data.name}
+              </h3>
+              
+              <p 
+                class="text-xl font-bold opacity-90 group-hover:opacity-100 transition-opacity"
+                style={`color: ${teamColor};`}
+              >
+                {player.data.role}
+              </p>
+            </div>
+          </a>
+        );
+      })}
     </div>
 
     

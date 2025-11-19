@@ -10,6 +10,7 @@ achievements:
     - '🥈 2nd Place - 2025 OWCS Korea Stage 1'
     - '🥈 2nd Place - 2024 OWCS Korea Stage 2'
 banner: 'https://live.staticflickr.com/65535/53888288226_5548a030dd_k.jpg'
+colour: '#E7FC5F'
 ---
 
 ## About Crazy Raccoons

@@ -49,7 +49,8 @@ const teamSchema=z.object({
     website: z.string().url().optional(),
     }).optional(),
     achievements: z.array(z.string()).optional(),
-    banner:z.string().url().optional()
+    banner:z.string().url().optional(),
+    colour: z.string().optional()
 })
 
 //rendo questi schema visibili

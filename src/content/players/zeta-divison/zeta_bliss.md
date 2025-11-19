@@ -1,7 +1,7 @@
 ---
 name: 'Bliss'
 fullName: 'Kim So-myung'
-role: 'Felx Support'
+role: 'Flex Support'
 team: 'zeta-division'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1762959891/zeta_bliss_p1_uifmpe.png'
 country: "South Korea"
