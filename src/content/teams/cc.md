@@ -7,6 +7,7 @@ socials:
     website: 'https://weibo.com/8000059901'
 achievements:
     - ''
+banner: 'https://live.staticflickr.com/65535/54694866558_11a8d88732_k.jpg'
 ---
 
 ## About Crazy Raccoons

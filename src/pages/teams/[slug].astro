@@ -35,6 +35,9 @@ const namecardUrl = `${cloudinaryBaseUrl}/f_auto,q_auto,w_1024/${namecardFilenam
 //--- GENERAZIONE DEI QUIZ DEI TEAM ---
 //creo le domande, basandosi sulle informazioni del team
 const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTeams);
+const teamPhotoUrl = teamEntry.data.banner
+  ? teamEntry.data.banner.replace('/upload/', '/upload/f_auto,q_auto:best,e_sharpen/')
+  : null;
 
 /* --- parametri per l'API (non usato, da rivedere l'utilizzo)
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
@@ -47,38 +50,55 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
 
   <div class="max-w-5xl mx-auto">
     {/*DIV CON LOGO E NOME DEL TEAM */}
-    {
-      namecardUrl && (
-        <div
-          class="relative overflow-hidden rounded-lg shadow-xl h-48 md:h-56 bg-neutral-800 bg-cover bg-center"
-          style={`background-image: url(${namecardUrl})`}
-        >
-          <div class="absolute inset-0 flex items-center p-6 md:p-10 bg-black/20">
-            {logoUrl && (
-              <img
-                src={logoUrl}
-                alt={`${teamEntry.data.name} Logo`}
-                class="w-24 h-24 md:w-32 md:h-32 object-contain flex-shrink-0 border-white/10"
-              />
-            )}
-            <div class="ml-4 md:ml-6">
-              <p
-                class="text-xl md:text-2xl font-bold text-white"
-                style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);"
-              >
-                {teamEntry.data.region}
-              </p>
-              <h1
-                class="text-4xl md:text-6xl font-bold text-white font-title"
-                style="text-shadow: 2px 2px 6px rgba(0,0,0,0.8);"
-              >
-                {teamEntry.data.name}
-              </h1>
-            </div>
-          </div>
+{/* ==============================================
+  ENHANCED TEAM HERO BANNER
+  ==============================================
+  */}
+  {teamPhotoUrl && (
+    <div class="relative w-full h-[450px] sm:h-[500px] overflow-hidden -mt-[64px] mb-8"> {/* Adjusted height and negative margin to pull it up under the header */}
+      
+      {/* Background Image */}
+      <img 
+        src={teamPhotoUrl} 
+        alt={`${teamEntry.data.name} Team Photo`} 
+        class="w-full h-full object-cover object-top filter brightness-90 saturate-110"
+      />
+
+      {/* 1. Dark Gradient Overlay (Top to Bottom) - Blends into page */}
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20"></div>
+
+      {/* 2. Optional: Subtle Vignette Effect (Darken edges) */}
+      <div class="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]"></div>
+
+      {/* Content Overlay (Text and Logo) */}
+      <div class="absolute inset-0 flex flex-col justify-end p-8 pb-12 sm:p-12 sm:pb-16 lg:p-16 lg:pb-20">
+        
+        <div class="max-w-7xl mx-auto w-full"> {/* To align content with your main container */}
+          
+          {/* Team Logo (Adjust positioning as needed) */}
+          {teamEntry.data.logo && (
+            <img 
+              src={teamEntry.data.logo.replace('/upload/', '/upload/w_150,f_auto,q_auto/') } 
+              alt={`${teamEntry.data.name} Logo`}
+              class="w-24 h-24 sm:w-32 sm:h-32 object-contain mb-4 drop-shadow-lg"
+              loading="eager"
+            />
+          )}
+
+          {/* Region */}
+          <p class="text-neutral-300 text-lg sm:text-xl font-semibold drop-shadow-md">
+            {teamEntry.data.region}
+          </p>
+          
+          {/* Team Name */}
+          <h1 class="font-title text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight mt-2 drop-shadow-lg">
+            {teamEntry.data.name}
+          </h1>
         </div>
-      )
-    }
+
+      </div>
+    </div>
+  )}
 
     {/*ROSTER E GIOCATORI*/}
     <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">

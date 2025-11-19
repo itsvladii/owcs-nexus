@@ -9,6 +9,7 @@ achievements:
     - '🏆 1st Place - 2025 OWCS EMEA Stage 1'
     - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
     - '🥈 2nd Place - 2024 SOOP Cup 2025 Season 1 - Korea'
+banner: 'https://live.staticflickr.com/65535/54696388466_cd841b0a15_k.jpg'
 ---
 
 ## About Virtus Pro

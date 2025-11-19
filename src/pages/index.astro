@@ -116,57 +116,87 @@ const heroClipUrls = heroClipIDs.map((id) => {
       </div>
     </div>
 
-    <h2
-      id="featured-teams"
-      class="text-4xl font-bold text-white mb-8 font-title"
-    >
-      All Featured Teams
+    <h2 id="featured-teams" class="text-5xl font-bold text-white mb-12 font-title text-center tracking-wide">
+      ALL FEATURED TEAMS
     </h2>
-
-    {/* We use Object.entries to loop over our new 'teamsByRegion' object */}
-    {
-      Object.entries(teamsByRegion).map(([region, teamsInRegion]) => (
-        <div class="mb-12">
-          {/* 1. Add a heading for the region */}
-          <h3 class="text-3xl font-bold text-white mb-6 font-title text-left">
-            {region}
-          </h3>
-
-          {/* 2. Create a grid *just* for this region's teams */}
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {teamsInRegion.map((team) => {
+    
+    <div class="space-y-16"> {/* Spacing between regions */}
+      
+      {Object.entries(teamsByRegion).map(([region, teamsInRegion]) => (
+        <div class="relative">
+          
+          {/* 1. Stylish Region Header with a Line */}
+          <div class="flex items-center gap-4 mb-6">
+            <h3 class="text-3xl font-bold text-amber-500 font-title uppercase tracking-wider">
+              {region}
+            </h3>
+            <div class="h-px bg-gradient-to-r from-amber-500/50 to-transparent flex-1"></div>
+          </div>
+          
+          {/* 2. The Grid */}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {teamsInRegion.map(team => {
               const logoUrl = team.data.logo
-                ? team.data.logo.replace(
-                    "/upload/",
-                    "/upload/w_200,h_200,c_pad,f_auto,q_auto/",
-                  )
+                ? team.data.logo.replace('/upload/', '/upload/w_300,h_300,c_pad,f_auto,q_auto/')
                 : null;
-
+              
               return (
-                <a
-                  href={`/teams/${team.slug}/`}
-                  class="bg-neutral-900 rounded-lg p-6 border border-gray-800 transition-all duration-300 hover:border-gray-700 hover:scale-105 flex flex-col justify-center items-center h-48"
+                <a 
+                  href={`/teams/${team.slug}/`} 
+                  class="
+                    group relative block 
+                    bg-neutral-900/80 backdrop-blur-sm
+                    border border-neutral-800 
+                    rounded-xl overflow-hidden
+                    transition-all duration-300
+                    hover:border-amber-500/50 hover:-translate-y-1 hover:shadow-[0_0_30px_-10px_rgba(245,158,11,0.3)]
+                  "
                 >
-                  {logoUrl && (
-                    <img
-                      src={logoUrl}
-                      alt={`${team.data.name} Logo`}
-                      class="w-24 h-24 object-contain"
-                      width="200"
-                      height="200"
-                      loading="lazy"
-                    />
-                  )}
-                  <h3 class="text-xl font-semibold text-white mt-4">
-                    {team.data.name}
-                  </h3>
+                  {/* Hover Gradient Background */}
+                  <div class="
+                    absolute inset-0 
+                    bg-gradient-to-t from-amber-900/20 to-transparent 
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                  "></div>
+
+                  <div class="relative z-10 p-8 flex flex-col items-center">
+                    
+                    {/* Logo with Glow Effect */}
+                    <div class="relative mb-6">
+                      {/* Glow behind logo */}
+                      <div class="absolute inset-0 bg-white/10 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
+                      
+                      {logoUrl && (
+                        <img 
+                          src={logoUrl} 
+                          alt={`${team.data.name} Logo`}
+                          class="
+                            w-32 h-32 object-contain relative z-10 
+                            drop-shadow-lg 
+                            transition-transform duration-300 group-hover:scale-110
+                          "
+                          loading="lazy"
+                        />
+                      )}
+                    </div>
+
+                    {/* Team Name */}
+                    <h3 class="text-3xl font-bold text-white font-title tracking-wide group-hover:text-amber-400 transition-colors">
+                      {team.data.name}
+                    </h3>
+                    
+                    {/* Optional: 'View Team' text that appears on hover */}
+                    <p class="text-sm text-neutral-500 mt-2 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                      View Roster &rarr;
+                    </p>
+                  </div>
                 </a>
               );
             })}
           </div>
         </div>
-      ))
-    }
+      ))}
+    </div>
   </div>
 </BaseLayout>
 
