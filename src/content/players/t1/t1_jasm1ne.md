@@ -3,7 +3,7 @@ name: 'Jasm1ne'
 fullName: 'Jeong Jong-min'
 role: 'Tank'
 team: 't1'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/AGG/agg_jasmine_p1.png'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/t1_jasmine_p1.png'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:
