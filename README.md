@@ -17,6 +17,11 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 * **Interactive Player List:** A React "island" that lets users instantly search and filter all players by name, role, and team.
 * **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
 
+## 📔 TODO list
+* - [] Coaching staff for all the teams
+* - [] Updated Player and Team Info
+* - [] Player and Team Comparison
+
 ## 🛠️ Tech Stack
 
 * **Framework:** [Astro](https://astro.build/)
