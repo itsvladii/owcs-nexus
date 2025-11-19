@@ -129,7 +129,7 @@ export default function PlayerComparison({ players }: Props) {
                    {p.data.flagUrl && (
                      <img 
                        src={p.data.flagUrl} 
-                       className="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-neutral-900 shadow-md"
+                       className="absolute bottom-2 right-2 w-20 h-20 md:w-12 md:h-12 rounded-full border-4 border-neutral-900 shadow-md flex-shrink-0"
                        title={p.data.country}
                      />
                    )}
