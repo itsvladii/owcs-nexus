@@ -18,7 +18,7 @@ career:
   - date: '2025-Present'
     team: 'T1'
     notes: 
-      - '🏆 Won Soop Overwatch Cup 2025 Season 1 - Korea'
+      - ''
   - date: '2025'
     team: 'WAY'
     notes: 
