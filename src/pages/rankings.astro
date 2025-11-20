@@ -1,5 +1,4 @@
 ---
-export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { fetchAllSeasonMatches } from "../lib/fetchMatches";
 import { calculateRankings } from "../lib/calcELO";
@@ -10,7 +9,7 @@ const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (your-email@example.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
 const { rankings, stats } = calculateRankings(matches);
-
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate');
 // 2. Get Local Data (Partner info & Logos)
 const allTeams = await getCollection("teams");
 
