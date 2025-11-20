@@ -11,15 +11,12 @@ const allPlayers = (await getCollection('players')).sort((a, b) =>
 
 <BaseLayout title="Compare Players">
   <div class="max-w-6xl mx-auto px-4 py-12">
-    
     <div class="text-center mb-12">
       <h1 class="text-6xl font-title text-white mb-4">Player Comparison</h1>
       <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
         Compare careers, signature heroes, and trophy cabinets to see who really is the GOAT.
       </p>
     </div>
-    
-    
     <PlayerComparison players={allPlayers} client:load />
     <br>
     <div class="text-center mb-12">
