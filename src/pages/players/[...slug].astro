@@ -180,7 +180,7 @@ const cloudinaryBaseUrl = playerEntry.data.headshot
               
               let logoUrl = null;
               if (foundTeam) {
-                logoUrl = foundTeam.data.logo.replace('/upload/', '/upload/w_24,h_24,c_pad,f_auto,q_auto:best/');
+                logoUrl = foundTeam.data.logo.replace('/upload/', '/upload/w_60,h_60,c_pad,f_auto,q_auto:best/');
               } else if (entry.logo) {
                 logoUrl = entry.logo.replace('/upload/', '/upload/w_24,h_24,c_pad,f_auto,q_auto:best/');
               }
@@ -193,7 +193,7 @@ const cloudinaryBaseUrl = playerEntry.data.headshot
                   
                   <div class="flex items-center gap-2">
                     {logoUrl && (
-                      <img src={logoUrl} alt={entry.team} class="w-6 h-6 object-contain rounded-full bg-neutral-800"/>
+                      <img src={logoUrl} alt={entry.team} class="w-6 h-6"/>
                     )}
                     {teamUrl ? (
                       <a href={teamUrl}><h3 class="text-xl font-bold text-white hover:underline">{entry.team}</h3></a>

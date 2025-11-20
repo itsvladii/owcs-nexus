@@ -13,6 +13,36 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/Jasm1ne_ow'
   twitch: 'https://www.twitch.tv/ow_jasm1ne'
+
+career:
+  - date: '2025-Present'
+    team: 'T1'
+    notes: 
+      - '🏆 Won Soop Overwatch Cup 2025 Season 1 - Korea'
+  - date: '2025'
+    team: 'WAY'
+    notes: 
+      - ''
+  - date: '2024-2025'
+    team: 'Poker Face'
+    notes: 
+      - ''
+  - date: '2023'
+    team: 'SLT/Team Diamond/Panthera/Dreamers'
+    notes: 
+      - ''
+  - date: '2021-2022'
+    team: 'Gen.G'
+    notes: 
+      - ''
+  - date: '2021'
+    team: 'tiger nation'
+    notes: 
+      - ''
+  - date: '2020-2021'
+    team: '200ms'
+    notes: 
+      - ''
 ---
 
 ## About Proper
