@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 
 // --- Types ---
 interface CareerEntry {
@@ -25,46 +25,55 @@ interface Props {
 
 // --- Helpers ---
 
-// 1. Categorize Trophies
-// We define keywords that elevate a trophy to "Major" status
+// Keywords for "Major" Team Titles
 const MAJOR_KEYWORDS = [
   "World Finals",
   "Grand Finals",
   "Midseason",
   "Major",
   "Esports World Cup",
-  "Overwatch League 20" // Matches "Overwatch League 2022", etc.
+  "Overwatch League 20"
 ];
 
-function getTrophies(career: CareerEntry[] | undefined) {
-  if (!career) return { major: [], minor: [] };
-  
-  const major: string[] = [];
-  const minor: string[] = [];
+// New Helper: Sort accolades into 3 buckets
+function getAccolades(career: CareerEntry[] | undefined) {
+  const accolades = {
+    majorTeam: [] as string[],
+    individual: [] as string[],
+    minorTeam: [] as string[]
+  };
+
+  if (!career) return accolades;
 
   career.forEach(entry => {
     if (entry.notes) {
       entry.notes.forEach(note => {
+        
+        // 1. Check for Individual Awards (⭐, 🚀, 🎯)
+        
+        // 2. Check for Team Trophies (🏆)
         if (note.includes('🏆')) {
-          // Clean the text
-          const cleanName = note.replace('🏆', '').replace(/^ Won /, '').trim();
+          const cleanText = note.replace('🏆', '').replace(/^ Won /, '').trim();
           
-          // Check if it's a Major
-          const isMajor = MAJOR_KEYWORDS.some(keyword => cleanName.includes(keyword));
-          
-          if (isMajor) {
-            major.push(cleanName);
+          // Split into Major vs Minor
+          if (MAJOR_KEYWORDS.some(k => cleanText.includes(k))) {
+            accolades.majorTeam.push(cleanText);
           } else {
-            minor.push(cleanName);
+            accolades.minorTeam.push(cleanText);
           }
         }
+        else if (note.match(/[⭐🌏🚀🎯🛡️💊]/)) {
+          // Clean text: remove emojis and trim
+          const cleanText = note.replace(/[⭐🚀🎯🛡️💊]/g, '').trim();
+          accolades.individual.push(cleanText);
+        } 
       });
     }
   });
-  return { major, minor };
+
+  return accolades;
 }
 
-// 2. Calculate Years Active (Unchanged)
 function getYearsActive(career: CareerEntry[] | undefined) {
   if (!career || career.length === 0) return "Rookie";
   const lastEntry = career[career.length - 1]; 
@@ -80,10 +89,11 @@ export default function PlayerComparison({ players }: Props) {
   const p1 = players.find(p => p.slug === leftId);
   const p2 = players.find(p => p.slug === rightId);
 
+  // Cloudinary Helpers
   const getHeadshot = (url?: string) => 
     url ? url.replace('/upload/', '/upload/w_400,h_400,c_fill,g_face,f_auto,q_auto/') : null;
 
-  const getHeroIcon = (url?: string, heroName: string) => {
+  const getHeroIcon = ( heroName: string,url?: string) => {
     if (!url) return null;
     const base = url.split('/upload/')[0] + '/upload';
     return `${base}/f_auto,q_auto:best/v1762938909/${heroName.toLowerCase()}.png`;
@@ -94,9 +104,8 @@ export default function PlayerComparison({ players }: Props) {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl">
       
-      {/* --- HEADER / CONTROLS --- */}
+      {/* --- HEADER (Unchanged) --- */}
       <div className="grid grid-cols-2 gap-4 p-6 border-b border-neutral-800 bg-neutral-950">
-        {/* (Same dropdown controls as before) */}
         <div className="relative">
           <label className="block text-xs text-neutral-500 uppercase font-bold mb-2">Player 1</label>
           <select 
@@ -122,59 +131,85 @@ export default function PlayerComparison({ players }: Props) {
       {/* --- THE FACE-OFF --- */}
       <div className="grid grid-cols-2 divide-x divide-neutral-800 relative">
         
-        {/* VS Badge */}
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+       <div className="absolute left-1/2 top-32 md:top-48 -translate-x-1/2 -translate-y-1/2 z-20">
           <div className="bg-amber-500 text-black font-title font-bold text-2xl px-4 py-2 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.5)] border-4 border-neutral-900 italic">
             VS
           </div>
         </div>
 
         {[p1, p2].map((p, i) => {
-          const { major, minor } = getTrophies(p.data.career);
+          const { majorTeam, individual, minorTeam } = getAccolades(p.data.career);
           const years = getYearsActive(p.data.career);
           
           return (
             <div key={i} className="p-4 md:p-8 flex flex-col items-center text-center">
               
-              {/* 1. HERO IMAGE & INFO */}
-              <div className="relative w-40 h-40 md:w-56 md:h-56 mb-6 group">
-                  {p.data.headshot && (
-                  <img 
-                    src={getHeadshot(p.data.headshot)} 
-                    className="w-full h-full rounded-full border-4 border-neutral-800 object-cover shadow-xl transition-transform duration-500 group-hover:scale-105 group-hover:border-amber-500/50"
-                  />
-                  )}
-                  {p.data.flagUrl && (
+              <div className="
+                relative w-full h-64 md:h-96 mb-6 
+                bg-neutral-800/30 rounded-xl overflow-hidden border border-neutral-800
+                shadow-lg group
+              ">
+                 {/* Angled Background */}
+                 <div className="absolute inset-0 overflow-hidden -skew-y-3 bg-neutral-800/50 transform scale-110 origin-top"></div>
+
+                 {p.data.flagUrl && (
                     <img 
                       src={p.data.flagUrl} 
-                      className="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-neutral-900 shadow-md object-cover flex-shrink-0"
-                      title={p.data.country}
+                      alt={p.data.country}
+                      className="absolute inset-0 w-full h-full object-cover opacity-30"
                     />
                   )}
+                 {/* Player Image */}
+                 {p.data.headshot && (
+                  <img 
+                    src={getHeadshot(p.data.headshot)} 
+                    className="
+                      absolute inset-0 w-full h-full 
+                      object-contain object-top pt-4 
+                      transition-transform duration-500 group-hover:scale-105
+                    "
+                  />
+                 )}
+
+                 {/* Gradient Overlay */}
+                 <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-neutral-950 via-neutral-900/80 to-transparent"></div>
+
+                 {/* Name & Role Overlay */}
+                 <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                    <h2 className="text-4xl md:text-5xl font-title text-white mb-1 drop-shadow-md">{p.data.name}</h2>
+                    <p className={`text-lg md:text-xl font-bold ${
+                      p.data.role === 'Tank' ? 'text-blue-400' : 
+                      p.data.role === 'Damage' ? 'text-red-400' : 'text-green-400'
+                    }`}>
+                      {p.data.role}
+                    </p>
+                 </div>
+
+                 {/* Country Flag Badge (Top Right) */}
+                 {p.data.flagUrl && (
+                   <img 
+                     src={p.data.flagUrl} 
+                     className="absolute top-3 right-3 w-8 h-8 rounded-full border-2 border-neutral-900/50 shadow-sm object-cover"
+                     title={p.data.country}
+                   />
+                 )}
               </div>
 
-              <h2 className="text-4xl md:text-5xl font-title text-white mb-1">{p.data.name}</h2>
-              <p className={`text-xl font-bold mb-8 ${
-                p.data.role === 'Tank' ? 'text-blue-400' : 
-                p.data.role === 'Damage' ? 'text-red-400' : 'text-green-400'
-              }`}>
-                {p.data.role}
-              </p>
-
               <div className="w-full space-y-6">
-                {/* Experience & Heroes (Same as before) */}
+                
+                {/* Stats Row (Career & Heroes) */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  <div className="bg-neutral-800/30 p-4 rounded-xl border border-neutral-800/50">
-                    <p className="text-xs text-neutral-500 uppercase tracking-wider font-bold mb-1">Career Span</p>
-                    <p className="text-lg text-white font-medium">{years}</p>
+                  <div className="bg-neutral-800/30 p-3 rounded-xl border border-neutral-800/50">
+                    <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-bold mb-1">Career Span</p>
+                    <p className="text-md md:text-lg text-white font-medium">{years}</p>
                   </div>
-                  <div className="bg-neutral-800/30 p-4 rounded-xl border border-neutral-800/50">
-                    <p className="text-xs text-neutral-500 uppercase tracking-wider font-bold mb-2">Signature Heroes</p>
+                  <div className="bg-neutral-800/30 p-3 rounded-xl border border-neutral-800/50">
+                    <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-bold mb-2">Signature</p>
                     <div className="flex justify-center gap-2">
                       {p.data.signatureHeroes?.map(hero => (
                         <img 
                           key={hero}
-                          src={getHeroIcon(p.data.headshot, hero)}
+                          src={getHeroIcon(hero,p.data.headshot)}
                           className="w-10 h-10 rounded bg-neutral-800 border border-neutral-700 p-0.5"
                           title={hero}
                         />
@@ -183,47 +218,55 @@ export default function PlayerComparison({ players }: Props) {
                   </div>
                 </div>
 
-                {/* --- NEW: SPLIT TROPHY CASE --- */}
-                
-                {/* 1. Major Titles (Gold) */}
+                {/* 1. MAJOR TITLES (Gold) */}
                 <div className={`
-                  p-5 rounded-xl border 
-                  ${major.length > 0 ? 'bg-amber-950/20 border-amber-900/30' : 'bg-neutral-800/30 border-neutral-800/50'}
+                  p-4 rounded-xl border 
+                  ${majorTeam.length > 0 ? 'bg-amber-950/20 border-amber-900/30' : 'bg-neutral-800/30 border-neutral-800/50'}
                 `}>
                   <p className="text-xs text-amber-500 uppercase tracking-wider font-bold mb-3 flex items-center justify-center gap-2">
-                    <span className="text-lg">🏆</span> Major Titles ({major.length})
+                    <span className="text-lg">🏆</span> Major Titles ({majorTeam.length})
                   </p>
-                  {major.length > 0 ? (
-                    <ul className="space-y-2">
-                      {major.map((t, idx) => (
-                        <li key={idx} className="text-white font-bold text-sm md:text-base">
-                          {t}
-                        </li>
+                  {majorTeam.length > 0 ? (
+                    <ul className="space-y-1">
+                      {majorTeam.map((t, idx) => (
+                        <li key={idx} className="text-white font-bold text-sm md:text-base">{t}</li>
                       ))}
                     </ul>
-                  ) : (
-                    <p className="text-neutral-600 italic text-sm">None yet</p>
-                  )}
+                  ) : <p className="text-neutral-600 italic text-sm">None</p>}
                 </div>
 
-                {/* 2. Regional & Other (Silver) */}
-                {minor.length > 0 && (
-                  <div className="p-5 rounded-xl border border-neutral-800 bg-neutral-900/50">
+                {/* 2. INDIVIDUAL AWARDS (New Section - Purple/Pink) */}
+                <div className={`
+                  p-4 rounded-xl border 
+                  ${individual.length > 0 ? 'bg-fuchsia-950/20 border-fuchsia-900/30' : 'bg-neutral-800/30 border-neutral-800/50'}
+                `}>
+                  <p className="text-xs text-fuchsia-400 uppercase tracking-wider font-bold mb-3 flex items-center justify-center gap-2">
+                    <span className="text-lg">⭐</span> Individual Awards ({individual.length})
+                  </p>
+                  {individual.length > 0 ? (
+                    <ul className="space-y-1">
+                      {individual.map((t, idx) => (
+                        <li key={idx} className="text-white font-medium text-sm md:text-base">{t}</li>
+                      ))}
+                    </ul>
+                  ) : <p className="text-neutral-600 italic text-sm">None</p>}
+                </div>
+
+                {/* 3. REGIONAL TITLES (Silver/Grey) */}
+                {minorTeam.length > 0 && (
+                  <div className="p-4 rounded-xl border border-neutral-800 bg-neutral-900/50">
                     <p className="text-xs text-neutral-400 uppercase tracking-wider font-bold mb-3">
-                      Regional & Other Wins ({minor.length})
+                      Regional Wins ({minorTeam.length})
                     </p>
-                    <ul className="space-y-2">
-                      {minor.map((t, idx) => (
-                        <li key={idx} className="text-neutral-300 font-medium text-sm">
-                          {t}
-                        </li>
+                    <ul className="space-y-1">
+                      {minorTeam.map((t, idx) => (
+                        <li key={idx} className="text-neutral-400 text-xs">{t}</li>
                       ))}
                     </ul>
                   </div>
                 )}
 
               </div>
-
             </div>
           );
         })}

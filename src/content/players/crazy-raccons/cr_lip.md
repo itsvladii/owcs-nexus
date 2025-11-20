@@ -24,7 +24,7 @@ career:
       - '🏆 Won 2025 OWCS Korea Stage 1'
       - '🏆 Won 2025 OWCS Champions Clash'
       - '🏆 Won 2025 OWCS Korea Stage 3'
-      - '⭐🌏 2025 OWCS Asia Region MVP'
+      - '⭐2025 OWCS Asia Region MVP'
       - '⭐🎯 2024 OWCS Hitscan DPS MVP'
   - date: '2024'
     team: 'WAC'
