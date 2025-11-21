@@ -184,15 +184,6 @@ export default function PlayerComparison({ players }: Props) {
                       {p.data.role}
                     </p>
                  </div>
-
-                 {/* Country Flag Badge (Top Right) */}
-                 {p.data.flagUrl && (
-                   <img 
-                     src={p.data.flagUrl} 
-                     className="absolute top-3 right-3 w-8 h-8 rounded-full border-2 border-neutral-900/50 shadow-sm object-cover"
-                     title={p.data.country}
-                   />
-                 )}
               </div>
 
               <div className="w-full space-y-6">

@@ -9,20 +9,39 @@ const allPlayers = (await getCollection('players')).sort((a, b) =>
 );
 ---
 
-<BaseLayout title="Compare Players">
-  <div class="max-w-6xl mx-auto px-4 py-12">
-    <div class="text-center mb-12">
-      <h1 class="text-6xl font-title text-white mb-4">Player Comparison</h1>
-      <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
+<BaseLayout title="Compare Players" fullWidth={true}>
+  
+  {/* ==============================================
+  HERO BACKGROUND WALLPAPER
+  ============================================== */}
+  <div class="relative w-full h-[50vh] md:h-[60vh] overflow-hidden rounded-xl">
+    {/* Using the same wallpaper for consistency, or choose a different 'stage' shot */}
+    <img 
+      src="https://live.staticflickr.com/65535/54692781824_5555aa5d4b_k.jpg" 
+      alt="OWCS Stage Background" 
+      class="w-full h-full object-cover object-center scale-105 filter brightness-[0.5]"
+    />
+    {/* Gradient Overlay */}
+    <div class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/80 to-neutral-950"></div>
+  </div>
+
+  {/* ==============================================
+  MAIN CONTENT CONTAINER
+  ============================================== */}
+  <div class="max-w-6xl mx-auto px-4 relative z-10 -mt-64 md:-mt-80 pb-24">
+    
+    <div class="text-center mb-16 drop-shadow-2xl">
+      <h1 class="text-6xl md:text-8xl font-title text-white mb-4 tracking-tight">
+        PLAYER COMPARISON
+      </h1>
+      <p class="text-neutral-300 text-lg md:text-xl max-w-2xl mx-auto font-medium">
         Compare careers, signature heroes, and trophy cabinets to see who really is the GOAT.
       </p>
     </div>
+    
+    {/* The Comparison Component */}
     <PlayerComparison players={allPlayers} client:load />
-    <br>
-    <div class="text-center mb-12">
-    <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
-        DISCLAMER: This isn't a scientific way to mesure who's the better player and its made just for fun. Trophies don't tell the full story!
-      </p>
-      </div>
+    
   </div>
+
 </BaseLayout>

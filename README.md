@@ -1,8 +1,6 @@
 
-# OWCS For Nexus
+# OWCS Nexus
 A dynamic and comprehensive fan-made showcase of the major teams of the Overwatch Champions Series (OWCS), made in mind for both casual fans who want to learn more about the best teams in the world and for the more hardcore fans who want to "revise" their knowledge. 
-
-
 
 ### Preview
 
@@ -20,8 +18,8 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 ## 📔 TODO list
 * [ ] Coaching staff for all the teams
 * [ ] Updated Player and Team Info
-* [ ] Player and Team Comparison
-* [ ] Team Power Rankings (a la LoL Esports)
+* [x] Player and Team Comparison
+* [x] Team Power Rankings (a la LoL Esports)
 
 ## 🛠️ Tech Stack
 

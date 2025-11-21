@@ -9,7 +9,10 @@ const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (your-email@example.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
 const { rankings, stats } = calculateRankings(matches);
-Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate');
+Astro.response.headers.set(
+    "Cache-Control",
+    "public, max-age=0, s-maxage=3600, stale-while-revalidate",
+);
 // 2. Get Local Data (Partner info & Logos)
 const allTeams = await getCollection("teams");
 
@@ -39,7 +42,7 @@ function getTeamProps(team: {
     const isPartner = localTeam?.data.isPartner ?? false;
     const hasPage = !!localTeam;
 
-    const color = localTeam?.data.color || "#525252"; // Fallback gray
+    const color = localTeam?.data.colour || "#525252"; // Fallback gray
 
     // LOGO LOGIC: Local File (Best) -> API Logo (Good) -> Fallback (None)
     const logo = localTeam?.data.logo
@@ -311,120 +314,94 @@ const restOfThePack = rankings.slice(3, 25);
     2. THE PODIUM (Top 3)
     ============================================== */
         }
-        <div
-            class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 items-end px-4 md:px-0"
-        >
-            {/* --- 2ND PLACE --- */}
-            {
-                top3[1] &&
-                    (() => {
-                        const { logo, color } = getTeamProps(top3[1]);
-                        return (
-                            <div class="bg-neutral-900/80 border border-neutral-700 p-6 rounded-xl flex flex-col items-center text-center shadow-xl relative order-2 md:order-1 backdrop-blur-sm">
-                                <div class="text-5xl font-title text-neutral-400 mb-4 opacity-50">
-                                    #2
-                                </div>
-                                <div class="relative w-24 h-24 mb-4">
-                                    {logo ? (
-                                        <img
-                                            src={logo}
-                                            alt={top3[1].name}
-                                            class="w-full h-full object-contain drop-shadow-lg"
-                                        />
-                                    ) : (
-                                        <div class="w-full h-full bg-neutral-800 rounded-full" />
-                                    )}
-                                </div>
-                                <h3 class="text-2xl font-bold font-title text-white mb-1 line-clamp-1">
-                                    {top3[1].name}
-                                </h3>
-                                <p
-                                    class="text-neutral-400 font-mono text-lg"
-                                    style={`color: ${color}`}
-                                >
-                                    {Math.round(top3[1].rating)}
-                                </p>
-                            </div>
-                        );
-                    })()
-            }
+{/* ==============================================
+    2. THE PODIUM (Top 3) - UPDATED WITH STATS
+    ============================================== */}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 items-end px-4 md:px-0">
+      
+      {/* --- 2ND PLACE --- */}
+      {top3[1] && (() => {
+        const { logo, color } = getTeamProps(top3[1]);
+        return (
+          <div class="bg-neutral-900/80 border border-neutral-700 p-6 rounded-xl flex flex-col items-center text-center shadow-xl relative order-2 md:order-1 backdrop-blur-sm">
+            <div class="text-5xl font-title text-neutral-400 mb-4 opacity-50">#2</div>
+            <div class="relative w-24 h-24 mb-4">
+              {logo ? <img src={logo} alt={top3[1].name} class="w-full h-full object-contain drop-shadow-lg" /> : <div class="w-full h-full bg-neutral-800 rounded-full" />}
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1 line-clamp-1">{top3[1].name}</h3>
+            
+            {/* NEW: Region Badge */}
+            <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider border border-neutral-800 px-2 py-0.5 rounded bg-neutral-950/50 mb-3">
+              {top3[1].region}
+            </span>
 
-            {/* --- 1ST PLACE --- */}
-            {
-                top3[0] &&
-                    (() => {
-                        const { logo, color } = getTeamProps(top3[0]);
-                        return (
-                            <div
-                                class="bg-neutral-900 border-2 p-8 rounded-xl flex flex-col items-center text-center shadow-[0_0_50px_-10px_rgba(0,0,0,0.5)] relative order-1 md:order-2 z-10 transform md:-translate-y-6 backdrop-blur-md"
-                                style={`border-color: ${color}; box-shadow: 0 0 40px -5px ${color}50;`}
-                            >
-                                <div
-                                    class="absolute -top-5 text-black font-bold px-6 py-1 rounded-full font-title text-2xl shadow-lg"
-                                    style={`background-color: ${color}`}
-                                >
-                                    WORLD #1
-                                </div>
-                                <div class="relative w-32 h-32 mb-6 mt-2">
-                                    {logo ? (
-                                        <img
-                                            src={logo}
-                                            alt={top3[0].name}
-                                            class="w-full h-full object-contain drop-shadow-2xl"
-                                        />
-                                    ) : (
-                                        <div class="w-full h-full bg-neutral-800 rounded-full" />
-                                    )}
-                                </div>
-                                <h3 class="text-4xl font-bold font-title text-white font-title mb-2">
-                                    {top3[0].name}
-                                </h3>
-                                <p
-                                    class="text-2xl font-mono font-bold"
-                                    style={`color: ${color}`}
-                                >
-                                    {Math.round(top3[0].rating)}
-                                </p>
-                            </div>
-                        );
-                    })()
-            }
+            {/* NEW: Record */}
+            <div class="flex items-center gap-3 text-sm font-mono border-t border-white/10 pt-3 w-full justify-center">
+               <span class="font-bold text-white">{Math.round(top3[1].rating)} <span class="text-neutral-500 font-normal">ELO</span></span>
+               <span class="text-neutral-500">|</span>
+               <span class="text-neutral-400">{top3[1].wins}W - {top3[1].losses}L</span>
+            </div>
+          </div>
+        );
+      })()}
 
-            {/* --- 3RD PLACE --- */}
-            {
-                top3[2] &&
-                    (() => {
-                        const { logo, color } = getTeamProps(top3[2]);
-                        return (
-                            <div class="bg-neutral-900/80 border border-neutral-700 p-6 rounded-xl flex flex-col items-center text-center shadow-xl relative order-3 backdrop-blur-sm">
-                                <div class="text-5xl font-title text-orange-800/80 mb-4 opacity-50">
-                                    #3
-                                </div>
-                                <div class="relative w-24 h-24 mb-4">
-                                    {logo ? (
-                                        <img
-                                            src={logo}
-                                            alt={top3[2].name}
-                                            class="w-full h-full object-contain drop-shadow-lg"
-                                        />
-                                    ) : (
-                                        <div class="w-full h-full bg-neutral-800 rounded-full" />
-                                    )}
-                                </div>
-                                <h3 class="text-2xl font-bold font-title text-white mb-1 line-clamp-1">
-                                    {top3[2].name}
-                                </h3>
-                                <p
-                                    class="text-neutral-400 font-mono text-lg"
-                                    style={`color: ${color}`}
-                                >
-                                    {Math.round(top3[2].rating)}
-                                </p>
-                            </div>
-                        );
-                    })()
-            }
-        </div>
+      {/* --- 1ST PLACE --- */}
+      {top3[0] && (() => {
+        const { logo, color } = getTeamProps(top3[0]);
+        return (
+          <div 
+            class="bg-neutral-900 border-2 p-8 rounded-xl flex flex-col items-center text-center shadow-[0_0_50px_-10px_rgba(0,0,0,0.5)] relative order-1 md:order-2 z-10 transform md:-translate-y-6 backdrop-blur-md"
+            style={`border-color: ${color}; box-shadow: 0 0 40px -5px ${color}50;`}
+          >
+            <div class="absolute -top-5 text-black font-bold px-6 py-1 rounded-full font-title text-2xl shadow-lg" style={`background-color: ${color}`}>
+              WORLD #1
+            </div>
+            <div class="relative w-32 h-32 mb-6 mt-2">
+              {logo ? <img src={logo} alt={top3[0].name} class="w-full h-full object-contain drop-shadow-2xl" /> : <div class="w-full h-full bg-neutral-800 rounded-full" />}
+            </div>
+            <h3 class="text-4xl font-bold text-white font-title mb-2">{top3[0].name}</h3>
+            
+            {/* NEW: Region Badge (Bigger for #1) */}
+            <span class="text-xs font-bold text-white/80 uppercase tracking-wider border border-white/10 px-3 py-1 rounded bg-white/5 mb-4">
+              {top3[0].region}
+            </span>
+
+            {/* NEW: Record & ELO */}
+            <div class="flex items-center gap-4 text-lg font-mono border-t border-white/10 pt-4 w-full justify-center">
+               <span class="font-bold text-white" style={`color: ${color}`}>{Math.round(top3[0].rating)} <span class="text-white/50 font-normal text-sm">ELO</span></span>
+               <span class="text-white/20">|</span>
+               <span class="text-white/70 text-base">{top3[0].wins}W - {top3[0].losses}L</span>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* --- 3RD PLACE --- */}
+      {top3[2] && (() => {
+        const { logo, color } = getTeamProps(top3[2]);
+        return (
+          <div class="bg-neutral-900/80 border border-neutral-700 p-6 rounded-xl flex flex-col items-center text-center shadow-xl relative order-3 backdrop-blur-sm">
+            <div class="text-5xl font-title text-orange-800/80 mb-4 opacity-50">#3</div>
+            <div class="relative w-24 h-24 mb-4">
+              {logo ? <img src={logo} alt={top3[2].name} class="w-full h-full object-contain drop-shadow-lg" /> : <div class="w-full h-full bg-neutral-800 rounded-full" />}
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1 line-clamp-1">{top3[2].name}</h3>
+            
+            {/* NEW: Region Badge */}
+            <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider border border-neutral-800 px-2 py-0.5 rounded bg-neutral-950/50 mb-3">
+              {top3[2].region}
+            </span>
+
+            {/* NEW: Record */}
+            <div class="flex items-center gap-3 text-sm font-mono border-t border-white/10 pt-3 w-full justify-center">
+               <span class="font-bold text-white">{Math.round(top3[2].rating)} <span class="text-neutral-500 font-normal">ELO</span></span>
+               <span class="text-neutral-500">|</span>
+               <span class="text-neutral-400">{top3[2].wins}W - {top3[2].losses}L</span>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
 
         {
             /* ==============================================
@@ -555,21 +532,26 @@ const restOfThePack = rankings.slice(3, 25);
                         <span class="text-amber-500">01.</span> The System
                     </h3>
                     <p class="mb-4">
-                        The <strong>OWCS Nexus Power Rankings</strong> use a custom
-                        ELO algorithm similar to Chess or competitive video games.
-                        Every team starts with a base rating, and points are transferred
-                        from the loser to the winner after every match.
+                        The <strong
+                            >OWCS Nexus Global Power Rankings (GLP)</strong
+                        > uses a custom ELO algorithm similar to the one used in
+                        Chess or in other professional sports (like the FIFA Man's
+                        World Rankings). Every team starts with a base rating based
+                        on their region, and points are transferred from the loser
+                        to the winner after every match.
                     </p>
                     <ul class="list-disc list-inside space-y-2 ml-2">
-                        <li>Wins increase rating; losses decrease it.</li>
+                        <li>
+                            Wins increase the rating, while losses decrease it.
+                        </li>
                         <li>
                             Beating a higher-rated team grants <strong
-                                >more points</strong
+                                >more points, and viceversa</strong
                             > (an upset).
                         </li>
                         <li>
                             Losing to a higher-rated team loses <strong
-                                >fewer points</strong
+                                >fewer points, and viceversa</strong
                             > (expected result).
                         </li>
                     </ul>
@@ -580,12 +562,13 @@ const restOfThePack = rankings.slice(3, 25);
                     <h3
                         class="text-xl font-bold font-title text-white mb-4 flex items-center gap-2"
                     >
-                        <span class="text-amber-500">02.</span> The "K-Factor"
+                        <span class="text-amber-500">02.</span> When the lights are
+                        at their brightest...
                     </h3>
                     <p class="mb-4">
                         Not all matches are created equal. We use a dynamic <strong
                             >Tournament Weight</strong
-                        > system to make important matches count more.
+                        > system to make matches on the biggest stages count more.
                     </p>
 
                     <div
@@ -610,13 +593,13 @@ const restOfThePack = rankings.slice(3, 25);
                         <div
                             class="flex justify-between mb-2 border-b border-neutral-800 pb-2"
                         >
-                            <span>Regional Majors</span>
+                            <span>International Majors</span>
                             <span class="text-amber-500 font-bold"
                                 >1.5x Impact</span
                             >
                         </div>
                         <div class="flex justify-between">
-                            <span>Regular Season</span>
+                            <span>Regional Regular Season (Stages)</span>
                             <span class="text-neutral-500">1.0x Impact</span>
                         </div>
                     </div>
@@ -634,27 +617,46 @@ const restOfThePack = rankings.slice(3, 25);
                     <p class="mb-6">
                         To account for the strength disparity between regions,
                         teams do not start at 0. They are seeded based on the
-                        historical strength of their region. This means a 5-0
-                        record in <strong>Korea (OWCS Asia)</strong> is mathematically
-                        valued higher than a 5-0 record in a developing region.
+                        historical strength of their region, that is going to
+                        change every 2 years based on the results of the region
+                        in international tournaments. This means a 5-0 record in <strong
+                            >Korea (OWCS Asia)</strong
+                        > during the Regular Season is mathematically valued higher
+                        than a 5-0 record in a developing region.
                     </p>
-                    <div class="flex flex-wrap gap-3">
-                        <span
-                            class="px-3 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-300"
-                            >Korea: 1350</span
+                    <div
+                        class="bg-neutral-900 border border-neutral-800 rounded-lg p-4 text-sm font-mono"
+                    >
+                        <div
+                            class="flex justify-between mb-2 border-b border-neutral-800 pb-2"
                         >
-                        <span
-                            class="px-3 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-300"
-                            >NA / EMEA: 1250</span
+                            <span>Korea</span>
+                            <span class="text-amber-500 font-bold">1350</span>
+                        </div>
+                        <div
+                            class="flex justify-between mb-2 border-b border-neutral-800 pb-2"
                         >
-                        <span
-                            class="px-3 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-300"
-                            >Japan: 1150</span
+                            <span>EMEA and NA</span>
+                            <span class="text-amber-500 font-bold">1250</span>
+                        </div>
+                        <div
+                            class="flex justify-between mb-2 border-b border-neutral-800 pb-2"
                         >
-                        <span
-                            class="px-3 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-300"
-                            >Pacific: 1100</span
+                            <span>China</span>
+                            <span class="text-amber-500 font-bold">1200</span>
+                        </div>
+                        <div
+                            class="flex justify-between mb-2 border-b border-neutral-800 pb-2"
                         >
+                            <span>Japan</span>
+                            <span class="text-amber-500 font-bold">1150</span>
+                        </div>
+                        <div
+                            class="flex justify-between mb-2 border-b border-neutral-800 pb-2"
+                        >
+                            <span>Pacific/Rest of the World</span>
+                            <span class="text-amber-500 font-bold">1100</span>
+                        </div>
                     </div>
                 </div>
             </div>

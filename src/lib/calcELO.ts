@@ -22,7 +22,8 @@ const TEAM_ALIASES: Record<string, string> = {
   "Once Again": "Weibo Gaming",
   "Sign Esports": "NTMR",
   "1DIPVS100GORILLAS": "Quick Esports",
-  "Team CC (Chinese orgless team)": "Team CC"
+  "Team CC (Chinese orgless team)": "Team CC",
+  "Cheeseburger (Korean team)": "Cheeseburger"
 };
 
 // 2. REGIONAL SEEDING
