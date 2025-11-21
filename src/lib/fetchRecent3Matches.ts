@@ -28,12 +28,12 @@ function getLogo(opponent: any): string | null {
   
   let url = null;
   // 1. Try teamtemplate (Best quality)
-  if (opponent.teamtemplate && opponent.teamtemplate.imageurl) {
-    url = opponent.teamtemplate.imageurl;
+  if (opponent.teamtemplate && opponent.teamtemplate.imagedarkurl) {
+    url = opponent.teamtemplate.imagedarkurl;
   } 
   // 2. Try direct iconurl
-  else if (opponent.iconurl) {
-    url = opponent.iconurl;
+  else if (opponent.imagedarkurl) {
+    url = opponent.imagedarkurl;
   }
 
   // 3. Return proxied URL
