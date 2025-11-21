@@ -6,7 +6,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { fetchRecentPov } from '../../lib/fetchPOV';
-
+import IconTwitter from '../../components/icons/IconTwitter.astro';
+import IconTwitch from '../../components/icons/IconTwitch.astro';
+import IconWebsite from '../../components/icons/IconWebsite.astro';
 
 // --- 2. GETSTATICPATHS (This runs ONCE at build time) ---
 export async function getStaticPaths() {
@@ -73,185 +75,207 @@ const cloudinaryBaseUrl = playerEntry.data.headshot
   ? playerEntry.data.headshot.split('/upload/')[0] + '/upload'
   : null;
 
+const bannerUrl = teamEntry?.data.banner
+  ? teamEntry.data.banner.replace('/upload/', '/upload/w_1920,h_1080,c_fill,q_auto,f_auto/')
+  : 'https://images.contentstack.io/v3/assets/blt321317473c90505c/blt04c04346385d3bdd/65f208333626118536797020/OWCS_Stage1_Korea_Day6_Match2_FAL_vs_T1_6.jpg';
+
+  const teamColor = teamEntry?.data.colour || '#f59e0b'; // Fallback Amber
+
+
 ---
-<BaseLayout title={playerEntry.data.name}>
-  <div class="max-w-5xl mx-auto">
+<BaseLayout title={playerEntry.data.name} fullWidth={true}>
+  
+  {/* ==============================================
+  1. HERO WALLPAPER
+  ============================================== */}
+  <div class="relative w-full h-[50vh] md:h-[60vh] overflow-hidden rounded-xl">
+    <img 
+      src={bannerUrl} 
+      alt="Background" 
+      class="w-full h-full object-cover object-center scale-105 filter blur-md brightness-[0.4]"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/60 to-neutral-950"></div>
+  </div>
 
-    <div class="
-      relative overflow-hidden bg-neutral-900 rounded-lg shadow-xl
-      flex flex-col /* Mobile: Stacks text ON TOP of image */
-      md:flex-row md:h-[500px] /* Desktop: Side-by-side with fixed height */
-    ">
-      
-      {playerEntry.data.flagUrl && (
-        <img 
-          src={playerEntry.data.flagUrl} 
-          alt={playerEntry.data.country}
-          class="absolute inset-0 w-full h-full object-cover opacity-10"
-        />
-      )}
-
-      <div class="
-        relative z-20 p-6 
-        md:p-12 md:w-1/2 md:flex-shrink-0
-        order-1
-      ">
-        
-        {teamEntry && (
-          <a href={`/teams/${teamEntry.slug}/`} class="flex items-center group mb-4">
-            {teamLogoUrl && (
-              <img src={teamLogoUrl} alt={teamEntry.data.name} class="w-12 h-12 object-contain mr-3" />
-            )}
-            <span class="text-xl text-gray-300 group-hover:underline font-title">
-              {teamEntry.data.name}
-            </span>
-          </a>
-        )}
-        
-        <h1 class="text-6xl md:text-8xl font-bold text-white font-title" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">
-          {playerEntry.data.name}
-        </h1>
-        
-        {playerEntry.data.fullName && (
-          <p class="text-2xl md:text-3xl text-gray-300">{playerEntry.data.fullName}</p>
-        )}
-        
-        <p class="text-3xl md:text-4xl font-bold mt-2
-          ${playerEntry.data.role === 'Tank' && 'text-blue-400'}
-          ${playerEntry.data.role === 'Damage' && 'text-red-400'}
-          ${playerEntry.data.role === 'Support' && 'text-green-400'}
-        ">
-          {playerEntry.data.role}
-        </p>
-
-        {playerEntry.data.signatureHeroes && playerEntry.data.signatureHeroes.length > 0 && (
-          <div class="flex flex-wrap gap-3 mt-6">
-            {cloudinaryBaseUrl && playerEntry.data.signatureHeroes.map(heroFilename => {
-              const heroIconUrl = `${cloudinaryBaseUrl}/f_auto,q_auto:best/v1762938909/${heroFilename.toLowerCase()}.png`;
-              const cleanHeroName = heroFilename.split('_')[0];
-              return (
-                <img 
-                  src={heroIconUrl} 
-                  alt={cleanHeroName}
-                  title={cleanHeroName}
-                  class="w-20 h-20 rounded-lg border-2 border-gray-700 bg-gray-800"
-                  loading="eager"
-                  width="48"
-                  height="48"
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div class="
-        relative z-10 
-        order-2
-        md:absolute md:inset-0 md:pointer-events-none
-      ">
-        {headshotUrl && (
-          <img 
-            src={headshotUrl} 
-            alt={playerEntry.data.name}
-            class="
-              block w-full max-w-sm mx-auto
-              md:absolute md:bottom-0 md:-right-16 md:h-full md:max-h-[500px] md:w-auto md:object-contain md:max-w-none
-            "
-          />
-        )}
-      </div>
-    </div>
+  {/* ==============================================
+  2. MAIN CONTENT CONTAINER
+  ============================================== */}
+  <div class="max-w-7xl mx-auto px-4 relative z-10 -mt-64 md:-mt-80 pb-24">
     
-    <div class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-      <h2 class="font-title text-3xl">About {playerEntry.data.name}</h2>
-      <Content />
+    {/* PLAYER PROFILE CARD */}
+    <div 
+      class="relative bg-neutral-900/80 backdrop-blur-xl border rounded-3xl overflow-hidden shadow-2xl mb-12 grid grid-cols-1 md:grid-cols-12 min-h-[500px]"
+      style={`border-color: ${teamColor}40; box-shadow: 0 20px 50px -20px ${teamColor}30;`}
+    >
+      
+      {/* LEFT: Player Image (Takes up more space on desktop) */}
+      <div class="md:col-span-5 relative h-[400px] md:h-auto overflow-hidden">
+         {/* Flag Background */}
+         {playerEntry.data.flagUrl && (
+            <img 
+              src={playerEntry.data.flagUrl} 
+              class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay scale-100"
+            />
+         )}
+         {/* Player PNG */}
+         {headshotUrl && (
+            <img 
+              src={headshotUrl} 
+              alt={playerEntry.data.name} 
+              class="absolute inset-0 w-full h-full object-contain object-bottom transition-transform duration-500"
+            />
+         )}
+         {/* Gradient at bottom to blend */}
+         <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-neutral-900/90 to-transparent md:hidden"></div>
+      </div>
+
+      {/* RIGHT: Info & Stats */}
+      <div class="md:col-span-7 p-8 md:p-12 flex flex-col justify-center relative z-10">
+         
+         {/* Team Badge */}
+         {teamEntry && (
+           <a href={`/teams/${teamEntry.slug}/`} class="inline-flex items-center gap-3 mb-4 group w-fit">
+             {teamLogoUrl && <img src={teamLogoUrl} class="w-10 h-10 object-contain" />}
+             <span class="text-xl text-neutral-400 font-bold group-hover:text-white transition-colors font-title tracking-wide">
+               {teamEntry.data.name}
+             </span>
+           </a>
+         )}
+
+         <h1 class="text-6xl md:text-8xl font-title text-white mb-2 tracking-tight leading-none drop-shadow-lg">
+           {playerEntry.data.name}
+         </h1>
+         
+         <div class="flex items-center gap-4 mb-8">
+            <span class="text-2xl md:text-3xl font-bold" style={`color: ${teamColor};`}>
+              {playerEntry.data.role}
+            </span>
+            {playerEntry.data.fullName && (
+              <span class="text-xl text-neutral-500 border-l border-neutral-700 pl-4">
+                {playerEntry.data.fullName}
+              </span>
+            )}
+         </div>
+
+         {/* Signature Heroes */}
+         {playerEntry.data.signatureHeroes && (
+           <div class="flex flex-wrap gap-3">
+              {playerEntry.data.signatureHeroes.map(heroName => {
+                 const heroSlug = heroName.toLowerCase();
+                 const iconUrl = `${cloudinaryBaseUrl}/f_auto,q_auto:best/v1762938948/${heroSlug}.png`;
+                 return (
+                   <div class="relative group" title={heroName}>
+                     <img src={iconUrl} class="w-20 h-20 rounded-lg border-2 border-neutral-700 bg-neutral-800 group-hover:border-white transition-colors" />
+                   </div>
+                 );
+              })}
+           </div>
+         )}
+      </div>
     </div>
 
-    {playerEntry.data.career && playerEntry.data.career.length > 0 && (
-      <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-        <h2 class="font-title text-3xl text-white mb-6">Career Timeline</h2>
-        <div class="relative">
-          <div class="absolute left-5 top-0 w-0.5 h-full bg-neutral-700" aria-hidden="true"></div>
-          <div class="relative flex flex-col gap-8">
-            {playerEntry.data.career.slice().reverse().map(entry => {
-              const foundTeam = allTeams.find(t => t.data.name === entry.team);
-              const isCurrent = entry.date.includes('Present');
-              
-              let logoUrl = null;
-              if (foundTeam) {
-                logoUrl = foundTeam.data.logo.replace('/upload/', '/upload/w_60,h_60,c_pad,f_auto,q_auto:best/');
-              } else if (entry.logo) {
-                logoUrl = entry.logo.replace('/upload/', '/upload/w_24,h_24,c_pad,f_auto,q_auto:best/');
-              }
-              const teamUrl = foundTeam ? `/teams/${foundTeam.slug}/` : null;
 
-              return (
-                <div class="relative pl-12">
-                  <div class={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-4 border-neutral-900 ${isCurrent ? 'bg-green-500 scale-110' : 'bg-amber-500'}`}></div>
-                  <p class={`text-sm ${isCurrent ? 'text-green-400 font-bold' : 'text-gray-400'}`}>{entry.date}</p>
+    {/* ==============================================
+    3. TWO COLUMN CONTENT
+    ============================================== */}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      {/* LEFT COLUMN (Bio & Timeline) */}
+      <div class="lg:col-span-2 space-y-8">
+        
+        {/* ABOUT CARD */}
+        <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
+           <h2 class="font-title text-3xl text-white mb-4 border-b border-neutral-800 pb-2">About</h2>
+           <div class="prose prose-invert prose-lg max-w-none text-neutral-300">
+             <Content />
+           </div>
+        </div>
+
+        {/* CAREER TIMELINE */}
+        {playerEntry.data.career && playerEntry.data.career.length > 0 && (
+          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
+            <h2 class="font-title text-3xl text-white mb-8 border-b border-neutral-800 pb-2">Career Timeline</h2>
+            <div class="relative pl-4">
+              <div class="absolute left-6 top-2 bottom-2 w-0.5 bg-neutral-800"></div>
+              <div class="space-y-8">
+                {playerEntry.data.career.map(entry => {
+                  const foundTeam = allTeams.find(t => t.data.name === entry.team);
+                  const isCurrent = entry.date.includes('Present');
+                  let logoUrl = foundTeam?.data.logo?.replace('/upload', '/upload/w_48,h_48,c_pad,f_auto,q_auto/') || entry.logo;
                   
-                  <div class="flex items-center gap-2">
-                    {logoUrl && (
-                      <img src={logoUrl} alt={entry.team} class="w-6 h-6"/>
-                    )}
-                    {teamUrl ? (
-                      <a href={teamUrl}><h3 class="text-xl font-bold text-white hover:underline">{entry.team}</h3></a>
-                    ) : (
-                      <h3 class="text-xl font-bold text-white">{entry.team}</h3>
-                    )}
-                  </div>
-                  
-                  {entry.notes && (
-                    <ul class="list-none pl-0 mt-1">
-                      {entry.notes.map(note => <li class="text-md text-gray-300">{note}</li>)}
-                    </ul>
-                  )}
-                </div>
-              )
-            })}
+                  return (
+                    <div class="relative pl-10">
+                      <div class={`absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-neutral-900 ${isCurrent ? 'bg-green-500 scale-125' : 'bg-amber-500'}`} style={{ left: '1.35rem' }}></div>
+                      <p class="text-xs font-mono text-neutral-500 mb-1">{entry.date}</p>
+                      
+                      <div class="flex items-center gap-3 mb-2">
+                        {logoUrl && <img src={logoUrl} class="w-6 h-6 object-contain opacity-80" />}
+                        <h3 class="text-xl font-bold text-white">{entry.team}</h3>
+                      </div>
+
+                      {entry.notes && (
+                        <ul class="space-y-1">
+                          {entry.notes.map(note => (
+                            <li class="text-sm text-neutral-400 flex gap-2">
+                              <span class="text-amber-500 mt-0.5">▸</span> {note}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    )}
+        )}
 
-    {mostRecentPovUrl && (
-      <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-        <h2 class="font-title text-3xl text-white mb-6">Most Recent POV (Courtesy of ObsSojourn!)</h2>
-        <div class="relative w-full" style="padding-bottom: 56.25%;">
-          <iframe 
-            src={mostRecentPovUrl}
-            title={`Recent POV for ${playerEntry.data.name}`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen
-            class="absolute top-0 left-0 w-full h-full rounded-lg"
-          ></iframe>
-        </div>
       </div>
-    )}
 
-    {playerEntry.data.socials && (
-      <div class="bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">
-        <h2 class="font-title text-3xl text-white mb-6">Follow</h2>
-        <div class="flex flex-wrap gap-4">
-          
-          {playerEntry.data.socials.twitter && (
-            <a href={playerEntry.data.socials.twitter} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-blue-400">
-              <span class="font-bold text-white">Twitter / X</span>
-            </a>
-          )}
-          
-          {playerEntry.data.socials.twitch && (
-            <a href={playerEntry.data.socials.twitch} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-purple-400">
-              <span class="font-bold text-white">Twitch</span>
-            </a>
-          )}
-          
-          {/* Add other socials like YouTube here if you have them in your schema */}
+      {/* RIGHT COLUMN (Media & Socials) */}
+      <div class="space-y-8">
+        
+        {/* POV VIDEO */}
+        {mostRecentPovUrl && (
+          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
+            <h3 class="font-title text-xl text-white mb-4 flex items-center gap-2">
+              <span class="text-red-600">▶</span> Recent POV
+            </h3>
+            <div class="relative w-full bg-black rounded-lg overflow-hidden shadow-lg" style="padding-bottom: 56.25%;">
+              <iframe 
+                src={mostRecentPovUrl} 
+                title="POV" 
+                class="absolute top-0 left-0 w-full h-full" 
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        )}
 
-        </div>
+        {/* SOCIALS */}
+        {playerEntry.data.socials && (
+          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
+            <h3 class="font-title text-xl text-white mb-4">Follow</h3>
+            <div class="flex flex-col gap-3">
+              {playerEntry.data.socials.twitter && (
+                <a href={playerEntry.data.socials.twitter} target="_blank" class="flex items-center gap-3 p-3 bg-neutral-800/50 rounded-lg hover:bg-blue-500/10 hover:border-blue-500/50 border border-transparent transition-all group">
+                  <IconTwitter class="w-5 h-5 text-neutral-400 group-hover:text-blue-400" />
+                  <span class="font-bold text-neutral-300 group-hover:text-white">Twitter</span>
+                </a>
+              )}
+              {playerEntry.data.socials.twitch && (
+                <a href={playerEntry.data.socials.twitch} target="_blank" class="flex items-center gap-3 p-3 bg-neutral-800/50 rounded-lg hover:bg-purple-500/10 hover:border-purple-500/50 border border-transparent transition-all group">
+                  <IconTwitch class="w-5 h-5 text-neutral-400 group-hover:text-purple-400" />
+                  <span class="font-bold text-neutral-300 group-hover:text-white">Twitch</span>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
-    )}
+
+    </div>
 
   </div>
 </BaseLayout>
