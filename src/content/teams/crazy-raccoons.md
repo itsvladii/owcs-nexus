@@ -20,7 +20,7 @@ achievements:
     - '🏆 1st Place - 2024 OWCS Major'
     - '🏆 1st Place - 2024 OWCS Asia Stage 1 Main Event'
 banner: 'https://live.staticflickr.com/65535/53888518623_1d23f8e915_k.jpg'
-colour: '#ec0201'
+colour: '#FF0055'
 coaches:
   - name: 'Moon'
     role: 'Head Coach'
