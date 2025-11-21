@@ -13,6 +13,23 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/OW_Zest'
   twitch: 'https://www.twitch.tv/ow_zest'
+career:
+  - date: '2025 - Present'
+    team: 'T1'
+    notes: 
+      - '🏆 Won Soop Overwatch Cup 2025 Season 1 - Korea'
+  - date: '2021-2023'
+    team: 'Seoul Infernal'
+    notes: 
+      - ''
+  - date: '2021'
+    team: 'T1'
+    notes: 
+      - ''
+  - date: '2019'
+    team: 'Blaze'
+    notes: 
+      - ''
 ---
 
 ## About Proper

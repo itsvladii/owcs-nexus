@@ -192,43 +192,119 @@ const bannerUrl = teamEntry?.data.banner
         </div>
 
         {/* CAREER TIMELINE */}
-        {playerEntry.data.career && playerEntry.data.career.length > 0 && (
-          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
-            <h2 class="font-title text-3xl text-white mb-8 border-b border-neutral-800 pb-2">Career Timeline</h2>
-            <div class="relative pl-4">
-              <div class="absolute left-6 top-2 bottom-2 w-0.5 bg-neutral-800"></div>
-              <div class="space-y-8">
-                {playerEntry.data.career.map(entry => {
-                  const foundTeam = allTeams.find(t => t.data.name === entry.team);
-                  const isCurrent = entry.date.includes('Present');
-                  let logoUrl = foundTeam?.data.logo?.replace('/upload', '/upload/w_48,h_48,c_pad,f_auto,q_auto/') || entry.logo;
-                  
-                  return (
-                    <div class="relative pl-10">
-                      <div class={`absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-neutral-900 ${isCurrent ? 'bg-green-500 scale-125' : 'bg-amber-500'}`} style={{ left: '1.35rem' }}></div>
-                      <p class="text-xs font-mono text-neutral-500 mb-1">{entry.date}</p>
-                      
-                      <div class="flex items-center gap-3 mb-2">
-                        {logoUrl && <img src={logoUrl} class="w-6 h-6 object-contain opacity-80" />}
-                        <h3 class="text-xl font-bold text-white">{entry.team}</h3>
-                      </div>
+        {playerEntry.data.career && playerEntry.data.career.length > 0 && (() => {
+  // 1. Logic: Split the career into "Top 5" and "The Rest"
+  const fullCareer = playerEntry.data.career; // Newest first
+  const VISIBLE_COUNT = 5;
+  
+  const visibleItems = fullCareer.slice(0, VISIBLE_COUNT);
+  const hiddenItems = fullCareer.slice(VISIBLE_COUNT);
+  
+  // Helper function to render a single timeline item
+  const renderTimelineItem = (entry) => {
+    const foundTeam = allTeams.find(t => t.data.name === entry.team);
+    const isCurrent = entry.date.includes('Present');
+    
+    let logoUrl = null;
+    if (foundTeam) {
+      logoUrl = foundTeam.data.logo.replace('/upload/', '/upload/w_48,h_48,c_pad,f_auto,q_auto:best/');
+    } else if (entry.logo) {
+      logoUrl = entry.logo.replace('/upload/', '/upload/w_48,h_48,c_pad,f_auto,q_auto:best/');
+    }
+    const teamUrl = foundTeam ? `/teams/${foundTeam.slug}/` : null;
 
-                      {entry.notes && (
-                        <ul class="space-y-1">
-                          {entry.notes.map(note => (
-                            <li class="text-sm text-neutral-400 flex gap-2">
-                              <span class="text-amber-500 mt-0.5">▸</span> {note}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+    return (
+      <div class="relative pl-10 py-1">
+        <div class={`absolute left-0 top-2.5 w-3 h-3 rounded-full border-2 border-neutral-900 ${isCurrent ? 'bg-green-500 scale-125' : 'bg-amber-500'}`} style="left: 1.35rem;"></div>
+        <p class="text-xs font-mono text-neutral-500 mb-1">{entry.date}</p>
+        
+        <div class="flex items-center gap-3 mb-2">
+          {logoUrl && <img src={logoUrl} alt={entry.team} class="w-6 h-6 object-contain opacity-80" />}
+          {teamUrl ? (
+            <a href={teamUrl} class="text-xl font-bold text-white hover:text-amber-400 transition-colors">{entry.team}</a>
+          ) : (
+            <h3 class="text-xl font-bold text-white">{entry.team}</h3>
+          )}
+        </div>
+
+        {entry.notes && (
+          <ul class="space-y-1 mb-4">
+            {entry.notes.map(note => (
+              <li class="text-sm text-neutral-400 flex gap-2">
+                <span class="text-amber-500 mt-0.5">▸</span> {note}
+              </li>
+            ))}
+          </ul>
         )}
+      </div>
+    );
+  };
+
+  return (
+    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
+      <h2 class="font-title text-3xl text-white mb-8 border-b border-neutral-800 pb-2">Career Timeline</h2>
+      
+      <div class="relative pl-4">
+        {/* The Vertical Line */}
+        <div class="absolute left-6 top-2 bottom-2 w-0.5 bg-neutral-800"></div>
+        
+        <div class="space-y-4">
+          
+          {/* 1. Render the Visible Items */}
+          {visibleItems.map(item => renderTimelineItem(item))}
+
+          {/* 2. Render the Hidden Items (if any) */}
+          {hiddenItems.length > 0 && (
+            <>
+              <div id="hidden-timeline" class="hidden space-y-4">
+                 {hiddenItems.map(item => renderTimelineItem(item))}
+              </div>
+              
+              {/* 3. The Toggle Button */}
+              <button 
+                id="toggle-timeline-btn"
+                class="w-full mt-4 py-3 bg-neutral-800/50 hover:bg-neutral-800 text-neutral-400 hover:text-white rounded-lg border border-neutral-700 transition-all text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 group"
+              >
+                <span>View Full History ({hiddenItems.length} more)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+
+              {/* 4. The Script to make it work */}
+              <script>
+                const btn = document.getElementById('toggle-timeline-btn');
+                const content = document.getElementById('hidden-timeline');
+                
+                if (btn && content) {
+                  btn.addEventListener('click', () => {
+                    const isHidden = content.classList.contains('hidden');
+                    if (isHidden) {
+                      content.classList.remove('hidden');
+                      btn.innerHTML = `
+                        <span>Show Less</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+                      `;
+                    } else {
+                      content.classList.add('hidden');
+                      // Reset button text is hard without passing the count again, 
+                      // but "View Full History" works fine as a reset too.
+                      btn.innerHTML = `
+                        <span>View Full History</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                      `;
+                      // Optional: Scroll back to the button
+                      // btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  });
+                }
+              </script>
+            </>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+})()}
 
       </div>
 

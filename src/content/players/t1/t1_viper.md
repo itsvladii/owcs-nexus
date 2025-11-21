@@ -13,6 +13,26 @@ signatureHeroes:
 socials:
   twitter: 'https://twitter.com/ljw2970'
   twitch: ''
+career:
+  - date: '2025 - Present'
+    team: 'T1'
+    notes: 
+      - '🏆 Won Soop Overwatch Cup 2025 Season 1 - Korea'
+  - date: '2023'
+    team: 'Shanghai Dragons'
+    notes: 
+      - ''
+  - date: '2020-2023'
+    team: 'O2 Blast'
+    notes: 
+      - '🏆 Won Overwatch Contenders 2022 Pacific Showdown'
+      - '🏆 Won Overwatch Contenders 2022 Run it Back: Korea'
+      - '🏆 Won Overwatch Contenders 2022 Summer Series: Korea B-Series'
+      - '🏆 Won Overwatch Contenders 2022 Summer Series: Korea A-Series'
+  - date: '2019'
+    team: 'BM Accademy'
+    notes: 
+      - ''
 ---
 
 ## About Proper

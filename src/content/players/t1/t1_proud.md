@@ -23,7 +23,7 @@ career:
     team: 'Poker Face'
     notes: 
       - ''
-  - date: '2023 - 2023'
+  - date: '2023'
     team: 'O2 Blast'
     notes: 
       - '🏆 Won Overwatch Contenders 2023 Spring Series: Korea'

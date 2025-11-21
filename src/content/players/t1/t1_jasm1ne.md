@@ -27,19 +27,35 @@ career:
     team: 'Poker Face'
     notes: 
       - ''
-  - date: '2023'
-    team: 'SLT/Team Diamond/Panthera/Dreamers'
+  - date: '2022/09-2023/10'
+    team: 'Dreamers'
     notes: 
       - ''
-  - date: '2021-2022'
+  - date: '2022/07-2023/09'
+    team: 'PANTHERA'
+    notes: 
+      - ''
+  - date: '2022/03-2023/05'
+    team: 'Team Diamond'
+    notes: 
+      - ''
+  - date: '2022/04-2023/02'
+    team: 'SLT'
+    notes: 
+      - ''
+  - date: '2021/09-2022'
     team: 'Gen.G'
     notes: 
       - ''
-  - date: '2021'
+  - date: '2021/03-2021/09'
     team: 'tiger nation'
     notes: 
       - ''
-  - date: '2020-2021'
+  - date: '2021/02'
+    team: 'Ardour.KR'
+    notes: 
+      - ''
+  - date: '2020'
     team: '200ms'
     notes: 
       - ''
