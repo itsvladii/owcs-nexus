@@ -1,6 +1,5 @@
 ---
 name: 'Weibo Gaming'
-liquipediaName: 'Weibo_Gaming'
 region: 'China'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898093/wbg_logo.png'
 socials:

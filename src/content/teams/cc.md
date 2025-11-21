@@ -1,6 +1,5 @@
 ---
 name: 'Team CC'
-liquipediaName: 'Team_CC'
 region: 'China'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898093/cc_logo.png'
 socials:
@@ -12,7 +11,7 @@ achievements:
 banner: 'https://live.staticflickr.com/65535/54694866558_11a8d88732_k.jpg'
 colour: '#7e3898'
 coaches:
-  - name: 'Junkbuck'
+  - name: 'lnlD'
     role: 'Head Coach'
     headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739527/cc_lnlD_p1.png'
 ---

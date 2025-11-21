@@ -64,11 +64,11 @@ const getMatchLogo = (opponentData: any) => {
 <BaseLayout title={teamEntry.data.name} fullWidth={true}>
   
   {/* HERO WALLPAPER (Unchanged) */}
-  <div class="relative w-full h-[60vh] md:h-[60vh] overflow-hidden">
+  <div class="relative w-full h-[70vh] md:h-[70vh] overflow-hidden rounded-xl">
     <img 
       src={bannerUrl} 
       alt={`${teamEntry.data.name} Background`} 
-      class="w-full h-full object-cover object-center scale-105 filter blur-sm brightness-[0.4]"
+      class="w-full h-full object-cover object-center scale-105 filter brightness-[0.4]"
     />
     <div class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/60 to-neutral-950"></div>
   </div>
@@ -174,10 +174,6 @@ const getMatchLogo = (opponentData: any) => {
                 {recentMatches.length > 0 ? (
                     <div class="space-y-3">
                         {recentMatches.map(match => {
-                          // Get logos from match data using our helper
-                          const leftLogo = getMatchLogo(match.match2opponents?.opponents?.[0]);
-                          const rightLogo = getMatchLogo(match.match2opponents?.opponents?.[1]);
-
                           return (
                             <div class="bg-neutral-950/50 p-3 rounded-lg border border-neutral-800 flex flex-col gap-2">
                                 
@@ -189,8 +185,8 @@ const getMatchLogo = (opponentData: any) => {
                                 <div class="flex items-center justify-between">
                                     {/* Team Left */}
                                     <div class="flex items-center gap-2 flex-1">
-                                        <div class="w-6 h-6 bg-neutral-800 rounded flex items-center justify-center p-0.5">
-                                           {leftLogo ? <img src={leftLogo} class="w-full h-full object-contain"/> : <span class="text-[8px] text-neutral-500">TBD</span>}
+                                        <div class="w-6 h-6 items-center justify-center p-0.5">
+                                           {match.logoLeft ? <img src={match.logoLeft} class="w-full h-full object-contain"/> : <span class="text-[8px] text-neutral-500">TBD</span>}
                                         </div>
                                         <span class={`font-bold text-sm truncate ${match.teamLeft.toLowerCase().includes(teamName.toLowerCase()) ? 'text-white' : 'text-neutral-400'}`}>
                                           {match.teamLeft}
@@ -207,8 +203,8 @@ const getMatchLogo = (opponentData: any) => {
                                         <span class={`font-bold text-sm truncate text-right ${match.teamRight.toLowerCase().includes(teamName.toLowerCase()) ? 'text-white' : 'text-neutral-400'}`}>
                                           {match.teamRight}
                                         </span>
-                                        <div class="w-6 h-6 bg-neutral-800 rounded flex items-center justify-center p-0.5">
-                                           {rightLogo ? <img src={rightLogo} class="w-full h-full object-contain"/> : <span class="text-[8px] text-neutral-500">TBD</span>}
+                                        <div class="w-6 h-6 items-center justify-center p-0.5">
+                                           {match.logoRight ? <img src={match.logoRight} class="w-full h-full object-contain"/> : <span class="text-[8px] text-neutral-500">TBD</span>}
                                         </div>
                                     </div>
                                 </div>

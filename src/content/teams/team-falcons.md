@@ -1,6 +1,5 @@
 ---
 name: 'Team Falcons'
-liquipediaName: 'Team_Falcons'
 region: 'Korea'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/tf_logo_zi9tio.png'
 socials:
