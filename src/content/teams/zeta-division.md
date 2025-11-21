@@ -6,9 +6,13 @@ socials:
     twitter: 'https://twitter.com/zetadivision'
     website: 'https://zetadivision.com/'
 achievements:
-    - '🥉 3st Place - 2024 Esports World Cup'
+    - '🥉 3st Place - 2025 OWCS Asia Stage 1 Main Event'
     - '🥈 2nd Place - 2025 OWCS Korea Stage 1'
+    - '🥈 2nd Place - 2024 Soop Overwatch Cup Season 2 - Korea'
+    - '🥉 3st Place - 2024 OWCS Asia Stage 2 Main Event'
     - '🥈 2nd Place - 2024 OWCS Korea Stage 2'
+    - '🥉 3st Place - 2024 Esports World Cup'
+
 banner: 'https://live.staticflickr.com/65535/53888288226_5548a030dd_k.jpg'
 colour: '#E7FC5F'
 ---

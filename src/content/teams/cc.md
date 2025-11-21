@@ -6,7 +6,9 @@ logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898093/cc_logo.png
 socials:
     website: 'https://weibo.com/8000059901'
 achievements:
-    - ''
+    - '🥈 2nd Place - 2025 OWCS China Stage 1'
+    - '🥈 2nd Place - 2025 OWCS China Stage 2'
+    - '🥈 2nd Place - 2025 OWCS China Stage 3'
 banner: 'https://live.staticflickr.com/65535/54694866558_11a8d88732_k.jpg'
 colour: '#7e3898'
 ---

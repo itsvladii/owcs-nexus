@@ -6,9 +6,15 @@ socials:
     twitter: 'https://twitter.com/spacestation'
     website: 'https://spacestationgaming.com/'
 achievements:
-    - '🏆 1st Place - 2025 OWCS EMEA Stage 1'
-    - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
-    - '🥈 2nd Place - 2024 SOOP Cup 2025 Season 1 - Korea'
+    - '🏆 1st Place - 2024 OWCS EMEA Stage 4'
+    - '🏆 1st Place - 2024 FACEIT League Season 1 EMEA Master Road to EWC'
+    - '🏆 1st Place - 2024 FACEIT League Season 1 EMEA Master'
+    - '🏆 1st Place - 2024 OWCS EMEA Stage 2'
+    - '🥉 3rd Place - 2024 OWCS EMEA Stage 3'
+    - '🥉 3rd Place - 2024 OWCS EMEA Stage 3'
+    - '🥈 2nd Place - 2025 OWCS Major'
+    - '🥈 2nd Place - 2025 OWCS NA Stage 1'
+    - '🥈 2nd Place - 2025 OWCS NA Stage 3'
 banner: 'https://live.staticflickr.com/65535/54692864255_bd40221227_k.jpg'
 colour: '#f4b121'
 ---

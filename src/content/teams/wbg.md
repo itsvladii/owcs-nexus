@@ -9,6 +9,7 @@ socials:
 achievements:
     - '🏆 1st Place - 2025 OWCS China Stage 3'
     - '🏆 1st Place - 2025 OWCS China Stage 2'
+    - '🏆 1st Place - 2025 OWCS China Stage 1'
 banner: 'https://live.staticflickr.com/65535/53884638424_9fc7f21976_k.jpg'
 colour: '#f07ba9'
 ---

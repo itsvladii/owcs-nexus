@@ -6,9 +6,8 @@ socials:
     twitter: ''
     website: ''
 achievements:
-    - '🏆 1st Place - 2025 OWCS EMEA Stage 1'
-    - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
-    - '🥈 2nd Place - 2024 SOOP Cup 2025 Season 1 - Korea'
+    - '🏆 1st Place - 2025 OWCS NA Stage 2'
+    - '🥉 3nd Place - 2025 OWCS NA Stage 3'
 banner: 'https://live.staticflickr.com/65535/54696388466_cd841b0a15_k.jpg'
 colour: '#1e3764'
 ---

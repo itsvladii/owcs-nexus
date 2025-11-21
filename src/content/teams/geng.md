@@ -6,9 +6,7 @@ socials:
     twitter: 'https://twitter.com/GenG'
     website: 'https://geng.gg/'
 achievements:
-    - '🏆 1st Place - 2025 OWCS EMEA Stage 1'
-    - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
-    - '🥈 2nd Place - 2024 SOOP Cup 2025 Season 1 - Korea'
+    - ''
 
 banner: 'https://live.staticflickr.com/65535/54692864255_bd40221227_k.jpg'
 colour: '#a58331'

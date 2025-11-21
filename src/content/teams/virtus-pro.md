@@ -6,9 +6,12 @@ socials:
     twitter: 'https://twitter.com/virtuspro_OW2'
     website: 'https://virtus.pro/'
 achievements:
+    - '🥉 3rd Place - 2024 OWCS EMEA Stage 2'
+    - '🥈 2nd Place - 2025 SOOP Cup 2025 Season 1 - Korea'
     - '🏆 1st Place - 2025 OWCS EMEA Stage 1'
+    - '🏆 1st Place - FACEIT League Season 3 EMEA Master'
+    - '🥉 3rd Place - FACEIT League Season 2 EMEA Master'
     - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
-    - '🥈 2nd Place - 2024 SOOP Cup 2025 Season 1 - Korea'
 banner: 'https://live.staticflickr.com/65535/54694648671_5200931b12_k.jpg'
 colour: '#ee5102'
 ---

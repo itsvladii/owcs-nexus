@@ -7,10 +7,16 @@ socials:
     twitter: 'https://x.com/FalconsEsports'
     website: 'https://falcons.sa'
 achievements:
-    - '🏆 1st Place - 2024 OWCS World Finals'
-    - '🥈 2nd Place - 2024 OWCS Major'
     - '🏆 1st Place - 2025 OWCS Midseason Championship'
     - '🥈 2nd Place - 2025 OWCS Champions Clash'
+    - '🏆 1st Place - 2025 OWCS Asia Stage 1 Main Event'
+    - '🏆 1st Place - 2024 OWCS World Finals'
+    - '🏆 1st Place - 2024 OWCS Asia Stage 2 Main Event'
+    - '🏆 1st Place - 2024 OWCS Korea Stage 2'
+    - '🥉 3rd Place - 2024 Esports World Cup'
+    - '🥈 2nd Place - 2024 OWCS Major'
+    - '🥈 2nd Place - 2024 OWCS Asia Stage 1 Main Event'
+    - '🏆 1st Place - 2024 OWCS Korea Stage 1'
 banner: 'https://live.staticflickr.com/65535/54697744067_7955ad8c07_k.jpg'
 colour: '#50be6d'
 ---

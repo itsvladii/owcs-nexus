@@ -6,9 +6,12 @@ socials:
     twitter: 'https://twitter.com/TwisMinds'
     website: 'https://twisminds.gg/'
 achievements:
-    - '🏆 1st Place - 2025 OWCS EMEA Stage 1'
-    - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
+    - '🏆 1st Place - 2025 OWCS EMEA Stage 3'
+    - '🥉 3rd Place - 2025 OWCS Midseason Championship'
+    - '🥈 2nd Place - 2025 OWCS EMEA Stage 2'
     - '🥈 2nd Place - 2024 SOOP Cup 2025 Season 1 - Korea'
+    - '🥉 3rd Place - 2024 OWCS EMEA Stage 4'
+    - '🏆 1st Place - 2024 OWCS EMEA Stage 1'
 banner: 'https://live.staticflickr.com/65535/54695560162_bfced20bdc_k.jpg'
 colour: '#5dd9d7'
 ---
