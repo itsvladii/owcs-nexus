@@ -12,6 +12,13 @@ achievements:
     - '🏆 1st Place - 2025 OWCS China Stage 1'
 banner: 'https://live.staticflickr.com/65535/53884638424_9fc7f21976_k.jpg'
 colour: '#f07ba9'
+coaches:
+    - name: 'JFeel'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739590/wbg_jfeel_p1.png'
+    - name: 'Yong'
+      role: 'Coach'
+      headshot: ''
 ---
 
 ## About Crazy Raccoons

@@ -19,6 +19,17 @@ achievements:
     - '🏆 1st Place - 2024 OWCS Korea Stage 1'
 banner: 'https://live.staticflickr.com/65535/54697744067_7955ad8c07_k.jpg'
 colour: '#50be6d'
+coaches:
+  - name: 'NineK'
+    role: 'Head Coach'
+    headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739527/tf_ninek_p1.png'
+  - name: 'AiD'
+    role: 'Coach'
+    headshot: ''
+  - name: 'SP9RK1E'
+    role: 'Coach'
+    headshot: ''  
+
 ---
 
 ## About Team Falcons

@@ -15,6 +15,13 @@ achievements:
 
 banner: 'https://live.staticflickr.com/65535/53888288226_5548a030dd_k.jpg'
 colour: '#E7FC5F'
+coaches:
+    - name: 'Mobydik'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739590/zeta_mobydik_p1.png'
+    - name: 'Rascal'
+      role: 'Assistant Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763746704/zeta_rascal_p1.png'
 ---
 
 ## About Crazy Raccoons

@@ -10,6 +10,13 @@ achievements:
     - '🥉 3nd Place - 2025 OWCS NA Stage 3'
 banner: 'https://live.staticflickr.com/65535/54696388466_cd841b0a15_k.jpg'
 colour: '#1e3764'
+coaches:
+    - name: 'Wheats'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739334/gk_wheats.png'
+    - name: 'GgulTaek'
+      role: 'Coach'
+      headshot: ''
 ---
 
 ## About Virtus Pro

@@ -21,6 +21,14 @@ achievements:
     - '🏆 1st Place - 2024 OWCS Asia Stage 1 Main Event'
 banner: 'https://live.staticflickr.com/65535/53888518623_1d23f8e915_k.jpg'
 colour: '#ec0201'
+coaches:
+  - name: 'Moon'
+    role: 'Head Coach'
+    headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739527/cr_moon_p1.png'
+  - name: 'Kong'
+    role: 'Assistant Coach'
+    headshot: ''     
+
 ---
 
 ## About Crazy Raccoons

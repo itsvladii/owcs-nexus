@@ -50,7 +50,14 @@ const teamSchema=z.object({
     }).optional(),
     achievements: z.array(z.string()).optional(),
     banner:z.string().url().optional(),
-    colour: z.string().optional()
+    colour: z.string().optional(),
+    coaches: z.array(
+    z.object({
+      name: z.string(),
+      role: z.string(), // "Head Coach", "Assistant Coach", "Analyst"
+      headshot: z.string().url().optional(), // Optional: Cloudinary URL
+    })
+  ).optional(),
 })
 
 //rendo questi schema visibili

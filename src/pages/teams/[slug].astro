@@ -53,7 +53,7 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
   <div class="max-w-5xl mx-auto">
     {/*DIV CON LOGO E NOME DEL TEAM */}
   {teamPhotoUrl && (
-    <div class="relative w-full h-[450px] sm:h-[500px] overflow-hidden -mt-[64px] mb-8" > {/* Adjusted height and negative margin to pull it up under the header */}
+    <div class="relative rounded-xl w-full h-[450px] sm:h-[500px] overflow-hidden -mt-[64px] mb-8" > {/* Adjusted height and negative margin to pull it up under the header */}
       
       {/* Background Image */}
       <img 
@@ -191,6 +191,106 @@ const myUserAgent = 'OWCS-Wiki (barcanvladi@gmail.com)'; // !! Remember to chang
         );
       })}
     </div>
+
+    <h2 class="text-3xl font-bold text-white font-title mt-8 mb-4">Coaching Staff</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {teamEntry.data.coaches.map((coach) => {
+        
+        const headshotUrl = coach.headshot
+          ? coach.headshot.replace('/upload/', '/upload/w_600,c_fit,b_transparent,f_auto,q_auto:best/')
+          : null;
+
+        const fallbackBgUrl = !headshotUrl && teamEntry.data.logo
+               ? teamEntry.data.logo.replace('/upload/', '/upload/w_300,c_pad,e_grayscale,o_20,f_auto,q_auto/')
+               : null;
+
+        return (
+          <a  
+            class="
+              relative block h-80 w-full
+              bg-neutral-900/80 backdrop-blur-sm rounded-lg 
+              border 
+              transition-all duration-500 ease-out
+              shadow-lg overflow-hidden group
+            "
+            style={`
+              border-color: ${teamColor}33; 
+              --hover-border: ${teamColor};
+              --hover-shadow: 0 0 20px ${teamColor}40;
+            `}
+          >
+            {/* We use a local <style> here to handle the hover state 
+               using the CSS variables we defined above.
+            */}
+            <style>
+              a:hover {
+                border-color: var(--hover-border) !important;
+                box-shadow: var(--hover-shadow) !important;
+                transform: translateY(-4px);
+              }
+            </style>
+
+            {/* 1. The Angled Frame */}
+            <div 
+              class="
+                absolute inset-0 h-full w-full 
+                overflow-hidden -skew-y-3 
+                bg-neutral-800/30
+              "
+              style={`box-shadow: 0 0 0 1px ${teamColor}1a;`} 
+            >
+              {headshotUrl ? (
+                <img 
+                  src={headshotUrl}
+                  alt={coach.name}
+                  class="
+                    relative w-full h-full 
+                    object-contain object-top 
+                    skew-y-3 
+                    transition-transform duration-500
+                    group-hover:scale-105
+                  "
+                  width="400"
+                  height="400"
+                  loading="lazy"
+                />
+              ) : (
+                    /* Option B: Fallback Logo Background */
+                    fallbackBgUrl && (
+                      <div class="flex items-center justify-center w-full h-full skew-y-3">
+                         <img 
+                          src={fallbackBgUrl}
+                          alt="Team Logo"
+                          class="w-32 h-32 object-contain opacity-50"
+                        />
+                      </div>
+                    ))}
+            </div>
+            
+            {/* 2. Gradient */}
+            <div class="
+              absolute bottom-0 left-0 right-0 h-2/3 
+              bg-gradient-to-t from-neutral-950 via-neutral-900/80 to-transparent
+            "></div>
+
+            {/* 3. Player Info */}
+            <div class="absolute bottom-0 left-0 right-0 p-4">
+              <h3 class="text-3xl font-bold text-white font-title tracking-wide group-hover:text-white transition-colors duration-300">
+                {coach.name}
+              </h3>
+              
+              <p 
+                class="text-xl font-bold opacity-90 group-hover:opacity-100 transition-opacity"
+                style={`color: ${teamColor};`}
+              >
+                {coach.role}
+              </p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+    
 
     
     <div class="prose prose-invert prose-lg bg-neutral-900 p-8 rounded-lg mt-8 border border-neutral-800">

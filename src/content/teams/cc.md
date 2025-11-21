@@ -11,6 +11,10 @@ achievements:
     - '🥈 2nd Place - 2025 OWCS China Stage 3'
 banner: 'https://live.staticflickr.com/65535/54694866558_11a8d88732_k.jpg'
 colour: '#7e3898'
+coaches:
+  - name: 'Junkbuck'
+    role: 'Head Coach'
+    headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739527/cc_lnlD_p1.png'
 ---
 
 ## About Crazy Raccoons

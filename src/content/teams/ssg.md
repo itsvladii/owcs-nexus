@@ -17,6 +17,13 @@ achievements:
     - '🥈 2nd Place - 2025 OWCS NA Stage 3'
 banner: 'https://live.staticflickr.com/65535/54692864255_bd40221227_k.jpg'
 colour: '#f4b121'
+
+coaches:
+    - name: 'ChrisTFer'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739381/ssg_christfer_p1.png'
+
+      
 ---
 
 ## About Virtus Pro

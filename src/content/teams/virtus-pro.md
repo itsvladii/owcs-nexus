@@ -14,6 +14,11 @@ achievements:
     - '🥈 2nd Place - 2024 OWCS EMEA Stage 3'
 banner: 'https://live.staticflickr.com/65535/54694648671_5200931b12_k.jpg'
 colour: '#ee5102'
+coaches:
+    - name: 'SMASH'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739590/vp_smash_p1.png'
+
 ---
 
 ## About Virtus Pro

@@ -11,6 +11,13 @@ achievements:
     - '🥉 3rd Place - 2024 OWCS NA Stage 1'
 banner: 'https://live.staticflickr.com/65535/54694896189_2ce1705989_k.jpg'
 colour: '#041438'
+coaches:
+    - name: 'Casores'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739590/tl_casores.png'
+    - name: 'Danny'
+      role: 'Assistant Coach'
+      headshot: ''
 ---
 
 ## About Virtus Pro

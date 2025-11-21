@@ -13,6 +13,13 @@ achievements:
     - '🥉 3rd Place - 2024 OWCS Japan Stage 1'
 banner: 'https://live.staticflickr.com/65535/54694648941_b812949091_k.jpg'
 colour: '#ffffff'
+coaches:
+    - name: 'Dae'
+      role: 'Head Coach'
+      headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739590/vl_dae1_p1.png'
+    - name: 'PAIN'
+      role: 'Coach'
+      headshot: ''
 ---
 
 ## About Crazy Raccoons

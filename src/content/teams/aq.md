@@ -12,6 +12,10 @@ achievements:
 
 banner: 'https://live.staticflickr.com/65535/54697746477_48b2e725a2_k.jpg'
 colour: '#ec0201'
+coaches:
+  - name: 'Junkbuck'
+    role: 'Head Coach'
+    headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1763739527/aq_junbuck_p1.png'
 ---
 
 ## About Virtus Pro
