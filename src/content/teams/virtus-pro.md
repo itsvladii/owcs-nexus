@@ -1,5 +1,6 @@
 ---
 name: 'Virtus.pro'
+FACEITname: "Virtuspro"
 region: 'EMEA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898092/vp_logo_hln8yv.png'
 socials:

@@ -1,5 +1,6 @@
 ---
 name: 'Gen.G'
+FACEITname: 'GenG Esports'
 region: 'EMEA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898089/geng_logo_y31vcz.png'
 socials:

@@ -6,6 +6,7 @@ import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
 import IconWebsite from '../../components/icons/IconWebsite.astro';
 import Quiz from '../../components/Quiz.tsx';
+import { fetchFaceitStats } from '../../lib/fetchAdvStats';
 import { generateTeamQuiz } from '../../lib/quizGenerator';
 
 // We use the "Fetch All" function to get the master list once during build
@@ -18,8 +19,10 @@ export async function getStaticPaths() {
   
   // A. Fetch global match data ONCE
   const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
+  const faceitKey = import.meta.env.FACEIT_API_KEY;
   const userAgent = 'OWCS-Nexus (barcanvladi@gmail.com)';
   const globalMatches = await fetchAllSeasonMatches(apiKey, userAgent);
+  
 
   // Helper for logos (Proxy)
   const getLogo = (op: any) => {
@@ -29,7 +32,7 @@ export async function getStaticPaths() {
   };
 
   // B. Build pages for each team
-  return allTeams.map(teamEntry => {
+  return Promise.all(allTeams.map(async teamEntry => {
     const TEAM_ALIASES: Record<string, string> = {
       "All Gamers Global": "WAE",
       "WAY": "WAE",
@@ -69,6 +72,11 @@ export async function getStaticPaths() {
 
     // 1. Roster
     const roster = allPlayers.filter(p => p.data.team === teamEntry.slug);
+    const advancedStats = await fetchFaceitStats(
+       teamEntry.data.FACEITname, 
+       teamEntry.data.region, 
+       faceitKey
+    );
     
     // 2. Quiz
     const teamQuizQuestions = generateTeamQuiz(teamEntry, roster, allPlayers, allTeams);
@@ -106,15 +114,18 @@ export async function getStaticPaths() {
          };
       });
 
+      
+    console.log(advancedStats)
+
     return {
       params: { slug: teamEntry.slug },
-      props: { teamEntry, recentMatches, teamQuizQuestions, roster },
+      props: { teamEntry, recentMatches, teamQuizQuestions, roster,advancedStats },
     };
-  });
+  }));
 }
 
 // --- 3. GET DATA FROM PROPS ---
-const { teamEntry, recentMatches, teamQuizQuestions, roster } = Astro.props;
+const { teamEntry, recentMatches, teamQuizQuestions, roster,advancedStats } = Astro.props;
 const { Content } = await teamEntry.render();
 
 // --- 4. PREPARE VISUALS ---
@@ -298,6 +309,40 @@ const logoUrl = teamEntry.data.logo.replace('/upload/', '/upload/w_400,h_400,c_p
                     <p class="text-neutral-500 text-sm italic p-4 text-center">No recent matches found.</p>
                 )}
             </div>
+
+            {advancedStats && (
+              <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                 {/* Accent Line */}
+                 <div class="absolute top-0 left-0 w-1 h-full" style={`background-color: ${teamColor};`}></div>
+                 
+                 <h3 class="text-xl font-title text-white mb-4 border-b border-neutral-800 pb-2 flex justify-between items-center">
+                    Season Stats
+                    <span class="text-xs font-sans font-normal text-neutral-500 bg-neutral-800 px-2 py-0.5 rounded">FACEIT</span>
+                 </h3>
+
+                 <div class="grid grid-cols-2 gap-4">
+                    {/* Win Rate */}
+                    <div class="bg-neutral-950/50 p-3 rounded-lg border border-neutral-800 text-center">
+                      <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Win Rate</p>
+                      <p class="text-2xl font-mono font-bold text-white">{advancedStats.winRate}%</p>
+                    </div>
+                    
+                    {/* Streak */}
+                    <div class="bg-neutral-950/50 p-3 rounded-lg border border-neutral-800 text-center">
+                      <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Streak</p>
+                      <p class={`text-2xl font-mono font-bold ${advancedStats.currentStreak > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {advancedStats.currentStreak > 0 ? '+' : ''}{advancedStats.currentStreak}
+                      </p>
+                    </div>
+
+                    {/* Best Map */}
+                    <div class="col-span-2 bg-neutral-950/50 p-3 rounded-lg border border-neutral-800 flex justify-between items-center px-4">
+                       <p class="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Best Map</p>
+                       <p class="text-lg font-bold text-white">{advancedStats.bestMap}</p>
+                    </div>
+                 </div>
+              </div>
+            )}
 
             {/* TROPHIES */}
             {teamEntry.data.achievements && teamEntry.data.achievements.length > 0 && (

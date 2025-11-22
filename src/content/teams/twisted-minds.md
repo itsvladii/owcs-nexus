@@ -1,5 +1,6 @@
 ---
 name: 'Twisted Minds'
+FACEITname: 'Twisted Minds'
 region: 'EMEA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898092/tm_logo_xx1e3y.png'
 socials:

@@ -41,7 +41,7 @@ const playerSchema=z.object({
 //schema che descrive il team
 const teamSchema=z.object({
     name:z.string(),
-    liquipediaName:z.string().optional(),
+    FACEITname:z.string().optional(),
     region:z.enum(['NA','EMEA','Korea','Pacific','Japan','China']),
     logo:z.string().url().optional(),
     socials:z.object({

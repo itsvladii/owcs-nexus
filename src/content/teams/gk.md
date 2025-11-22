@@ -1,5 +1,6 @@
 ---
 name: 'Geekay Esports'
+FACEITname: 'Geekay Esports'
 region: 'NA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762902212/gk_logo_kpbpjz.png'
 socials:

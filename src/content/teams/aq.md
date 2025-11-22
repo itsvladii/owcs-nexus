@@ -1,5 +1,6 @@
 ---
 name: 'Al Qadsiah'
+FACEITname: 'Al qadsiah'
 region: 'EMEA'
 logo: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898089/aq_logo_mxznka.png'
 socials:
