@@ -9,7 +9,7 @@ import Quiz from '../../components/Quiz.tsx';
 import { generateTeamQuiz } from '../../lib/quizGenerator';
 
 // We use the "Fetch All" function to get the master list once during build
-import { fetchAllSeasonMatches } from '../../lib/fetchRecent3Matches';
+import { fetchAllSeasonMatches } from '../../lib/fetchMatches';
 
 // --- 2. GETSTATICPATHS (The Brains) ---
 export async function getStaticPaths() {
@@ -24,13 +24,49 @@ export async function getStaticPaths() {
   // Helper for logos (Proxy)
   const getLogo = (op: any) => {
     if (!op) return null;
-    let url = op.teamtemplate?.imageurl || op.iconurl;
+    let url = op.teamtemplate?.imagedarkurl || op.iconurl;
     return url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}` : null;
   };
 
   // B. Build pages for each team
   return allTeams.map(teamEntry => {
+    const TEAM_ALIASES: Record<string, string> = {
+      "All Gamers Global": "WAE",
+      "WAY": "WAE",
+      "Once Again": "Weibo Gaming",
+      "Sign Esports": "NTMR",
+      "1DIPVS100GORILLAS": "Quick Esports",
+      "Team CC (Chinese orgless team)": "Team CC",
+      "Cheeseburger (Korean team)": "Cheeseburger",
+      "Gen.G Esports":"Gen.G"
+    };
     
+    function getNormalizedTeamName(name: string): string {
+      return TEAM_ALIASES[name] || name;
+    }
+
+    function shortenTournamentName(name: string): string {
+      if (!name) return "";
+      
+      let shortName = name;
+
+      // Common replacements
+      shortName = shortName.replace(/Overwatch Champions Series/g, "OWCS");
+      shortName = shortName.replace(/Overwatch League/g, "OWL");
+      shortName = shortName.replace(/Saudi eLeague/g, "SEL");
+      shortName = shortName.replace(/ 20(\d\d)/g, " '$1");
+      
+      // Simplify Stages
+      shortName = shortName.replace(/Stage (\d)/g, "S$1");
+      shortName = shortName.replace(/Season (\d)/g, "S$1");
+
+      // Example: "OWCS 2024 North America Stage 1" -> "OWCS NA S1"
+      shortName = shortName.replace(/North America/g, "NA");
+      shortName = shortName.replace(/Europe, Middle East & Africa/g, "EMEA");
+      shortName = shortName.replace(/South Korea/g, "Korea");
+      return shortName.trim();
+    }
+
     // 1. Roster
     const roster = allPlayers.filter(p => p.data.team === teamEntry.slug);
     
@@ -59,13 +95,13 @@ export async function getStaticPaths() {
          const s2 = op2.score === -1 ? 0 : (op2.score ?? 0);
 
          return {
-           teamLeft: op1.name || 'TBD',
+           teamLeft: getNormalizedTeamName(op1.name) || 'TBD',
            scoreLeft: s1,
            logoLeft: getLogo(op1),
-           teamRight: op2.name || 'TBD',
+           teamRight: getNormalizedTeamName(op2.name) || 'TBD',
            scoreRight: s2,
            logoRight: getLogo(op2),
-           tournament: match.tournament,
+           tournament: shortenTournamentName(match.tournament),
            date: new Date(match.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
          };
       });
@@ -269,7 +305,7 @@ const logoUrl = teamEntry.data.logo.replace('/upload/', '/upload/w_400,h_400,c_p
                     <h3 class="text-xl font-title text-white mb-4 border-b border-neutral-800 pb-2">Achievements</h3>
                     <ul class="space-y-2">
                         {teamEntry.data.achievements.map(ach => (
-                            <li class="flex gap-3 text-sm text-neutral-300"><span class="text-amber-500 shrink-0">🏆</span><span>{ach.replace('🏆', '').trim()}</span></li>
+                            <li class="flex gap-3 text-sm text-neutral-300"><span class="text-amber-500 shrink-0"></span><span>{ach}</span></li>
                         ))}
                     </ul>
                 </div>

@@ -15,7 +15,7 @@ socials:
   twitch: 'https://www.twitch.tv/ch0r0ng_ow'
 career:
   - date: '2024 - Present'
-    team: 'Crazy Raccoons'
+    team: 'Crazy Raccoon'
     notes:
       - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
       - '🏆 Won 2024 OWCS Major'
