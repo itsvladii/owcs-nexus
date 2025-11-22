@@ -10,9 +10,10 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 * **Detailed player profiles**, with:
     * Career timelines and acomplishments.
     * Signature heroes.
-    * Most recent Player POV's so you can catch all the most recent action! (courtesy of [ObsSojourn's Youtube channel](https://www.youtube.com/@ObsSojourn) for them, shoutouts to the GOAT!)
+    * Most recent Player POV's so you can catch all the most recent best maps of your favourite players. (thanks to [ObsSojourn's Youtube channel](https://www.youtube.com/@ObsSojourn) for the Player POV's, make sure to subscribe to the GOAT!)
 * **Detailed Team Rosters**, with the latest updates and info about your favourite team! 
 * **Interactive Player List:** A React "island" that lets users instantly search and filter all players by name, role, and team.
+* **Global Team Power Rankings:** An (un)official global leaderboard of the Top 25 teams across all OWCS regions based on their performances.
 * **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
 
 ## 📔 TODO list
@@ -20,6 +21,7 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 * [ ] Updated Player and Team Info
 * [x] Player and Team Comparison
 * [x] Team Power Rankings (a la LoL Esports)
+* [x] Global Searching
 
 ## 🛠️ Tech Stack
 
