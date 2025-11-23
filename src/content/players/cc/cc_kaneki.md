@@ -11,26 +11,34 @@ signatureHeroes:
   - 'Kiriko'
   - 'Ana'
 socials:
-  twitter: 'https://twitter.com/Guxue5'
-  twitch: 'https://weibo.com/5592512066'
+  twitch: 'https://weibo.com/5178102535'
 career:
-  - date: '2025-Present'
-    team: 'Weibo Gaming'
-    notes:
-      - '🏆 Won 2024 OWCS China Stage 1'
-      - '🏆 Won 2024 OWCS China Stage 2'
-      - '🏆 Won 2024 OWCS China Stage 3'
-  - date: '2023-2024'
-    team: 'Once Again'
+  - date: '2024-Present'
+    team: 'Team CC'
     notes:
       - ''
-  - date: '2018-2023'
-    team: 'Hangzhou Spark'
+  - date: '2023'
+    team: 'Rhodes'
     notes:
-      - '🏆 Won Overwatch League 2022 - Countdown Cup'
-      - '⭐️🛡️ Overwatch League 2019 Role Star - Tank'
-  - date: '2017-2018'
+      - '🏆 Won 2023 Overwatch Contenders Spring Series: Asia Pacific'
+  - date: '2022'
+    team: 'Team Chaser'
+    notes:
+      - '🏆 Won 2021 Overwatch Contenders China S2'
+  - date: '2021-2022'
+    team: 'UP Accademy'
+    notes:
+      - ''
+  - date: '2020-2021'
+    team: 'Chengdu Hunters'
+    notes:
+      - ''
+  - date: '2018-2019'
     team: 'LGD Gaming'
+    notes:
+      - ''
+  - date: '2018'
+    team: 'SN2'
     notes:
       - ''
 

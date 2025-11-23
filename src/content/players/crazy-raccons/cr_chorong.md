@@ -17,14 +17,15 @@ career:
   - date: '2024 - Present'
     team: 'Crazy Raccoon'
     notes:
-      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
-      - '🏆 Won 2024 OWCS Major'
-      - '🏆 Won 2024 Esports World Cup'
-      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
-      - '🏆 Won 2025 OWCS Korea Stage 1'
-      - '🏆 Won 2025 OWCS Champions Clash'
       - '🏆 Won 2025 OWCS Korea Stage 3'
+      - '🏆 Won 2025 OWCS Champions Clash'
+      - '🏆 Won 2025 OWCS Korea Stage 1'
+      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
       - '⭐💊 2024 OWCS Main Support MVP'
+      - '🥈 2nd Place - 2024 OWCS World Finals'
+      - '🏆 Won 2024 Esports World Cup'
+      - '🏆 Won 2024 OWCS Major'
+      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
   - date: '2024'
     team: 'WAC'
     notes:
@@ -36,12 +37,13 @@ career:
   - date: '2023'
     team: 'Florida Mayhem'
     notes:
+      - '🏆 Won 2023 Overwatch League Grand Finals'
+      - '🥉 3nd Place - 2023 Overwatch League Midseason Madness'
       - '🏆 Won Overwatch League 2023 - Pro-Am'
-      - '🏆 Won Overwatch League 2023 - Grand Finals'
   - date: '2021-2022'
     team: 'Toronto Defiant'
     notes:
-      - ''
+      - '🥉 3nd Place - 2022 Overwatch League Summer Showdown'
   - date: '2020-2021'
     team: 'Talon Esports'
     notes:

@@ -17,12 +17,15 @@ career:
   - date: '2024-Present'
     team: 'Team Falcons'
     notes:
-      - '🏆 Won 2024 OWCS Korea Stage 1'
-      - '🏆 Won 2024 OWCS Korea Stage 2'
-      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
-      - '🏆 Won 2024 OWCS World Finals'
-      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
       - '🏆 Won 2025 OWCS Midseason Championship'
+      - '🥈 2nd Place - 2024 OWCS Champions Clash'
+      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
+      - '🏆 Won 2024 OWCS World Finals'
+      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
+      - '🥉 3nd Place - 2024 Esports World Cup'
+      - '🥈 2nd Place - 2024 OWCS Major'
+      - '🏆 Won 2024 OWCS Korea Stage 2'
+      - '🏆 Won 2024 OWCS Korea Stage 1'
   - date: '2023-2024'
     team: 'Hamster'
     notes:
@@ -30,17 +33,18 @@ career:
   - date: '2022-2023'
     team: 'Atlanta Reign'
     notes:
-      - '🏆 Won Overwatch League 2023 - Midseason Madness'
       - '💊 2023 OWL Role Star - Support'
+      - '🏆 Won Overwatch League 2023 - Midseason Madness'
   - date: '2020 - 2022'
     team: 'Dallas Fuel'
     notes:
-      - '🏆 Won Overwatch League 2021 - May Melee'
-      - '🏆 Won Overwatch League 2022 - Summer Showdown'
-      - '🏆 Won Overwatch League 2022 - Regular Season'
-      - '🏆 Won Overwatch League 2022 - Grand Finals'
-      - '💊 2021 OWL Role Star - Support'
       - '💊 2022 OWL Role Star - Support'
+      - '🏆 Won 2022 Overwatch League Grand Finals'
+      - '🏆 Won 2022 Overwatch League Regular Season'
+      - '🏆 Won 2022 Overwatch League Summer Showdown'
+      - '🥈 2nd Place - 2022 Overwatch League Kickoff Clash'
+      - '💊 2021 OWL Role Star - Support'
+      - '🏆 Won Overwatch League 2021 - May Melee'
   - date: '2020'
     team: 'Paris Eternal'
     notes:
@@ -48,7 +52,7 @@ career:
   - date: '2018-2020'
     team: 'GC Busan Wave'
     notes:
-      - '🏆 Won Open Division 2018 Season 2 - Korea'
+      - ''
 ---
 
 ## About Proper

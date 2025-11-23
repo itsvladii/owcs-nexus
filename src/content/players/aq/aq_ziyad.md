@@ -12,28 +12,22 @@ signatureHeroes:
   - 'Sigma'
   - 'JunkerQueen'
 socials:
-  twitter: 'https://twitter.com/owquartz'
-  twitch: 'https://www.twitch.tv/Quartz'
+  twitter: 'https://twitter.com/ZIYAD_OW'
+  twitch: 'https://www.twitch.tv/ZIYAD_OW'
 career:
-  - date: '2023-Present'
+  - date: '2025-Present'
+    team: 'Al Qadisah'
+    notes:
+      - '🥈 2nd Place - 2025 OWCS Midseason Championship'
+      - '🏆 Won 2025 OWCS - EMEA Stage 2'
+  - date: '2024'
     team: 'Twisted Minds'
     notes:
-      - '🏆 Won 2024 OWCS EMEA Stage 1'
-      - '🏆 Won Saudi eLeague 2024 Championship'
-      - '🏆 Won 2024 OWCS EMEA Stage 3'
-  - date: '2021-2023'
-    team: '01 Esports'
+      - ''
+  - date: '2023'
+    team: 'The Vicious'
     notes:
-      - '🏆 Won Saudi eLeague 2021 Season 1'
-      - '🏆 Won Saudi eLeague 2021 Season 2'
-      - '🏆 Won Saudi eLeague 2021 Champions Cup'
-      - '🏆 Won Saudi eLeague 2022 Season 1'
-      - '🏆 Won Saudi eLeague 2022 Season 2'
-      - '🏆 Won Saudi eLeague 2023 Season 1'
-      - '🌍 Won 2023 Overwatch World Cup (with Saudi Arabia)'
-      - '🏆 Won Saudi eLeague 2023 Season 1'
-      - '⭐ 2023 Saudi eLeague 2023 Season 2 MVP'
-      - '⭐ 2021 Saudi eLeague 2023 Season 2 MVP'
+      - ''
 ---
 
 ## About Proper

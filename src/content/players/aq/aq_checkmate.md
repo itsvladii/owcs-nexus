@@ -11,8 +11,34 @@ signatureHeroes:
   - 'Tracer'
   - 'Echo'
 socials:
-  twitter: 'https://twitter.com/OwSimple'
-  twitch: 'https://www.twitch.tv/simple_ow_'
+  twitter: 'https://twitter.com/ow_checkmate'
+  twitch: 'https://www.twitch.tv/ow_checkmate'
+career:
+  - date: '2025-Present'
+    team: 'Al Qadsiah'
+    notes:
+      - '🥈 2nd Place - 2025 OWCS Midseason Championship'
+      - '🏆 Won 2025 OWCS - EMEA Stage 2'
+  - date: '2024'
+    team: 'FNATIC'
+    notes:
+      - ''
+  - date: '2020-2023'
+    team: 'Florida Mayhem'
+    notes:
+      - '🏆 Won 2023 Overwatch League Grand Finals'
+      - '🥉 3rd Place - 2023 Overwatch League Midseason Madness'
+      - '🏆 Won 2023 Overwatch League Pro-Am'
+      - '🏆 Won 2022 Overwatch League Countdown Cup'
+      - '🥉 3rd Place - 2021 Overwatch League May Melee'
+  - date: '2019-2020'
+    team: 'BATTLICA'
+    notes:
+      - ''
+  - date: '2019'
+    team: 'NMS'
+    notes:
+      - ''
 ---
 
 ## About Proper

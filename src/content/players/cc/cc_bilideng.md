@@ -11,26 +11,22 @@ signatureHeroes:
   - 'Reinhardt'
   - 'Winston'
 socials:
-  twitter: 'https://twitter.com/Guxue5'
-  twitch: 'https://weibo.com/5592512066'
+  twitch: 'https://space.bilibili.com/507292493'
 career:
-  - date: '2025-Present'
-    team: 'Weibo Gaming'
-    notes:
-      - '🏆 Won 2024 OWCS China Stage 1'
-      - '🏆 Won 2024 OWCS China Stage 2'
-      - '🏆 Won 2024 OWCS China Stage 3'
-  - date: '2023-2024'
-    team: 'Once Again'
+  - date: '2025/05 - Present'
+    team: 'Team CC'
     notes:
       - ''
-  - date: '2018-2023'
-    team: 'Hangzhou Spark'
+  - date: '2025/03-2025/05'
+    team: 'ROC Esports'
     notes:
-      - '🏆 Won Overwatch League 2022 - Countdown Cup'
-      - '⭐️🛡️ Overwatch League 2019 Role Star - Tank'
-  - date: '2017-2018'
-    team: 'LGD Gaming'
+      - ''
+  - date: '2024-2025'
+    team: 'Capere CAT'
+    notes:
+      - ''
+  - date: '2024'
+    team: 'Team Capere'
     notes:
       - ''
 

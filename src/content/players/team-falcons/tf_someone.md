@@ -21,11 +21,11 @@ career:
   - date: '2023-2025'
     team: 'Toronto Defiant'
     notes:
-      - '🏆 Won OWCS 2024 NA Stage 1'
-      - '🏆 Won OWCS 2024 NA Stage 2'
-      - '🏆 Won FACEIT League Master Season 1 - NA'
-      - '🏆 Won OWCS 2024 NA Stage 3'
       - '🏆 Won OWCS 2024 NA Stage 4'
+      - '🏆 Won OWCS 2024 NA Stage 3'
+      - '🏆 Won FACEIT League Master Season 1 - NA'
+      - '🏆 Won OWCS 2024 NA Stage 2'
+      - '🏆 Won OWCS 2024 NA Stage 1'
   - date: '2023'
     team: 'ISOHAN'
     notes:
@@ -33,12 +33,12 @@ career:
   - date: '2022-2023'
     team: 'Florida Mayhem'
     notes:
-      - '🏆 Won OWL 2022 - Countdown Cup'
-      - '🏆 Won OWL 2023 - Pro-Am'
-      - '🏆 Won OWL 2023 Grand Finals'
       - '⭐ 2023 OWL Regular Season MVP'
       - '🛡️ 2023 OWL Role Star - Tank'
       - '🤝 2023 Dennis Hawelka Award Winner'
+      - '🏆 Won OWL 2023 Grand Finals'
+      - '🏆 Won OWL 2023 - Pro-Am'
+      - '🏆 Won OWL 2022 - Countdown Cup'
   - date: '2022'
     team: 'Team CC'
     notes:

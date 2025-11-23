@@ -16,17 +16,20 @@ socials:
   twitch: 'https://twitch.tv/proper'
 
 career:
-  - date: '2024 - Present'
+  - date: '2024-Present'
     team: 'Team Falcons'
     notes:
-      - '🏆 Won 2024 OWCS Korea Stage 1'
-      - '🏆 Won 2024 OWCS Korea Stage 2'
-      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
-      - '🏆 Won 2024 OWCS World Finals'
-      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
-      - '🏆 Won 2025 OWCS Midseason Championship'
       - '⭐ 2025 OWCS Midseason Championship MVP'
+      - '🏆 Won 2025 OWCS Midseason Championship'
+      - '🥈 2nd Place - 2024 OWCS Champions Clash'
+      - '🏆 Won 2025 OWCS Asia Stage 1 Main Event'
       - '⭐🎯 2024 OWCS Flex DPS MVP'
+      - '🏆 Won 2024 OWCS World Finals'
+      - '🏆 Won 2024 OWCS Asia Stage 2 Main Event'
+      - '🥉 3nd Place - 2024 Esports World Cup'
+      - '🥈 2nd Place - 2024 OWCS Major'
+      - '🏆 Won 2024 OWCS Korea Stage 2'
+      - '🏆 Won 2024 OWCS Korea Stage 1'
   - date: '2023 - 2024'
     team: 'Hamster'
     notes:
@@ -34,15 +37,15 @@ career:
   - date: '2021 - 2023'
     team: 'San Francisco Shock'
     notes:
-      - '⭐ OWL 2022 MVP'
-      - '🚀 OWL 2022 Alarm Rookie of the Year'
-      - '🎯 OWL 2022 Role Star'
+      - '⭐ 2022 OWL MVP'
+      - '🚀 2022 OWL Alarm Rookie of the Year'
+      - '🎯 2022 OWL Role Star - DPS'
   - date: '2019 - 2021'
     team: 'O2 Blast'
     notes:
-      - '🏆 Won Overwatch Contenders 2020 Season 1: Korea'
-      - '🏆 Won Overwatch Contenders 2021 Season 1: Korea'
       - '🏆 Won Overwatch Contenders 2021 Season 2: Korea'
+      - '🏆 Won Overwatch Contenders 2021 Season 1: Korea'
+      - '🏆 Won Overwatch Contenders 2020 Season 1: Korea'
   - date: '2018 - 2019'
     team: 'StormQuake'
     notes:

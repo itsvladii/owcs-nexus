@@ -17,14 +17,35 @@ career:
   - date: '2024 - Present'
     team: 'Crazy Raccoon'
     notes:
-      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
-      - '🏆 Won 2024 OWCS Major'
-      - '🏆 Won 2024 Esports World Cup'
-      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
-      - '🏆 Won 2025 OWCS Korea Stage 1'
-      - '🏆 Won 2025 OWCS Champions Clash'
       - '🏆 Won 2025 OWCS Korea Stage 3'
-      - '⭐💊 2024 OWCS Main Support MVP'
+      - '🏆 Won 2025 OWCS Champions Clash'
+      - '🏆 Won 2025 OWCS Korea Stage 1'
+      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
+      - '🥈 2nd Place - 2024 OWCS World Finals'
+      - '🏆 Won 2024 Esports World Cup'
+      - '🏆 Won 2024 OWCS Major'
+      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
+  - date: '2024'
+    team: 'WAC'
+    notes:
+      - ""
+  - date: '2022-2023'
+    team: 'San Francisco Shock'
+    notes:
+      - ''
+  - date: '2020-2022'
+    team: 'O2 Blast'
+    notes:
+      - '🏆 Won Overwatch Contenders 2022 Pacific Showdown'
+      - '🏆 Won Overwatch Contenders 2022 Run It Back: Korea'
+      - '🏆 Won Overwatch Contenders 2022 Summer Series: Korea B-Sides'
+      - '🏆 Won Overwatch Contenders 2022 Summer Series: Korea A-Sides'
+      - '🏆 Won Overwatch Contenders 2021 Season 2: Korea'
+      - '🏆 Won Overwatch Contenders 2021 Season 1: Korea'
+  - date: '2019-2020'
+    team: 'NTP'
+    notes:
+      - ''
 ---
 
 ## About Proper

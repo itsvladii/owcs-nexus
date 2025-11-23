@@ -11,26 +11,31 @@ signatureHeroes:
   - 'Baptiste'
   - 'Ana'
 socials:
-  twitter: 'https://twitter.com/Guxue5'
-  twitch: 'https://weibo.com/5592512066'
+  twitch: 'https://weibo.com/5325251210'
 career:
-  - date: '2025-Present'
+  - date: '2024-Present'
     team: 'Weibo Gaming'
     notes:
-      - '🏆 Won 2024 OWCS China Stage 1'
-      - '🏆 Won 2024 OWCS China Stage 2'
-      - '🏆 Won 2024 OWCS China Stage 3'
-  - date: '2023-2024'
-    team: 'Once Again'
-    notes:
       - ''
-  - date: '2018-2023'
+  - date: '2021-2023'
     team: 'Hangzhou Spark'
     notes:
       - '🏆 Won Overwatch League 2022 - Countdown Cup'
-      - '⭐️🛡️ Overwatch League 2019 Role Star - Tank'
-  - date: '2017-2018'
+  - date: '2019-2021'
+    team: 'Team-CC'
+    notes:
+      - '🏆 Won 2020 Overwatch Contenders The Gauntlet: Asia'
+      - '🏆 Won 2020 Overwatch Contenders S1 China'
+  - date: '2018-2019'
     team: 'LGD Gaming'
+    notes:
+      - ''
+  - date: '2017-2018'
+    team: 'Rush B Gaming'
+    notes:
+      - ''
+  - date: '2016-2017'
+    team: 'Miracle Team One'
     notes:
       - ''
 

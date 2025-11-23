@@ -21,17 +21,17 @@ career:
   - date: '2024-2025'
     team: 'Toronto Defiant'
     notes:
-      - '🏆 Won OWCS 2024 NA Stage 1'
-      - '🏆 Won OWCS 2024 NA Stage 2'
-      - '🏆 Won FACEIT League Master Season 1 - NA'
-      - '🏆 Won OWCS 2024 NA Stage 3'
       - '🏆 Won OWCS 2024 NA Stage 4'
+      - '🏆 Won OWCS 2024 NA Stage 3'
+      - '🏆 Won FACEIT League Master Season 1 - NA'
+      - '🏆 Won OWCS 2024 NA Stage 2'
+      - '🏆 Won OWCS 2024 NA Stage 1'
   - date: '2022-2023'
     team: 'Florida Mayhem'
     notes:
-      - '🏆 Won OWL 2023 - Pro-Am'
-      - '🏆 Won OWL 2023 Grand Finals'
       - '⭐ 2023 OWL Grand Finals MVP'
+      - '🏆 Won 2023 Overwatch League 2023 Grand Finals'
+      - '🏆 Won 2023 Overwatch League 2023 - Pro-Am'
   - date: '2022'
     team: 'Houston Outlaws'
     notes:

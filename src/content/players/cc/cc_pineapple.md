@@ -11,26 +11,32 @@ signatureHeroes:
   - 'Kiriko'
   - 'Cassidy'
 socials:
-  twitter: 'https://twitter.com/Guxue5'
-  twitch: 'https://weibo.com/5592512066'
+  twitch: 'https://space.bilibili.com/1013597818'
 career:
-  - date: '2025-Present'
-    team: 'Weibo Gaming'
-    notes:
-      - '🏆 Won 2024 OWCS China Stage 1'
-      - '🏆 Won 2024 OWCS China Stage 2'
-      - '🏆 Won 2024 OWCS China Stage 3'
-  - date: '2023-2024'
-    team: 'Once Again'
+  - date: '2024-Present'
+    team: 'Team CC'
     notes:
       - ''
-  - date: '2018-2023'
+  - date: '2023'
+    team: 'Rhodes'
+    notes:
+      - '🏆 Won 2023 Overwatch Contenders Spring Series: Asia Pacific'
+  - date: '2021-2023'
     team: 'Hangzhou Spark'
     notes:
-      - '🏆 Won Overwatch League 2022 - Countdown Cup'
-      - '⭐️🛡️ Overwatch League 2019 Role Star - Tank'
-  - date: '2017-2018'
-    team: 'LGD Gaming'
+      - '🥉 3rd Place - 2023 Overwatch League Playoffs'
+      - '🏆 Won 2022 Overwatch League - Countdown Cup'
+  - date: '2020-2021'
+    team: 'Bilibili Gaming'
+    notes:
+      - '🏆 Won 2021 Overwatch Contenders China S2: Reg.Season 1-2'
+      - '🏆 Won 2021 Overwatch Contenders China S1: Reg.Season 1-2'
+  - date: '2020'
+    team: 'The One Winner'
+    notes:
+      - ''
+  - date: '2019-2020'
+    team: 'T1W.GZA'
     notes:
       - ''
 

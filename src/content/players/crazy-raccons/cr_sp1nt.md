@@ -11,19 +11,33 @@ signatureHeroes:
   - 'Tracer'
   - 'Echo'
 socials:
-  twitter: 'https://twitter.com/Ow_HeeSang'
-  twitch: 'https://www.twitch.tv/heesang_ow'
+  twitter: 'https://twitter.com/OwSp1nt'
+  twitch: 'https://www.twitch.tv/sp1nt_ow'
 career:
-  - date: '2024 - Present'
+  - date: '2025 - Present'
     team: 'Crazy Raccoon'
     notes:
-      - '🏆 Won 2024 OWCS Asia Stage 1 Main Event'
-      - '🏆 Won 2024 OWCS Major'
-      - '🏆 Won 2024 Esports World Cup'
-      - '🏆 Won 2024 Soop Overwatch Cup Season 2 - Korea'
-      - '🏆 Won 2025 OWCS Korea Stage 1'
-      - '🏆 Won 2025 OWCS Champions Clash'
-      - '🏆 Won 2025 OWCS Korea Stage 3'
+      - ''
+  - date: '2025'
+    team: 'Poker Face'
+    notes:
+      - ''
+  - date: '2023'
+    team: 'JNGK'
+    notes:
+      - ''
+  - date: '2022'
+    team: 'Poker Face'
+    notes:
+      - ''
+  - date: '2021'
+    team: 'JNGK'
+    notes:
+      - ''
+  - date: '2020'
+    team: 'Wave Laboratory'
+    notes:
+      - ''
 ---
 
 ## About Proper

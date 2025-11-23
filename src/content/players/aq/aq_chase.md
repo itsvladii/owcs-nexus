@@ -12,31 +12,34 @@ signatureHeroes:
   - 'Winston'
   - 'Doomfist'
 socials:
-  twitter: 'https://twitter.com/owquartz'
-  twitch: 'https://www.twitch.tv/Quartz'
+  twitter: 'https://twitter.com/Chase__ow'
+  twitch: 'https://www.twitch.tv/1chase__'
 career:
-  - date: '2023-Present'
-    team: 'Twisted Minds'
+  - date: '2025-Present'
+    team: 'Al Qadsiah'
     notes:
-      - '🏆 Won 2024 OWCS EMEA Stage 1'
-      - '🏆 Won Saudi eLeague 2024 Championship'
-      - '🏆 Won 2024 OWCS EMEA Stage 3'
-  - date: '2021-2023'
-    team: '01 Esports'
+      - ''
+  - date: '2025'
+    team: 'The Ultimates'
     notes:
-      - '🏆 Won Saudi eLeague 2021 Season 1'
-      - '🏆 Won Saudi eLeague 2021 Season 2'
-      - '🏆 Won Saudi eLeague 2021 Champions Cup'
-      - '🏆 Won Saudi eLeague 2022 Season 1'
-      - '🏆 Won Saudi eLeague 2022 Season 2'
-      - '🏆 Won Saudi eLeague 2023 Season 1'
-      - '🌍 Won 2023 Overwatch World Cup (with Saudi Arabia)'
-      - '🏆 Won Saudi eLeague 2023 Season 1'
-      - '⭐ 2023 Saudi eLeague 2023 Season 2 MVP'
-      - '⭐ 2021 Saudi eLeague 2023 Season 2 MVP'
+      - '🏆 Won 2024 OWCS - EMEA Stage 3'
+  - date: '2024-2025'
+    team: 'ENCE'
+    notes:
+      - ''
+  - date: '2023-2024'
+    team: 'Ex Oblivione'
+    notes:
+      - ''
+  - date: '2022-2023'
+    team: 'Rasberry Racers'
+    notes:
+      - ''
+  - date: '2021'
+    team: '4th Dimension'
+    notes:
+      - ''
 ---
-
-## About Proper
 
 Kim "Proper" Dong-hyun is a Korean prodigy widely regarded as one
 of the most mechanically gifted players in the history of the game.
