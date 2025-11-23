@@ -1,11 +1,12 @@
 // src/lib/faceit.ts
 
 export interface TeamStats {
-  winRate: number;
-  matchesPlayed: number;
-  wins: number;
-  currentStreak: number; // e.g. +3 or -1
-  bestMap: string;
+  winRate: string;       // e.g. "64"
+  totalMatches: string;  // e.g. "150"
+  totalWins: string;     // e.g. "96"
+  currentStreak: string; // e.g. "3"
+  longestStreak: string; // e.g. "8"
+  recentResults: string[]; // e.g. ["1", "0", "1", "1", "0"] (1=Win, 0=Loss)
 }
 
 export async function fetchFaceitStats(
@@ -13,63 +14,44 @@ export async function fetchFaceitStats(
   region: string, 
   apiKey: string
 ): Promise<TeamStats | null> {
+ 
 
-    
-  // 1. REGION CHECK: Only run for supported regions
-  // "Asia" and "Korea" are managed by WaraGG, so no API.
+  // 2. REGION LOCK
   if (['Korea', 'Asia', 'China', 'Pacific', 'Japan'].includes(region)) {
     return null;
   }
 
-  if (!apiKey) {
-    console.warn(`[FACEIT] Skipped ${teamName}: No API Key.`);
-    return null;
-  }
+  if (!apiKey) return null;
 
   try {
-    // 2. FIND TEAM ID
-    // We search for the team by name to get their FACEIT ID.
-    // Note: This searches the "ow2" game explicitly.
+    // 3. FIND TEAM ID
     const searchUrl = `https://open.faceit.com/data/v4/search/teams?nickname=${encodeURIComponent(teamName)}&game=ow2&offset=0&limit=1`;
-    
     const searchRes = await fetch(searchUrl, {
       headers: { 'Authorization': `Bearer ${apiKey}` }
     });
-    
     const searchData = await searchRes.json();
-    //console.log(searchData)
     const teamId = searchData.items?.[0]?.team_id;
-    //console.log(teamId)
 
-    /*if (!teamId) {
-      console.log(`[FACEIT] Could not find team: "${teamName}"`);
-      return null;
-    }*/
+    if (!teamId) return null;
 
-    // 3. FETCH TEAM STATS
+    // 4. FETCH SIMPLE LIFETIME STATS (No math required!)
     const statsUrl = `https://open.faceit.com/data/v4/teams/${teamId}/stats/ow2`;
     const statsRes = await fetch(statsUrl, {
       headers: { 'Authorization': `Bearer ${apiKey}` }
     });
     
-    const statsData = await statsRes.json();
+    const data = await statsRes.json();
     
-    // If they have no stats (new team), return null
-    if (!statsData || !statsData.lifetime) return null;
+    if (!data || !data.lifetime) return null;
 
-    // 4. FORMAT DATA
-    // FACEIT returns detailed map stats, we can pick the best one.
-    const mapSegments = statsData.segments || [];
-    // Sort by win rate to find best map
-    const bestMapObj = mapSegments.sort((a: any, b: any) => parseInt(b.stats['Win Rate %']) - parseInt(a.stats['Win Rate %']))[0];
-    console.log(bestMapObj)
-
+    // 5. RETURN RAW DATA
     return {
-      matchesPlayed: parseInt(statsData.lifetime['Matches'] || '0'),
-      wins: parseInt(statsData.lifetime['Wins'] || '0'),
-      winRate: parseInt(statsData.lifetime['Win rate %'] || '0'),
-      currentStreak: parseInt(statsData.lifetime['Current Undefeated Streak'] || '0'),
-      bestMap: bestMapObj ? bestMapObj.label : 'Unknown'
+      winRate: data.lifetime['Win rate %'] || '0',
+      totalMatches: data.lifetime['Matches'] || '0',
+      totalWins: data.lifetime['Wins'] || '0',
+      currentStreak: data.lifetime['Current Win Streak'] || '0',
+      longestStreak: data.lifetime['Longest Win Streak'] || '0',
+      recentResults: data.lifetime['Recent Results'] || []
     };
 
   } catch (error) {
