@@ -11,7 +11,9 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
     * Career timelines and acomplishments.
     * Signature heroes.
     * Most recent Player POV's so you can catch all the most recent best maps of your favourite players. (thanks to [ObsSojourn's Youtube channel](https://www.youtube.com/@ObsSojourn) for the Player POV's, make sure to subscribe to the GOAT!)
-* **Detailed Team Rosters**, with the latest updates and info about your favourite team! 
+* **Detailed Team Rosters**, with:
+    * The most recent 3 matches, pulled from Liquipedia using the Liquipedia API
+    * Advanced FACEIT Stats like historical map win rate, recent 5 map results and map win streaks (EMEA/NA only, no Asia :( )
 * **Interactive Player List:** A React "island" that lets users instantly search and filter all players by name, role, and team.
 * **Global Team Power Rankings:** An (un)official global leaderboard of the Top 25 teams across all OWCS regions based on their performances.
 * **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
