@@ -9,19 +9,18 @@ import TeamComparison from '../components/TeamComparison.tsx';
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = 'OWCS-Nexus (barcanvladi@gmail.com)';
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
-
-
-// 2. Calculate Rankings
 const { rankings } = calculateRankings(matches);
 
-// 3. PREPARE DATA (The Fix)
-// We filter the list to match the Global Rankings criteria EXACTLY.
-// If your calculateRankings function already filters, this is safe to keep as a double-check.
-// If calculateRankings returns the raw object, this creates the clean array.
+// 2. Calculate Rankings
 const qualifiedTeams = Object.values(rankings)
-  .filter((t: any) => (t.wins + t.losses) >= 10) // Must have played 5+ games
-  .filter((t: any) => t.rating >= 1100)         // Must have decent ELO
-  .sort((a: any, b: any) => a.name.localeCompare(b.name)); // Sort A-Z for the dropdown
+  .filter((t: any) => (t.wins + t.losses) >= 5)
+  .filter((t: any) => t.rating >= 1000)
+  .map((t: any) => ({
+      ...t, // Keep all other props
+      // OVERRIDE LOGO: Use Dark Mode if available, else Standard
+      logo: t.logoDark || t.logo
+  }))
+  .sort((a: any, b: any) => a.name.localeCompare(b.name));
 ---
 
 <BaseLayout title="Compare Teams" fullWidth={true}>
