@@ -4,30 +4,20 @@ import {defineCollection,z,reference} from 'astro:content';
 //schema che descrive il giocatore
 const playerSchema=z.object({
     battleTag:z.string(),
-
     fullName:z.string().optional(),
-
     role:z.enum(['Tank','Flex DPS','Hitscan DPS','Flex Support','Main Support']),
-
     team:reference('teams'),
-
     headshot:z.string().url().optional(),
-
     isFeatured: z.boolean().optional(), //per indicare che si trova nella homepage
-
     country: z.string().optional(),
-
     flagUrl: z.string().url().optional(), // URL to a flag image (e.g., from Cloudinary)
-    
     signatureHeroes:z.array(z.string()).optional(),
     //featuredPovId: z.string().optional(), //POV piu nuovo in caso in cui l'auto-fetch non dia risultati sperati
-
     socials:z.object({
         twitter: z.string().url().optional(),
         streaming: z.string().url().optional(),
         youtube: z.string().url().optional(),
     }).optional(),
-
     career: z.array(
     z.object({
       date: z.string(), // e.g., "2024 - Present"
@@ -60,6 +50,24 @@ const teamSchema=z.object({
   ).optional(),
 })
 
+const dropsSchema = z.object({
+  title: z.string(),
+  isActive: z.boolean(),
+  startDate: z.string(),
+  endDate: z.string(),
+  streamLink: z.string(),
+  rewards: z.array(z.object({
+    name: z.string(),
+    image: z.string(),
+    hours: z.number(),
+  })),
+});
+
+const dropsCollection = defineCollection({
+  type: 'data', // <--- CRITICAL: Must be 'data' (for JSON)
+  schema: dropsSchema,
+});
+
 //rendo questi schema visibili
 export const collections={
     'players':defineCollection({
@@ -69,5 +77,7 @@ export const collections={
     'teams':defineCollection({
         type:'content', //content vuol dire che scrivo file MD
         schema:teamSchema //indico lo schema che devo seguire
-    })
+    }),
+    'drops': dropsCollection,
+    
 }
