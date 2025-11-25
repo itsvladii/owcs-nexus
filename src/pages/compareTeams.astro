@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { fetchAllSeasonMatches } from '../lib/fetchMatches';
+import { calculateRankings } from '../lib/calcELO';
+import TeamComparison from '../components/TeamComparison.tsx';
+
+
+// 1. Fetch Data
+const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
+const userAgent = 'OWCS-Nexus (barcanvladi@gmail.com)';
+const matches = await fetchAllSeasonMatches(apiKey, userAgent);
+
+
+// 2. Calculate Rankings
+const { rankings } = calculateRankings(matches);
+
+// 3. PREPARE DATA (The Fix)
+// We filter the list to match the Global Rankings criteria EXACTLY.
+// If your calculateRankings function already filters, this is safe to keep as a double-check.
+// If calculateRankings returns the raw object, this creates the clean array.
+const qualifiedTeams = Object.values(rankings)
+  .filter((t: any) => (t.wins + t.losses) >= 10) // Must have played 5+ games
+  .filter((t: any) => t.rating >= 1100)         // Must have decent ELO
+  .sort((a: any, b: any) => a.name.localeCompare(b.name)); // Sort A-Z for the dropdown
+---
+
+<BaseLayout title="Compare Teams" fullWidth={true}>
+  
+  {/* Hero Wallpaper */}
+  <div class="relative w-full h-[70vh] overflow-hidden rounded-xl">
+     <img src="https://live.staticflickr.com/65535/53888709875_7bfb3b8a56_k.jpg" class="w-full h-full object-cover object-center filter brightness-[0.4]"/>
+     <div class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/80 to-neutral-950"></div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 relative z-10 -mt-48 pb-24">
+    
+    <div class="text-center mb-12">
+      <h1 class="text-6xl font-title text-white mb-4">Team Comparison</h1>
+      <p class="text-neutral-400 max-w-xl mx-auto">
+        Analyze the ELO history and performance of the top {qualifiedTeams.length} ranked teams.
+      </p>
+    </div>
+
+    {/* Pass the FILTERED list */}
+    <TeamComparison teams={qualifiedTeams} matches={matches} client:load />
+
+  </div>
+</BaseLayout>
