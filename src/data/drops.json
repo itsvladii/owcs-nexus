@@ -1,50 +1,55 @@
 {
-  "title": "OWCS World Finals - Day 1",
-  "isActive": true,
-  "startDate": "Now",
-  "endDate": "Wednesday 26th",
-  "streamLink": "https://twitch.tv/overwatch_esports",
-  "rewards": [
-    {
-      "name": "Loot Box",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1607x1607%2F6daad517ba%2Flootbox-ex-square.png&w=3840&q=75",
-      "hours": 0.5
-    },
-    {
-      "name": "Key to Victory Player Icon",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2F79ea0bbe3b%2Fkey-icon-small.png&w=3840&q=75",
-      "hours": 1
-    },
-    {
-      "name": "Dalahäst Brigitte Spray",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F5120x5120%2F77f8204279%2Fdalahast-brigitte-spray.png&w=3840&q=75",
-      "hours": 1.5
-    },
-    {
-      "name": "OWCS Runway Spray",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fa869b6311f%2Fowcs-runway-spray-small.png&w=3840&q=75",
-      "hours": 2
-    },
-    {
-      "name": "Battle Pass Tier Skip",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2Fx%2F457382b307%2Fow2-tier-skip-1.avif&w=3840&q=75",
-      "hours": 2.5
-    },
-    {
-      "name": "OWCS Home Brigitte Skin",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2F144abf4a6e%2Fbrig-home-small.png&w=3840&q=75",
-      "hours": 3.5
-    },
-    {
-      "name": "OWCS Away Brigitte Skin",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F922x922%2F0d6d7a8d10%2Fbrig-away-small.png&w=3840&q=75",
-      "hours": 4.5
-    },
-    {
-      "name": "OWCS Runway Name Card",
-      "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fd8f82ab2c2%2Fowcs-runway-nc-sq.png&w=3840&q=75",
-      "hours": 5
-    }
-   
-  ]
+    "title": "OWCS World Finals - Day 1",
+    "isActive": true,
+    "streamLink": "https://twitch.tv/overwatch_esports",
+    "schedule": [
+        {
+            "name": "Day 1",
+            "displayDate": "Nov 26",
+            "startTimestamp": "2025-11-28T12:00:00Z",
+            "endTimestamp": "2025-11-28T23:59:00Z",
+            "rewards": [
+                {
+                    "name": "Loot Box",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1607x1607%2F6daad517ba%2Flootbox-ex-square.png&w=3840&q=75",
+                    "hours": 0.5
+                },
+                {
+                    "name": "Key to Victory Player Icon",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2F79ea0bbe3b%2Fkey-icon-small.png&w=3840&q=75",
+                    "hours": 1
+                },
+                {
+                    "name": "Dalahäst Brigitte Spray",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F5120x5120%2F77f8204279%2Fdalahast-brigitte-spray.png&w=3840&q=75",
+                    "hours": 1.5
+                },
+                {
+                    "name": "OWCS Runway Spray",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fa869b6311f%2Fowcs-runway-spray-small.png&w=3840&q=75",
+                    "hours": 2
+                },
+                {
+                    "name": "Battle Pass Tier Skip",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2Fx%2F457382b307%2Fow2-tier-skip-1.avif&w=3840&q=75",
+                    "hours": 2.5
+                },
+                {
+                    "name": "OWCS Home Brigitte Skin",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2F144abf4a6e%2Fbrig-home-small.png&w=3840&q=75",
+                    "hours": 3.5
+                },
+                {
+                    "name": "OWCS Away Brigitte Skin",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F922x922%2F0d6d7a8d10%2Fbrig-away-small.png&w=3840&q=75",
+                    "hours": 4.5
+                },
+                {
+                    "name": "OWCS Runway Name Card",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fd8f82ab2c2%2Fowcs-runway-nc-sq.png&w=3840&q=75",
+                    "hours": 5
+                }
+            ]
+        }
+    ]
 }
