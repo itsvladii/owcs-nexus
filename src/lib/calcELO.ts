@@ -8,6 +8,7 @@ export interface RatedTeam {
   region: string;
   logo?: string;
   logoDark?: string;
+  history: { date: string, elo: number }[];
 }
 
 // --- CONFIGURATION ---
@@ -103,7 +104,8 @@ export function calculateRankings(matches: any[]) {
         region,
         rating: STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
-        losses: 0
+        losses: 0,
+        history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }] // Start point
       };
     }
     return teams[name];
@@ -171,6 +173,9 @@ export function calculateRankings(matches: any[]) {
 
     teamA.rating += changeA;
     teamB.rating += changeB;
+
+    teamA.history.push({ date: match.date, elo: teamA.rating });
+    teamB.history.push({ date: match.date, elo: teamB.rating });
 
     if (scoreA) { teamA.wins++; teamB.losses++; }
     else { teamB.wins++; teamA.losses++; }
