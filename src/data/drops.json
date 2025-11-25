@@ -1,5 +1,5 @@
 {
-    "title": "OWCS World Finals - Day 1",
+    "title": "OWCS World Finals",
     "isActive": true,
     "streamLink": "https://twitch.tv/overwatch_esports",
     "schedule": [
@@ -48,6 +48,102 @@
                     "name": "OWCS Runway Name Card",
                     "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fd8f82ab2c2%2Fowcs-runway-nc-sq.png&w=3840&q=75",
                     "hours": 5
+                }
+            ]
+        },
+        {
+            "name": "Day 2",
+            "displayDate": "Nov 27",
+            "startTimestamp": "2025-11-27T12:00:00Z",
+            "endTimestamp": "2025-11-27T23:59:00Z",
+            "rewards": [
+                {
+                    "name": "Loot Box",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1607x1607%2F6daad517ba%2Flootbox-ex-square.png&w=3840&q=75",
+                    "hours": 0.5
+                },
+                {
+                    "name": "OWCS 2025 Stockholm Day Icon",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F512x512%2Feec3a98050%2Fowcs-2025-stockholm-day-icon.png&w=3840&q=75",
+                    "hours": 1
+                },
+                {
+                    "name": "Dalahäst Torbjorn Spray",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F5120x5120%2F311e362f2e%2Fdalahast-torbjorn-spray.png&w=3840&q=75",
+                    "hours": 1.5
+                },
+                {
+                    "name": "Swedish Meatballs Spray",
+                    "image":"https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F512x512%2F5c090fb714%2Fswedish-meatballs-spray.png&w=3840&q=75",
+                    "hours": 2
+                },
+                {
+                    "name": "Battle Pass Tier Skip",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2Fx%2F457382b307%2Fow2-tier-skip-1.avif&w=3840&q=75",
+                    "hours": 2.5
+                },
+                {
+                    "name": "OWCS Home Torbjorn Skin",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F819x819%2F8d0178e3c2%2Ftorb-home-small.png&w=3840&q=75",
+                    "hours": 3.5
+                },
+                {
+                    "name": "OWCS Away Torbjorn Skin",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F922x922%2F15230ae16a%2Ftorb-away-small.png&w=3840&q=75",
+                    "hours": 4.5
+                },
+                {
+                    "name": "OWCS Stockholm Day Card",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fa1a9456e0e%2Fstockday-nc-sq.png&w=3840&q=75",
+                    "hours": 5
+                }
+            ]
+        },
+        {
+            "name": "Day 3",
+            "displayDate": "Nov 28",
+            "startTimestamp": "2025-11-28T12:00:00Z",
+            "endTimestamp": "2025-11-28T23:59:00Z",
+            "rewards": [
+                {
+                    "name": "Loot Box",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1607x1607%2F6daad517ba%2Flootbox-ex-square.png&w=3840&q=75",
+                    "hours": 0.5
+                },
+                {
+                    "name": "OWCS 2025 Stockholm Sunset Icon",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F2048x2048%2F60b220b3de%2Fowcs-2025-stockholm-sunset-icon.png&w=3840&q=75",
+                    "hours": 1
+                },
+                {
+                    "name": "Fika Spray",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F5120x5120%2F0cf3b2b41b%2Ffika-spray.png&w=3840&q=75",
+                    "hours": 2
+                },
+                {
+                    "name": "OWCS Helmet Icon",
+                    "image":"https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F5120x5120%2Ff33c5846c0%2Fowcs-helmet.png&w=3840&q=75",
+                    "hours": 3
+                },
+                {
+                    "name": "Battle Pass Tier Skip",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2Fx%2F457382b307%2Fow2-tier-skip-1.avif&w=3840&q=75",
+                    "hours": 4
+                },
+                {
+                    "name": "OWCS 2025 Stockholm Sunset Card",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2F1849e11b8f%2Fstocksunset-nc-sq.png&w=3840&q=75",
+                    "hours": 5
+                },
+                {
+                    "name": "OWCS Home Ana Skin",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2Fd0e245f2e5%2Fana-home-small.png&w=3840&q=75",
+                    "hours": 7
+                },
+                {
+                    "name": "OWCS Away Ana Skin",
+                    "image": "https://esports.overwatch.com/_next/image?url=https%3A%2F%2Fa.storyblok.com%2Ff%2F267720%2F1024x1024%2F2056c564ca%2Fana-away-small.png&w=3840&q=75",
+                    "hours": 8
                 }
             ]
         }
