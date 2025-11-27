@@ -9,8 +9,8 @@ export default function LiveBadge({ teamName }: { teamName: string }) {
     if (import.meta.env.DEV) {
        // You can make it random or fixed.
        // Here we set it to always be LIVE against a "Test Team"
-       setStatus({ isLive: true, opponent: "Test Opponent" });
-       return; 
+       //setStatus({ isLive: true, opponent: "Test Opponent" });
+       //return; 
     }
     // ---------------------
 

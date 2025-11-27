@@ -3,9 +3,6 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-// ... (Keep your interfaces: HistoryPoint, TeamData, MatchData, Props) ...
-// ... (Keep your mergeHistory helper) ...
-
 // Re-defining types for clarity in this snippet, but you can keep yours
 interface HistoryPoint { date: string; elo: number; }
 export interface TeamData { name: string; logo: string | null; rating: number; wins: number; losses: number; region: string; history: HistoryPoint[]; }

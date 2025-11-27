@@ -24,3 +24,18 @@ html{scroll-behavior: smooth;}
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* Move half way (we duplicate content) */
+}
+
+.animate-ticker {
+  display: flex;
+  width: max-content; /* Force content to be one long line */
+  animation: scroll 30s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused; /* Pause when user wants to click */
+}
