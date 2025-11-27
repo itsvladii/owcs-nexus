@@ -44,6 +44,8 @@ export default function RankingsTable({ teams }: Props) {
           let rankColor = "text-neutral-500";
           let rowBg = "";
           let rankIcon = null;
+          let TrendIcon = <span className="text-neutral-600">-</span>;
+          let trendClass = "text-neutral-600";
 
           if (team.rank === 1) {
             rankColor = "text-amber-400"; // Gold
@@ -54,6 +56,24 @@ export default function RankingsTable({ teams }: Props) {
           } else if (team.rank === 3) {
             rankColor = "text-orange-700"; // Bronze
             rowBg = "bg-orange-950/10";
+          }
+
+          if (team.rankDelta && team.rankDelta > 0) {
+             TrendIcon = (
+               <span className="flex items-center text-xs font-bold">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" /></svg>
+                 {team.rankDelta}
+               </span>
+             );
+             trendClass = "text-green-500";
+          } else if (team.rankDelta && team.rankDelta < 0) {
+             TrendIcon = (
+               <span className="flex items-center text-xs font-bold">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" /></svg>
+                 {Math.abs(team.rankDelta)}
+               </span>
+             );
+             trendClass = "text-red-500";
           }
           // --------------------------------
 
@@ -76,9 +96,15 @@ export default function RankingsTable({ teams }: Props) {
               {/* Rank (Enhanced) */}
               <div className="col-span-2 sm:col-span-1 text-center flex flex-col items-center justify-center">
                 {rankIcon && <span className="text-xs mb-1 animate-pulse">{rankIcon}</span>}
-                <span className={`font-title text-3xl ${rankColor} group-hover:scale-110 transition-transform`}>
+                
+                <span className={`font-title text-3xl ${rankColor} group-hover:scale-110 transition-transform leading-none`}>
                   #{team.rank}
                 </span>
+                
+                {/* THE NEW TREND INDICATOR */}
+                <div className={`mt-1 ${trendClass}`}>
+                   {TrendIcon}
+                </div>
               </div>
 
               {/* Team Name & Logo (Unchanged) */}

@@ -9,6 +9,7 @@ export interface RatedTeam {
   logo?: string;
   logoDark?: string;
   history: { date: string, elo: number }[];
+  rankDelta?: number;
 }
 
 // --- CONFIGURATION ---
@@ -199,6 +200,38 @@ export function calculateRankings(matches: any[]) {
       });
     }
   }
+
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  // 2. Helper to get a team's rating at a specific past date
+  const getPastRating = (team: RatedTeam) => {
+    // Find the last history entry before or on the snapshot date
+    const entry = team.history.filter(h => new Date(h.date) <= oneWeekAgo).pop();
+    // If no history existed then, use their starting/reset rating
+    return entry ? entry.elo : (STARTING_ELO[team.region] || 1200);
+  };
+
+  // 3. Sort the list as it would have been 7 days ago
+  // We use the full list of teams calculated in the main loop
+  const allTeams = Object.values(teams);
+  
+  const oldRankings = [...allTeams].sort((a, b) => getPastRating(b) - getPastRating(a));
+  const currentRankings = [...allTeams].sort((a, b) => b.rating - a.rating);
+
+  // 4. Compare Ranks
+  // Create a map for fast lookup: "Team Name" -> "Old Rank"
+  const oldRankMap = new Map<string, number>();
+  oldRankings.forEach((t, i) => oldRankMap.set(t.name, i + 1));
+
+  currentRankings.forEach((team, index) => {
+    const currentRank = index + 1;
+    const oldRank = oldRankMap.get(team.name) || currentRank; // If new, assume no change
+    
+    // Calculate Delta: (Old - New). 
+    // Example: Was #5, Now #3. Delta = 5 - 3 = +2 (Moved UP)
+    team.rankDelta = oldRank - currentRank;
+  });
 
   // --- CALCULATE MOVERS (UPDATED TO INCLUDE LOGOS) ---
   const movers = Object.values(teams).map(t => {

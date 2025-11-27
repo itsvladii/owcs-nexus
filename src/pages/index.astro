@@ -4,7 +4,7 @@ export const prerender = false;
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
-import DropsCard from '../components/DropsCard.tsx';
+import LiveMatchCard from '../components/LiveMatchCard.tsx';
 import { calculateRankings } from "../lib/calcELO";
 import { fetchAllSeasonMatches } from "../lib/fetchMatches";
 
@@ -97,7 +97,7 @@ const TEAM_SECTION_IMG = "https://live.staticflickr.com/65535/54692531031_150e8b
       </div>
     </div>
 
-     <DropsCard client:load />
+     <LiveMatchCard client:load />
 
 
   <section class="py-24 bg-neutral-950 relative overflow-hidden border-t border-neutral-900">

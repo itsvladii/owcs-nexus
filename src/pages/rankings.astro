@@ -76,6 +76,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
         isPartner: isPartner,
         hasPage: hasPage,
         history: team.history, // Passing the ELO history for the graph!
+        rankDelta: team.rankDelta
     };
 });
 ---

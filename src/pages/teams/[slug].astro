@@ -5,6 +5,7 @@ import { getCollection } from 'astro:content';
 import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
 import IconWebsite from '../../components/icons/IconWebsite.astro';
+import LiveBadge from '../../components/LiveBadge';
 import Quiz from '../../components/Quiz.tsx';
 import { fetchFaceitStats } from '../../lib/fetchAdvStats';
 import { generateTeamQuiz } from '../../lib/quizGenerator';
@@ -180,6 +181,7 @@ const logoUrl = teamEntry.data.logo.replace('/upload/', '/upload/w_400,h_400,c_p
                <span class="text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg" style={`background-color: ${teamColor};`}>Partner Team</span>
             )}
             <span class="text-neutral-400 font-bold uppercase tracking-wider text-sm border border-neutral-700 px-3 py-1 rounded-full bg-neutral-800/50">{teamEntry.data.region}</span>
+            <LiveBadge teamName={teamEntry.data.liquipediaName || teamEntry.data.name} client:load />
           </div>
 
           <h1 class="text-5xl md:text-7xl font-title text-white mb-6 tracking-tight drop-shadow-lg">
