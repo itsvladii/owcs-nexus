@@ -10,6 +10,7 @@ export interface RatedTeam {
   logoDark?: string;
   history: { date: string, elo: number }[];
   rankDelta?: number;
+  tournaments: string[]
 }
 
 // --- CONFIGURATION ---
@@ -106,7 +107,8 @@ export function calculateRankings(matches: any[]) {
         rating: STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
         losses: 0,
-        history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }] // Start point
+        history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }], // Start point
+        tournaments: []
       };
     }
     return teams[name];
@@ -120,7 +122,6 @@ export function calculateRankings(matches: any[]) {
 
   // 3. Process Matches
   for (const match of sortedMatches) {
-    // ... (Keep your existing match processing loop exactly the same) ...
     // Validate Data
     if (!match.match2opponents || match.match2opponents.length < 2) continue;
 
@@ -167,6 +168,9 @@ export function calculateRankings(matches: any[]) {
     const scoreA = winnerId === "1" ? 1 : 0;
     const scoreB = winnerId === "2" ? 1 : 0;
 
+    if (!teamA.tournaments.includes(tournament)) teamA.tournaments.push(tournament);
+    if (!teamB.tournaments.includes(tournament)) teamB.tournaments.push(tournament);
+
     const k = getKFactor(tournament);
     
     const changeA = k * (scoreA - expectedA);
@@ -200,6 +204,57 @@ export function calculateRankings(matches: any[]) {
       });
     }
   }
+
+
+  const daysAtOne: Record<string, number> = {};
+  const allDates = new Set<string>();
+  
+  // A. Collect all dates where ELO changed
+  Object.values(teams).forEach(t => t.history.forEach(h => allDates.add(h.date.split(' ')[0])));
+  const sortedDates = Array.from(allDates).sort();
+  
+  // B. Add "Today" to close the loop (so the current #1 gets credit until today)
+  const today = new Date().toISOString().split('T')[0];
+  if (sortedDates[sortedDates.length - 1] < today) sortedDates.push(today);
+
+  // C. Replay History Day-by-Day
+  for (let i = 0; i < sortedDates.length - 1; i++) {
+      const startDate = sortedDates[i];
+      const endDate = sortedDates[i+1];
+      
+      // How many days in this window?
+      const diffTime = Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+      // Find who was #1 on 'startDate'
+      let topTeam = null;
+      let maxElo = -1;
+
+      Object.values(teams).forEach(t => {
+          // Find the team's rating as of 'startDate'
+          let elo = STARTING_ELO[t.region] || 1200;
+          // Look backwards in history for the latest entry before/on this date
+          for (let h = t.history.length - 1; h >= 0; h--) {
+              if (t.history[h].date.split(' ')[0] <= startDate) {
+                  elo = t.history[h].elo;
+                  break;
+              }
+          }
+          if (elo > maxElo) {
+              maxElo = elo;
+              topTeam = t.name;
+          }
+      });
+
+      // Give credit to the King
+      if (topTeam) {
+          daysAtOne[topTeam] = (daysAtOne[topTeam] || 0) + diffDays;
+      }
+  }
+  
+  // D. Find the Winner
+  const kingName = Object.keys(daysAtOne).reduce((a, b) => daysAtOne[a] > daysAtOne[b] ? a : b, null as string | null);
+  const longestReign = kingName ? { name: kingName, days: daysAtOne[kingName] } : null;
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -259,7 +314,8 @@ export function calculateRankings(matches: any[]) {
     stats: {
       biggestMover,
       biggestLoser,
-      biggestUpsets
+      biggestUpsets,
+      longestReign
     }
   };
 }

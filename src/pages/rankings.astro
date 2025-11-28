@@ -64,7 +64,7 @@ const restOfThePack = rankings.slice(0, 25);
 const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
     const { localTeam, isPartner, hasPage, color, logo } = getTeamProps(team);
     return {
-        rank: index+1,
+        rank: index + 1,
         name: team.name,
         slug: localTeam?.slug || "",
         rating: team.rating,
@@ -76,7 +76,8 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
         isPartner: isPartner,
         hasPage: hasPage,
         history: team.history, // Passing the ELO history for the graph!
-        rankDelta: team.rankDelta
+        rankDelta: team.rankDelta,
+        tournaments: team.tournaments,
     };
 });
 ---
@@ -180,51 +181,59 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
 
             {/* CARD 2: BIGGEST FALLER */}
             {
-                stats.biggestLoser &&
+                stats.longestReign &&
                     (() => {
-                        const { logo } = getTeamProps(stats.biggestLoser);
+                        // 1. Get the team logo/color using your existing helper
+                        const { logo } = getTeamProps({
+                            name: stats.longestReign.name,
+                        });
+
                         return (
-                            <div class="bg-neutral-900/90 border border-red-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-red-500/50 transition-all hover:-translate-y-1 shadow-lg">
-                                <div class="absolute -top-4 -right-4 opacity-10 group-hover:opacity-20 transition-opacity -rotate-12">
+                            <div class="bg-neutral-900/90 border border-amber-500/30 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-amber-500/50 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">
+                                {/* Background Icon Decoration */}
+                                <div class="absolute -top-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="w-32 h-32 text-red-500"
-                                        fill="none"
+                                        class="w-40 h-40 text-amber-500"
                                         viewBox="0 0 24 24"
-                                        stroke="currentColor"
+                                        fill="currentColor"
                                     >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-                                        />
+                                        <>
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.625 6.752 6.752 0 0 0 5.947-3.097a9.27 9.27 0 0 1 2.742-4.533.75.75 0 0 1 1.195.93a10.781 10.781 0 0 0-3.269 5.765 6.753 6.753 0 0 0 5.947 3.097 6.753 6.753 0 0 0 6.138-5.625.75.75 0 0 0-.584-.859 25.032 25.032 0 0 0-3.072-.543v-.858a.75.75 0 0 0-.75-.75h-16a.75.75 0 0 0-.75.75Z"
+                                                clip-rule="evenodd"
+                                            />
+                                            <path d="M8.25 8.985c.345.018.69.028 1.035.028h5.43c.345 0 .69-.01 1.035-.028a8.254 8.254 0 0 1-1.835 2.712 8.248 8.248 0 0 1-1.915 1.454v8.6l2.844.71a.75.75 0 0 1 .571.835l-.632 4.423a.75.75 0 0 1-.741.644H9.957a.75.75 0 0 1-.741-.644l-.632-4.423a.75.75 0 0 1 .571-.835l2.844-.71v-8.6c-.69-.398-1.336-.885-1.915-1.454a8.255 8.255 0 0 1-1.834-2.712Z" />
+                                        </>
                                     </svg>
                                 </div>
 
-                                <p class="text-red-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-red-500" />{" "}
-                                    Biggest Faller (30d)
+                                {/* Header Badge */}
+                                <p class="text-amber-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center justify-center gap-2 z-10">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />{" "}
+                                    Longest Reign
                                 </p>
 
-                                <div class="flex flex-col items-start">
-                                    {logo && (
-                                        <img
-                                            src={logo}
-                                            alt={stats.biggestLoser.name}
-                                            class="w-16 h-16 object-contain mb-3 drop-shadow-md grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all"
-                                        />
-                                    )}
-                                    <h3 class="text-3xl font-title text-white mb-1 leading-none line-clamp-1">
-                                        {stats.biggestLoser.name}
-                                    </h3>
-                                    <p class="text-4xl font-mono font-bold text-red-500 tracking-tight">
-                                        {Math.round(stats.biggestLoser.diff)}{" "}
-                                        <span class="text-base text-neutral-400 font-sans font-normal">
-                                            pts
-                                        </span>
-                                    </p>
-                                </div>
+                                {/* Team Info */}
+                                {logo && (
+                                    <img
+                                        src={logo}
+                                        alt={stats.longestReign.name}
+                                        class="w-16 h-16 object-contain mb-4 drop-shadow-md relative z-10"
+                                    />
+                                )}
+                                <h3 class="text-2xl font-title text-white mb-2 leading-none line-clamp-1 relative z-10">
+                                    {stats.longestReign.name}
+                                </h3>
+
+                                {/* The "Days" Stat */}
+                                <p class="text-4xl font-mono font-bold text-amber-500 tracking-tight relative z-10">
+                                    {stats.longestReign.days}{" "}
+                                    <span class="text-base text-neutral-400 font-sans font-normal">
+                                        Days
+                                    </span>
+                                </p>
                             </div>
                         );
                     })()
@@ -337,15 +346,13 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
     ============================================== */
         }
 
-
         <div
             class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm"
         >
-
             {/* Rows */}
             <RankingsTable teams={tableData} client:load />
             <p class="text-center text-neutral-600 text-sm mt-8">
-            * Click on any team to see detailed stats and history.
+                * Click on any team to see detailed stats and history.
             </p>
         </div>
 
@@ -368,7 +375,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                     </h3>
                     <p class="mb-4">
                         The <strong
-                            >OWCS Nexus Global Power Rankings (GLP)</strong
+                            >OWCS Nexus's Team Global Rankings (TGR)</strong
                         > uses a custom ELO algorithm similar to the one used in
                         Chess or in other professional sports (like the FIFA Man's
                         World Rankings). Every team starts with a base rating based

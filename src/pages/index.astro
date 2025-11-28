@@ -39,7 +39,7 @@ const cloudName = allTeams[0].data.logo.split("/")[3];
 const heroClipIDs = [
   "crazy_raccoons_clip",
   "wbg_clip",
-  "varrel_clip",
+  "vl_clip",
   "vp_clip",
   "aq_clip",
   "ntmp_clip",
@@ -49,10 +49,11 @@ const heroClipIDs = [
   "agg_clip",
   "cc_clip",
   "gk_clip",
+  "ssg_clip"
 ];
 
 // 2. Build the *correct* video base URL
-const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto:good,w_1280,br_1.5m/v1763230992`;
+const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto:good,w_1280,br_1.5m/v1764360031`;
 
 const heroClipUrls = heroClipIDs.map((id) => {
   // We'll use the format that we know works!
