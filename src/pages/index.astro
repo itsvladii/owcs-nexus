@@ -5,6 +5,7 @@ export const prerender = false;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import LiveMatchCard from '../components/LiveMatchCard.tsx';
+import FeatureSection from "../components/FeatureSection.astro";
 /*import { calculateRankings } from "../lib/calcELO";
 import { fetchAllSeasonMatches } from "../lib/fetchMatches";*/
 
@@ -109,126 +110,117 @@ const TEAM_SECTION_IMG = "https://live.staticflickr.com/65535/54692531031_150e8b
      <LiveMatchCard client:load />
 
 
-  <section class="py-24 bg-neutral-950 relative overflow-hidden border-t border-neutral-900">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-      
-      {/* TEXT BLOCK */}
-      <div>
-        <h2 class="text-amber-500 font-bold tracking-widest uppercase mb-4 text-sm flex items-center gap-2">
-            <span class="w-8 h-px bg-amber-500"></span> Live Leaderboard
-        </h2>
-        <h3 class="text-5xl md:text-6xl font-title text-white mb-6 leading-none">Global Power Rankings</h3>
-        <p class="text-neutral-400 text-lg mb-10 leading-relaxed max-w-xl">
-          Data doesn't lie. Our algorithmic ELO system tracks every official OWCS match in real-time to determine the true hierarchy of the global scene. Who's going to be the apex predator?
-        </p>
-        <a href="/rankings" class="inline-flex items-center gap-3 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-black font-title text-xl rounded transition-transform hover:translate-x-1">
-          View Full Standings <span>→</span>
-        </a>
-      </div>
-
-      {/* PREVIEW WIDGET */}
-      <div class="bg-neutral-900/50 border border-neutral-800/50 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm relative">
+{/* ==============================================
+      ROW 1: GLOBAL RANKINGS (Amber)
+      ============================================== */}
+  <FeatureSection
+    title="Global Power Rankings"
+    subtitle="Live Leaderboard"
+    description="Data doesn't lie. Our algorithmic ELO system tracks every official match in real-time to determine the true hierarchy of the global scene."
+    theme="amber"
+    primaryLink={{ text: "View Standings", href: "/rankings" }}
+  >
+     {/* The Widget Slot */}
+     <div class="bg-neutral-900/80 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
         <div class="p-4 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
             <span class="text-neutral-500 font-bold text-xs uppercase">Current Top 5</span>
-            
-            {/* Changed "Live Updates" to "Season Standings" to be more accurate for static data */}
             <span class="text-amber-500 text-xs">● Season Standings</span>
         </div>
-        {top5.map((team, i) => {
-           const logo = getTeamLogo(team.name);
-           return (
-             <div class="flex items-center justify-between p-4 border-b border-neutral-800/50 last:border-0 hover:bg-neutral-800/30 transition-colors">
+        {top5.map((team, i) => (
+           <div class="flex items-center justify-between p-4 border-b border-neutral-800/50 last:border-0 hover:bg-neutral-800/30 transition-colors">
                <div class="flex items-center gap-4">
-                 <span class={`font-title text-2xl w-8 text-center ${i === 0 ? 'text-amber-500' : 'text-neutral-500'}`}>#{i + 1}</span>
-                 {logo ? <img src={logo} class="w-8 h-8 object-contain" /> : <div class="w-8 h-8 bg-neutral-800 rounded-full"></div>}
+                 <span class={`font-title text-2xl w-8 text-center ${i === 0 ? 'text-amber-500' : 'text-neutral-600'}`}>#{i + 1}</span>
+                 <img src={getTeamLogo(team.name)} class="w-8 h-8 object-contain" />
                  <span class="font-bold text-lg text-white">{team.name}</span>
                </div>
-               <span class="font-mono font-bold text-neutral-400">{team.rating}</span>
-             </div>
-           )
-        })}
-      </div>
-
-    </div>
-  </section>
-
+               <span class="font-mono font-bold text-neutral-400">{Math.round(team.rating)}</span>
+           </div>
+        ))}
+     </div>
+  </FeatureSection>
 
   {/* ==============================================
-  ROW 2: THE PLAYERS (Text Left / Image Right)
-  ============================================== */}
-  <section class="py-20 bg-neutral-900 relative overflow-hidden rounded-xl">
-    
-    {/* WIDER CONTAINER */}
-    <div class="w-full px-6 md:px-16 lg:px-32 grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-32 items-center">
-      
-      {/* TEXT BLOCK */}
-      <div class="order-1">
-        <h2 class="text-blue-400 font-bold tracking-widest uppercase mb-4 text-sm flex items-center gap-2">
-            <span class="w-8 h-px bg-blue-400"></span> The Talent
-        </h2>
-        <h3 class="text-5xl md:text-7xl font-title text-white mb-6 leading-none">Meet the Pros</h3>
-        <p class="text-neutral-400 text-xl mb-12 leading-relaxed max-w-xl">
-          Those who put on the show. Explore the complete database of every featured professional player in the league. Filter by role, team, region or compare the two of them to show who's the best of the bunch. 
-        </p>
-        <div class="flex flex-wrap gap-4">
-            <a href="/players" class="inline-flex items-center gap-3 px-10 py-5 bg-white hover:bg-neutral-200 text-black font-black font-title text-2xl rounded transition-transform hover:translate-x-1 shadow-lg">
-            Browse Players <span>→</span>
-            </a>
-            <a href="/compare" class="inline-flex items-center gap-2 px-10 py-5 border-2 border-neutral-700 hover:border-white text-white font-bold font-title text-2xl rounded transition-colors">
-                Compare Stats
-            </a>
-        </div>
-      </div>
-
-      {/* HERO IMAGE */}
-      <div class="order-2 relative h-[400px] lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl w-full">
-         <div class="absolute inset-0 bg-blue-500/20 mix-blend-overlay z-10"></div>
-         <img src={PLAYER_SECTION_IMG} class="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-[1.5s] ease-out" alt="Overwatch Pros" />
-         <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent z-20 lg:hidden"></div>
-      </div>
-
-    </div>
-  </section>
-      
-    </div>
-  </section>
-
+      ROW 2: THE PLAYERS (Blue)
+      ============================================== */}
+  <FeatureSection
+    title="Meet the Pros"
+    subtitle="The Talent"
+    description="Explore the complete database of every professional player. Filter by role, team, or region to find the next superstar."
+    theme="purple"
+    align="right" /* Flip layout for visual interest */
+    primaryLink={{ text: "Browse Players", href: "/players" }}
+    secondaryLink={{ text: "Compare Stats", href: "/compare" }}
+  >
+     {/* The Image Slot */}
+     <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-blue-900/30 group">
+         <div class="absolute inset-0 bg-blue-500/10 mix-blend-overlay z-10"></div>
+         <img src={PLAYER_SECTION_IMG} class="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-[1.5s]" />
+         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-20 lg:hidden"></div>
+     </div>
+  </FeatureSection>
 
   {/* ==============================================
-  ROW 3: THE TEAMS (Image Left / Text Right)
+  ROW 2.5: THE WORLD CUP (Cyan Theme)
   ============================================== */}
-  <section class="py-32 bg-neutral-950 relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-      
-      {/* HERO IMAGE (Order 2 on mobile, Order 1 on desktop -> Flips it!) */}
-      <div class="order-2 lg:order-1 relative h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
-         <img src={TEAM_SECTION_IMG} class="w-full h-full object-cover object-center scale-105" alt="OWCS Stage" />
-         <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent z-20 lg:hidden"></div>
+  <FeatureSection
+    title="OWWC 2026"
+    subtitle="National Pride"
+    description="The world unites once again. Track national rosters, view the interactive global map, and follow the road to BlizzCon."
+    theme="cyan"
+    align="right"
+    primaryLink={{ text: "Enter War Room", href: "/world-cup" }}
+  >
+     
+     {/* THE VISUAL SLOT (Image + Floating Card) */}
+     <div class="relative h-[500px] rounded-3xl overflow-hidden border border-cyan-500/30 shadow-[0_0_40px_-10px_rgba(6,182,212,0.3)] group">
+         
+         {/* Background Image */}
+         <img 
+           src="https://imguscdn.gamespress.com/cdn/files/BlizzardLive/2019/11/03002203-6bee7a7b-7a78-45c2-87a1-d2b00e027aaa/20191102_Carlton-Beener_Blizzcon2019_OWWC_00563.jpg?otf=y&lightbox=y&sky=6f24b15fbf6b31b65bb221503356008903da709703ef7d33c00b6fa266241593&w=1024&maxheight=4096&mode=pad&format=jpg" 
+           alt="Overwatch World Cup" 
+           class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-1000 filter hue-rotate-15"
+         />
+         
+         {/* Cyan Overlay */}
+         <div class="absolute inset-0 bg-gradient-to-t from-cyan-950/80 via-transparent to-transparent"></div>
+         
+         {/* Floating "Next Event" Badge */}
+         <div class="absolute bottom-6 left-6 right-6">
+            <div class="bg-black/80 backdrop-blur-md border border-cyan-500/30 p-5 rounded-2xl flex items-center justify-between shadow-lg group-hover:border-cyan-400/50 transition-colors">
+               <div>
+                  <p class="text-xs text-cyan-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
+                     <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Next Event
+                  </p>
+                  <p class="text-white font-title text-2xl tracking-wide">Americas Conference</p>
+               </div>
+               
+               <div class="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+               </div>
+            </div>
+         </div>
+
       </div>
 
-      {/* TEXT BLOCK (Order 1 on mobile, Order 2 on desktop) */}
-      <div class="order-1 lg:order-2 lg:pl-12">
-        <h2 class="text-white font-bold tracking-widest uppercase mb-4 text-sm flex items-center gap-2">
-            <span class="w-8 h-px bg-white"></span> The Organizations
-        </h2>
-        <h3 class="text-5xl md:text-6xl font-title text-white mb-6 leading-none">Featured Teams</h3>
-        <p class="text-neutral-400 text-lg mb-10 leading-relaxed max-w-xl">
-          Get detailed profiles, active rosters, and match history for the organizations defining the modern era of Overwatch E-Sports.
-        </p>
-        <div class="flex flex-wrap gap-4">
-            <a href="/teams" class="inline-flex items-center gap-3 px-8 py-4 bg-white hover:bg-neutral-200 text-black font-black font-title text-xl rounded transition-transform hover:translate-x-1">
-            View Teams <span>→</span>
-            </a>
-             <a href="/compareTeams" class="inline-flex items-center gap-2 px-8 py-4 border-2 border-neutral-700 hover:border-white text-white font-bold font-title text-xl rounded transition-colors">
-                Face-Off
-            </a>
-        </div>
-      </div>
+  </FeatureSection>
 
-    </div>
-  </section>
-    
-  </div>
+  {/* ==============================================
+      ROW 3: THE TEAMS (Emerald)
+      ============================================== */}
+  <FeatureSection
+    title="Partner Teams"
+    subtitle="The Organizations"
+    description="Get detailed profiles, active rosters, and match history for the organizations defining the modern era of Overwatch Esports."
+    theme="emerald"
+    primaryLink={{ text: "View Teams", href: "/teams" }} 
+    secondaryLink={{ text: "Face-Off", href: "/compare-teams" }}
+  >
+      {/* The Image Slot */}
+      <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-emerald-900/30 group">
+         <div class="absolute inset-0 bg-emerald-500/10 mix-blend-overlay z-10"></div>
+         <img src={TEAM_SECTION_IMG} class="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-[1.5s]" />
+      </div>
+  </FeatureSection>
 </BaseLayout>
 
 <script>
