@@ -1,15 +1,16 @@
 ---
-// src/components/FeatureSection.astro
 interface Props {
   title: string;
   subtitle: string;
   description: string;
-  theme: 'amber' | 'blue' | 'emerald' | 'cyan'; // The color themes
-  align?: 'left' | 'right'; // Text alignment/position
+  // Add 'worldcup' and 'purple' to the allowed list
+  theme: 'amber' | 'blue' | 'emerald' | 'cyan' | 'purple' | 'worldcup'; 
+  align?: 'left' | 'right'; 
   primaryLink?: { text: string; href: string };
   secondaryLink?: { text: string; href: string };
 }
 
+// 1. DESTRUCTURE PROPS (This defines 'theme')
 const { 
   title, 
   subtitle, 
@@ -20,12 +21,12 @@ const {
   secondaryLink 
 } = Astro.props;
 
-// Theme Maps for Colors
+// 2. DEFINE THEME MAP
 const themeMap = {
   amber: {
     accent: 'text-amber-500',
     glow: 'bg-amber-500/5',
-    button: 'bg-amber-500 hover:bg-amber-400 text-black',
+    button: 'bg-amber-500 hover:bg-amber-400 text-black shadow-amber-500/20',
     border: 'border-amber-500/30',
     subtle: 'text-amber-100/60',
     line: 'bg-amber-500'
@@ -33,15 +34,23 @@ const themeMap = {
   blue: {
     accent: 'text-blue-400',
     glow: 'bg-blue-600/10',
-    button: 'bg-white hover:bg-blue-50 text-blue-950',
+    button: 'bg-white hover:bg-blue-50 text-blue-950 shadow-blue-500/20',
     border: 'border-blue-900/30',
     subtle: 'text-blue-100/60',
     line: 'bg-blue-400'
   },
+  purple: {
+    accent: 'text-purple-400',
+    glow: 'bg-purple-600/10',
+    button: 'bg-white hover:bg-purple-50 text-purple-950 shadow-purple-500/20',
+    border: 'border-purple-900/30',
+    subtle: 'text-purple-100/60',
+    line: 'bg-purple-400'
+  },
   emerald: {
     accent: 'text-emerald-400',
     glow: 'bg-emerald-500/5',
-    button: 'bg-white hover:bg-emerald-50 text-emerald-950',
+    button: 'bg-white hover:bg-emerald-50 text-emerald-950 shadow-emerald-500/20',
     border: 'border-emerald-900/30',
     subtle: 'text-emerald-100/60',
     line: 'bg-emerald-400'
@@ -49,26 +58,28 @@ const themeMap = {
   cyan: {
      accent: 'text-cyan-400',
      glow: 'bg-cyan-500/5',
-     button: 'bg-white hover:bg-cyan-50 text-cyan-950',
+     button: 'bg-white hover:bg-cyan-50 text-cyan-950 shadow-cyan-500/20',
      border: 'border-cyan-500/30',
      subtle: 'text-cyan-100/60',
      line: 'bg-cyan-400'
   },
-  purple: {
-     accent: 'text-purple-400',
-     glow: 'bg-purple-600/10',
-     button: 'bg-white hover:bg-purple-50 text-purple-950',
-     border: 'border-purple-900/30',
-     subtle: 'text-purple-100/60',
-     line: 'bg-purple-400'
+  // OFFICIAL WORLD CUP THEME (Orange/Slate)
+  worldcup: {
+    accent: 'text-[#F05A14]', // Official Orange
+    glow: 'bg-[#F05A14]/5',
+    button: 'bg-[#F05A14] hover:bg-[#d64d0e] text-white shadow-[#F05A14]/20',
+    border: 'border-[#333E48]', // Official Dark Grey
+    subtle: 'text-gray-400',
+    line: 'bg-[#F05A14]'
   }
 };
 
-const colors = themeMap[theme];
+// 3. GET COLORS (Now 'theme' is definitely defined)
+const colors = themeMap[theme] || themeMap['blue']; // Fallback
 const isRight = align === 'right';
 ---
 
-<section class="py-24 relative overflow-hidden border-b border-neutral-900 bg-neutral-950 rounded-xl">
+<section class="py-24 relative overflow-hidden border-b border-neutral-900 bg-neutral-950">
   
   {/* Ambient Glow */}
   <div 
