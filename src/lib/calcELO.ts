@@ -16,7 +16,7 @@ export interface RatedTeam {
 // --- CONFIGURATION ---
 
 const MIN_GAMES_PLAYED = 5;
-const K_FACTOR_BASE = 32;
+const K_FACTOR_BASE = 20;
 
 // 1. ALIAS MAP (Handles Rebrands)
 const TEAM_ALIASES: Record<string, string> = {
@@ -73,6 +73,22 @@ function inferRegion(tournamentName: string): string {
   if (tournamentName.includes("Pacific")) return "Pacific";
   if (tournamentName.includes("China")) return "China";
   return "default";
+}
+
+function getMovMultiplier(scoreA: number, scoreB: number): number {
+  // Handle missing scores or draws (should be filtered out, but safety first)
+  if (scoreA === undefined || scoreB === undefined) return 1.0;
+  
+  const diff = Math.abs(scoreA - scoreB);
+
+  // Map Difference Logic:
+  // 3+ Map Diff (3-0, 4-0, 4-1) -> Dominant Win -> 1.2x
+  // 2 Map Diff (3-1, 4-2)       -> Solid Win    -> 1.0x
+  // 1 Map Diff (3-2, 4-3)       -> Close Win    -> 0.8x
+  
+  if (diff >= 3) return 1.2;
+  if (diff === 2) return 1.0;
+  return 0.8;
 }
 
 // --- MAIN ALGORITHM ---
@@ -142,6 +158,9 @@ export function calculateRankings(matches: any[]) {
 
     let logoA=match.match2opponents[0].teamtemplate
     let logoB=match.match2opponents[1].teamtemplate
+
+    const rawScoreA = match.match2opponents[0].score;
+    const rawScoreB = match.match2opponents[1].score;
     
     if (logoA) {
       if(logoA.imageurl)
@@ -168,13 +187,37 @@ export function calculateRankings(matches: any[]) {
     const scoreA = winnerId === "1" ? 1 : 0;
     const scoreB = winnerId === "2" ? 1 : 0;
 
+    const scoreA_val = (rawScoreA === -1 || rawScoreA === null) ? 0 : Number(rawScoreA);
+    const scoreB_val = (rawScoreB === -1 || rawScoreB === null) ? 0 : Number(rawScoreB);
+
     if (!teamA.tournaments.includes(tournament)) teamA.tournaments.push(tournament);
     if (!teamB.tournaments.includes(tournament)) teamB.tournaments.push(tournament);
 
-    const k = getKFactor(tournament);
-    
-    const changeA = k * (scoreA - expectedA);
-    const changeB = k * (scoreB - expectedB);
+    let k = getKFactor(tournament);
+    // APPLY MoV MULTIPLIER
+    // We multiply the tournament weight by the performance weight
+    const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
+    k = k * movMultiplier;
+  // --- NEW: LAN PROTECTION (The Fix) ---
+    // If this is a high-stakes tournament (K > 40 means Major/Worlds),
+    // we protect the loser so they don't tank their rating just for qualifying.
+    let kA = k;
+    let kB = k;
+
+    const isBigTournament = k >= 40; 
+
+    if (isBigTournament) {
+        // If Team A lost, halve their K-factor (Half penalty)
+        if (scoreA === 0) kA = k * 0.5;
+        
+        // If Team B lost, halve their K-factor
+        if (scoreB === 0) kB = k * 0.5;
+    }
+    // -------------------------------------
+
+    // Calculate Points Change (Using individual K values)
+    const changeA = kA * (scoreA - expectedA);
+    const changeB = kB * (scoreB - expectedB);
 
     teamA.rating += changeA;
     teamB.rating += changeB;
@@ -310,6 +353,7 @@ export function calculateRankings(matches: any[]) {
     rankings: Object.values(teams)
       .filter(t => (t.wins + t.losses) >= MIN_GAMES_PLAYED)
       .filter(t => t.rating >= 1000)
+      .filter(t=> t.wins>0)
       .sort((a, b) => b.rating - a.rating),
     stats: {
       biggestMover,
