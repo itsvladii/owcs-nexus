@@ -50,22 +50,14 @@ const teamSchema=z.object({
   ).optional(),
 })
 
-const dropsSchema = z.object({
+const newsSchema = z.object({
   title: z.string(),
-  isActive: z.boolean(),
-  startDate: z.string(),
-  endDate: z.string(),
-  streamLink: z.string(),
-  rewards: z.array(z.object({
-    name: z.string(),
-    image: z.string(),
-    hours: z.number(),
-  })),
-});
-
-const dropsCollection = defineCollection({
-  type: 'data', // <--- CRITICAL: Must be 'data' (for JSON)
-  schema: dropsSchema,
+  excerpt: z.string(),         // Short summary for the card
+  publishDate: z.date(),       // To sort by newest
+  author: z.string().default('Nexus Staff'),
+  image: z.string(),           // Hero image for the article
+  tag: z.enum(['Analysis', 'Recap', 'Player Focus', 'Meta Report', 'Breaking']),
+  isFeatured: z.boolean().default(false), // For the big slot on the news page
 });
 
 //rendo questi schema visibili
@@ -78,6 +70,6 @@ export const collections={
         type:'content', //content vuol dire che scrivo file MD
         schema:teamSchema //indico lo schema che devo seguire
     }),
-    'drops': dropsCollection,
-    
+    'news': defineCollection({ type: 'content', schema: newsSchema }),
+
 }

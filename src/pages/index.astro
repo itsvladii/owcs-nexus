@@ -6,15 +6,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import LiveMatchCard from '../components/LiveMatchCard.tsx';
 import FeatureSection from "../components/FeatureSection.astro";
-/*import { calculateRankings } from "../lib/calcELO";
-import { fetchAllSeasonMatches } from "../lib/fetchMatches";*/
-
-/*const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
-const userAgent = 'OWCS-Nexus (barcanvladi@gmail.com)';
-const matches = await fetchAllSeasonMatches(apiKey, userAgent);
-const { rankings } = calculateRankings(matches);
-// Get Top 5 for the preview widget
-const top5 = rankings.slice(0, 5);*/
 
 const top5=[
   { name: "Team Falcons", rating: 1606, region: "Korea" },
@@ -69,6 +60,13 @@ function getTeamLogo(name: string) {
 
 const PLAYER_SECTION_IMG = "https://live.staticflickr.com/65535/53888289946_ca9b058f28_k.jpg";
 const TEAM_SECTION_IMG = "https://live.staticflickr.com/65535/54692531031_150e8b42ef_k.jpg";
+
+const allNews = await getCollection('news');
+
+// Sort by Date (Newest First) and take top 3
+const latestArticles = allNews
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 3);
 ---
 
 <BaseLayout title="Home">
@@ -140,6 +138,66 @@ const TEAM_SECTION_IMG = "https://live.staticflickr.com/65535/54692531031_150e8b
      </div>
   </FeatureSection>
 
+    {/* ==============================================
+      ROW 4: ANALYST DESK (Zinc/Editorial Theme)
+      ============================================== */}
+  <FeatureSection
+    title="Analyst Desk"
+    subtitle="Deep Dives"
+    description="Breaking news, meta reports, and in-depth analysis from around the league. Stay ahead of the curve."
+    theme="zinc"
+    align="left" // Text Left, Articles Right
+    primaryLink={{ text: "Read Articles", href: "/news" }}
+  >
+     
+     {/* THE SLOT: Vertical Article Stack */}
+     <div class="flex flex-col gap-4">
+        {latestArticles.map((article) => (
+          <a 
+             href={`/news/${article.slug}`} 
+             class="group relative h-[400px] rounded-2xl overflow-hidden border border-neutral-800 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2"
+           >
+              {/* 1. Full Background Image */}
+              <img 
+                src={article.data.image} 
+                alt={article.data.title}
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-[0.7] group-hover:brightness-100" 
+              />
+              
+              {/* 2. Gradient Overlay (For text readability) */}
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90"></div>
+
+              {/* 3. Floating Badge (Top Left) */}
+              <div class="absolute top-4 left-4">
+                 <span class="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded">
+                    {article.data.tag}
+                 </span>
+              </div>
+
+              {/* 4. Content (Bottom) */}
+              <div class="absolute bottom-0 left-0 right-0 p-8">
+                 <div class="flex items-center gap-3 text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
+                    <span>{new Date(article.data.publishDate).toLocaleDateString(undefined, { month:'short', day:'numeric' })}</span>
+                    <span class="w-1 h-1 rounded-full bg-zinc-500"></span>
+                    <span>{article.data.author}</span>
+                 </div>
+                 
+                 <h4 class="text-2xl md:text-3xl font-title text-white leading-tight mb-4 group-hover:text-amber-500 transition-colors">
+                    {article.data.title}
+                 </h4>
+                 
+                 {/* "Read Now" Link */}
+                 <div class="flex items-center gap-2 text-sm font-bold text-white uppercase tracking-widest opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                    Read Article <span>→</span>
+                 </div>
+              </div>
+
+           </a>
+        ))}
+     </div>
+
+  </FeatureSection>
+
   {/* ==============================================
       ROW 2: THE PLAYERS (Blue)
       ============================================== */}
@@ -160,50 +218,7 @@ const TEAM_SECTION_IMG = "https://live.staticflickr.com/65535/54692531031_150e8b
      </div>
   </FeatureSection>
 
-  {/* ==============================================
-  ROW 2.5: THE WORLD CUP (Cyan Theme)
-  ============================================== */}
-     
-     <FeatureSection
-    title="World Cup 2026"
-    subtitle="National Pride"
-    description="The world unites once again. Track national rosters, view the interactive global map, and follow the road to BlizzCon."
-    theme="worldcup"
-    align="right" 
-    primaryLink={{ text: "Enter War Room", href: "/world-cup" }}
-  >
-     
-     {/* Visual Slot with Official Colors */}
-     <div class="relative h-[500px] rounded-3xl overflow-hidden border border-[#333E48] shadow-[0_0_40px_-10px_rgba(240,90,20,0.3)] group">
-         
-         <img 
-           src="https://imguscdn.gamespress.com/cdn/files/BlizzardLive/2019/11/03002203-6bee7a7b-7a78-45c2-87a1-d2b00e027aaa/20191102_Carlton-Beener_Blizzcon2019_OWWC_00563.jpg?otf=y&lightbox=y&sky=6f24b15fbf6b31b65bb221503356008903da709703ef7d33c00b6fa266241593&w=1024&maxheight=4096&mode=pad&format=jpg" 
-           alt="Overwatch World Cup" 
-           class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-all duration-1000 filter grayscale-[20%]"
-         />
-         
-         {/* Gradient: Fade to Dark Grey (#333E48) instead of Black */}
-         <div class="absolute inset-0 bg-gradient-to-t from-[#333E48]/90 via-transparent to-transparent"></div>
-         
-         {/* Badge */}
-         <div class="absolute bottom-6 left-6 right-6">
-            <div class="bg-[#333E48]/90 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center justify-between shadow-lg">
-               <div>
-                  <p class="text-xs text-[#F05A14] font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
-                     <span class="w-2 h-2 rounded-full bg-[#F05A14] animate-pulse"></span> Next Event
-                  </p>
-                  <p class="text-white font-title text-2xl tracking-wide">Americas Conference</p>
-               </div>
-               
-               <div class="w-12 h-12 rounded-full bg-[#F05A14] flex items-center justify-center text-white shadow-md">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-               </div>
-            </div>
-         </div>
-
-      </div>
-
-  </FeatureSection>
+ 
 
   {/* ==============================================
       ROW 3: THE TEAMS (Emerald)
