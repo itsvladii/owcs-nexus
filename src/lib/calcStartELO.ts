@@ -39,14 +39,14 @@ function getMovMultiplier(s1: number, s2: number) {
   if (diff === 2) return 1.0;
   return 0.8;
 }
-function inferRegion(name: string) {
-  if (name.includes("Korea") || name.includes("Asia")) return "Korea";
-  if (name.includes("North America") || name.includes("NA")) return "North America";
-  if (name.includes("EMEA") || name.includes("Europe")) return "EMEA";
+function inferRegion(name: string): string|null {
   if (name.includes("Japan")) return "Japan";
   if (name.includes("Pacific")) return "Pacific";
   if (name.includes("China")) return "China";
-  return "default";
+  if (name.includes("Korea") || name.includes("Asia")) return "Korea";
+  if (name.includes("North America") || name.includes("NA")) return "North America";
+  if (name.includes("EMEA") || name.includes("Europe")) return "EMEA";
+  return null;
 }
 
 // --- FETCH MATCHES ---
@@ -57,7 +57,7 @@ async function fetch2025Season() {
   url.searchParams.set('limit', '2000'); // Get EVERYTHING
   url.searchParams.set('order', 'date ASC');
   // STRICTLY 2025 MATCHES
-  url.searchParams.set('conditions', '[[finished::1]] AND [[date::>2024-02-26]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])');
+  url.searchParams.set('conditions', '[[finished::1]] AND [[date::>2024-02-26]] AND [[date::<2024-11-24]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])');
 
   try {
     const res = await fetch(url.toString(), { headers: { 'Authorization': `Apikey ${API_KEY}`, 'User-Agent': USER_AGENT } });
@@ -91,6 +91,13 @@ function runSimulation(matches: any[]) {
     
     const teamA = getTeam(nameA, match.tournament);
     const teamB = getTeam(nameB, match.tournament);
+
+    const currentRegion = inferRegion(match.tournament);
+    
+    if (currentRegion) {
+        if (teamA.region !== currentRegion) teamA.region = currentRegion;
+        if (teamB.region !== currentRegion) teamB.region = currentRegion;
+    }
 
     // Math
     const s1 = Number(match.match2opponents[0].score ?? 0);

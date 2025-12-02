@@ -15,7 +15,7 @@ export interface RatedTeam {
 
 // --- CONFIGURATION ---
 
-const MIN_GAMES_PLAYED = 5;
+const MIN_GAMES_PLAYED = 10;
 const K_FACTOR_BASE = 20;
 
 // 1. ALIAS MAP (Handles Rebrands)
@@ -24,20 +24,21 @@ const TEAM_ALIASES: Record<string, string> = {
   "WAY": "WAE",
   "Once Again": "Weibo Gaming",
   "Sign Esports": "NTMR",
-  "1DIPVS100GORILLAS": "Quick Esports",
+  "1DIPVS100GORILLAS": "Vanir Quick",
   "Team CC (Chinese orgless team)": "Team CC",
-  "Cheeseburger (Korean team)": "Cheeseburger"
+  "Cheeseburger (Korean team)": "Cheeseburger",
+  "Quick Esports": "Vanir Quick",
 };
 
 // 2. REGIONAL SEEDING
 const STARTING_ELO: Record<string, number> = {
-  "Korea": 1296,
-  "North America": 1252,
+  "Korea": 1304,
+  "North America": 1264,
   "EMEA": 1255,
   "China": 1200,
-  "Japan": 1237,
-  "Pacific": 1209,
-  "default": 1200
+  "Japan": 1211,
+  "Pacific": 1189,
+  "default":1200
 };
 
 // 3. TOURNAMENT WEIGHTS
@@ -65,14 +66,15 @@ function getKFactor(tournamentName: string): number {
   return (key ? TOURNAMENT_WEIGHTS[key] : TOURNAMENT_WEIGHTS['default']) * K_FACTOR_BASE;
 }
 
-function inferRegion(tournamentName: string): string {
+function inferRegion(tournamentName: string): string|null {
+  if (tournamentName.includes("Pacific")) return "Pacific";
+  if (tournamentName.includes("Japan")) return "Japan";
+  if (tournamentName.includes("China")) return "China";
+  
   if (tournamentName.includes("Korea") || tournamentName.includes("Asia")) return "Korea";
   if (tournamentName.includes("North America") || tournamentName.includes("NA")) return "North America";
   if (tournamentName.includes("EMEA") || tournamentName.includes("Europe")) return "EMEA";
-  if (tournamentName.includes("Japan")) return "Japan";
-  if (tournamentName.includes("Pacific")) return "Pacific";
-  if (tournamentName.includes("China")) return "China";
-  return "default";
+  return null;
 }
 
 function getMovMultiplier(scoreA: number, scoreB: number): number {
@@ -155,6 +157,13 @@ export function calculateRankings(matches: any[]) {
 
     const teamA = getTeam(nameA, tournament);
     const teamB = getTeam(nameB, tournament);
+
+    const currentRegion = inferRegion(tournament);
+    
+    if (currentRegion) {
+        if (teamA.region !== currentRegion) teamA.region = currentRegion;
+        if (teamB.region !== currentRegion) teamB.region = currentRegion;
+    }
 
     let logoA=match.match2opponents[0].teamtemplate
     let logoB=match.match2opponents[1].teamtemplate
