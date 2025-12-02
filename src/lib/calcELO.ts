@@ -31,13 +31,13 @@ const TEAM_ALIASES: Record<string, string> = {
 
 // 2. REGIONAL SEEDING
 const STARTING_ELO: Record<string, number> = {
-  'Korea': 1350,
-  'EMEA': 1250,
-  'North America': 1250,
-  'Japan': 1150,
-  'Pacific': 1100,
-  'China': 1200,
-  'default': 1200
+  "Korea": 1296,
+  "North America": 1252,
+  "EMEA": 1255,
+  "China": 1200,
+  "Japan": 1237,
+  "Pacific": 1209,
+  "default": 1200
 };
 
 // 3. TOURNAMENT WEIGHTS

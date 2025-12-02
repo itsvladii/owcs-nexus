@@ -38,7 +38,7 @@ export async function fetchRecentMatches(
     endpoint.searchParams.set('wiki', 'overwatch');
     endpoint.searchParams.set('limit', '50'); 
     endpoint.searchParams.set('order', 'date DESC'); 
-    endpoint.searchParams.set('conditions', `[[finished::1] AND [[date::>2025-01-24]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]])`);
+    endpoint.searchParams.set('conditions', `[[finished::1] AND [[date::>2025-01-24]] AND [[date::<2025-11-30]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]])`);
 
     const response = await fetch(endpoint.toString(), {
       method: 'GET',
