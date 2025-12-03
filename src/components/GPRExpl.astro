@@ -1,0 +1,179 @@
+---
+// src/components/Methodology.astro
+
+const STEPS = [
+  {
+    step: "01",
+    label: "THE ENGINE",
+    heading: "Zero-Sum Combat",
+    iconColor: "text-amber-500",
+    borderColor: "border-amber-500/20",
+    desc: "We use a custom ELO system, similar to the ones used in Chess and sports like the FIFA World Rankings. Points are transferred directly from loser to winner, where pulling an upset yields massive rewards and crushing newcomers grants pennies.",
+    // The specific 'widget' for this card is the Math Formula
+    widget: "math" ,
+    iconPath: "M13 10V3L4 14h7v7l9-11h-7z"
+  },
+  {
+    step: "02",
+    label: "IMPACT WEIGHT",
+    heading: "When the lights are at their brightest...",
+    iconColor: "text-blue-500",
+    borderColor: "border-blue-500/20",
+    desc: "Not all matches are created equal. We dynamically adjust the K-Factor based on the tournament tier to prioritize high-pressure LAN environments.",
+    // The specific 'widget' for this card is the Bar Chart
+    widget: "graph",
+    iconPath: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+  },
+  {
+    step: "03",
+    label: "CALIBRATION",
+    heading: "Regional Bias",
+    iconColor: "text-emerald-500",
+    borderColor: "border-emerald-500/20",
+    desc: "To emphasize the difference and shifts of regional powers across OWCS, we calibrate starting ELO based on historical region strength. A 5-0 record in Korea, for example, is worth more than 5-0 elsewhere.",
+    // The specific 'widget' for this card is the Region Table
+    widget: "table",
+    iconPath:"M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z"
+  }
+];
+
+const WEIGHTS = [
+  { label: "World Finals", val: "2.5x", width: "100%" },
+  { label: "Midseason", val: "2.0x", width: "80%" },
+  { label: "Major", val: "1.5x", width: "60%" },
+  { label: "Stage", val: "1.0x", width: "40%" },
+];
+
+const PROTOCOLS = [
+ {
+    id: "P-04",
+    name: "Ship of Theseus",
+    desc: "If a team replaces >50% of their roster (3+ players), their ELO is soft-reset to their region's baseline. We track the core, not the org tag.",
+    icon: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+  },
+  {
+    id: "P-05",
+    name: "LAN Mercy Rule",
+    desc: "Losing at an S-Tier LAN applies a 0.5x dampener on point loss, as qualified teams shouldn't be punished heavily for losing to the world's best on stage and non qualified teams shouldn't climb when they're not playing on Majors.",
+    icon: "M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+  }
+];
+---
+
+<section class="py-24 bg-[#0a0a0a] relative overflow-hidden border-t border-neutral-900">
+  
+  {/* Background Decoration */}
+  <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(#404040 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    
+    {/* HEADER */}
+    <div class="mb-16 text-center">
+      <h2 class="text-neutral-500 font-bold tracking-widest uppercase text-sm mb-3">System Architecture</h2>
+      <h3 class="text-4xl md:text-5xl font-title text-white">HOW IT WORKS</h3>
+    </div>
+
+    {/* --- PART 1: MAIN SYSTEMS (DYNAMIC MAPPING) --- */}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      
+      {STEPS.map((item) => (
+        <div class={`bg-neutral-900/50 border ${item.borderColor} p-8 rounded-2xl relative group hover:bg-neutral-900 transition-colors flex flex-col`}>
+          
+          {/* Header */}
+          <span class={`${item.iconColor} font-mono text-xl font-bold mb-4 block`}>
+            {item.step}. {item.label}
+          </span>
+          <h4 class="text-white font-title text-2xl mb-4">{item.heading}</h4>
+          <p class="text-neutral-400 text-sm leading-relaxed mb-6 flex-1">
+             {item.desc}
+          </p>
+          
+          {/* DYNAMIC WIDGETS */}
+          <div class="mt-auto">
+            
+            {/* WIDGET 1: MATH FORMULA */}
+            {item.widget === 'math' && (
+              <div class="bg-black/50 p-4 rounded border border-neutral-800 font-mono text-xs text-amber-500">
+                 ΔRating = K × (Score - Expected)
+              </div>
+            )}
+
+            {/* WIDGET 2: GRAPH */}
+            {item.widget === 'graph' && (
+               <div class="space-y-3">
+                  {WEIGHTS.map(w => (
+                     <div class="flex items-center gap-3 text-xs">
+                        <span class="text-neutral-400 w-24 text-right">{w.label}</span>
+                        <div class="flex-1 h-2 bg-neutral-800 rounded-full overflow-hidden">
+                           <div class="h-full bg-blue-500 rounded-full" style={{ width: w.width }}></div>
+                        </div>
+                        <span class="text-blue-400 font-bold font-mono">{w.val}</span>
+                     </div>
+                  ))}
+               </div>
+            )}
+
+            {/* WIDGET 3: REGION TABLE */}
+            {item.widget === 'table' && (
+               <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500 text-white">
+                     KOREA <span class="float-right text-emerald-500">1350</span>
+                  </div>
+                  <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/60 text-neutral-300">
+                     EMEA <span class="float-right text-emerald-500/60">1320</span>
+                  </div>
+                  <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/40 text-neutral-400">
+                     CHINA <span class="float-right text-emerald-500/40">1275</span>
+                  </div>
+                  <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/20 text-neutral-500">
+                     NA <span class="float-right text-emerald-500/20">1268</span>
+                  </div>
+               </div>
+            )}
+
+          </div>
+
+          <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+             {/* THE FIX: Use item.iconPath here instead of hardcoded string */}
+             <svg xmlns="http://www.w3.org/2000/svg" class={`w-16 h-16 ${item.iconColor}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d={item.iconPath}/>
+             </svg>
+          </div>
+
+        </div>
+      ))}
+
+    </div>
+
+<div class="border-t border-neutral-800 pt-12">
+       <div class="flex items-center gap-4 mb-8">
+          <div class="h-px bg-neutral-800 flex-1"></div>
+          <span class="text-neutral-500 font-mono text-xs uppercase tracking-widest">Secondary Protocols</span>
+          <div class="h-px bg-neutral-800 flex-1"></div>
+       </div>
+
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {PROTOCOLS.map(p => (
+            <div class="flex gap-4 p-4 rounded-lg hover:bg-neutral-900/50 transition-colors group">
+               {/* Icon Box */}
+               <div class="w-12 h-12 shrink-0 bg-neutral-900 border border-neutral-800 rounded flex items-center justify-center text-neutral-400 group-hover:text-white group-hover:border-neutral-600 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d={p.icon} />
+                  </svg>
+               </div>
+               
+               <div>
+                  <div class="flex items-center gap-2 mb-1">
+                     <span class="text-xs font-mono text-amber-500/50">{p.id}</span>
+                     <h4 class="text-white font-bold text-sm uppercase">{p.name}</h4>
+                  </div>
+                  <p class="text-neutral-500 text-xs leading-relaxed group-hover:text-neutral-400 transition-colors">
+                     {p.desc}
+                  </p>
+               </div>
+            </div>
+          ))}
+       </div>
+
+  </div>
+</section>
