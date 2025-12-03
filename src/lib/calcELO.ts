@@ -10,13 +10,29 @@ export interface RatedTeam {
   logoDark?: string;
   history: { date: string, elo: number }[];
   rankDelta?: number;
-  tournaments: string[]
+  tournaments: string[];
+  lastResetDate?: string;
+  isPartner?:boolean
 }
 
 // --- CONFIGURATION ---
 
 const MIN_GAMES_PLAYED = 10;
 const K_FACTOR_BASE = 20;
+//if a team didn't play an official OWCS match for 90 days, they'll be counted as disbanded untill they play a game again
+const INACTIVITY_DAYS = 90; 
+
+const PARTNER_TEAMS_2025 = new Set([
+  "Crazy Raccoon",
+  "Team Falcons",
+  "T1",
+  "ZETA DIVISION",
+  "Spacestation Gaming",
+  "Team Liquid",
+  "Twisted Minds",
+  "Virtus.pro",
+  "Gen.G Esports"
+]);
 
 // 1. ALIAS MAP (Handles Rebrands)
 const TEAM_ALIASES: Record<string, string> = {
@@ -51,6 +67,11 @@ const TOURNAMENT_WEIGHTS: Record<string, number> = {
   'default': 1.0
 };
 
+const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
+   // NTMR Rebuild after Stage 1 (May 2025)
+   { team: "NTMR", date: "2025-05-01", resetTo: 1264 },
+];
+
 // --- HELPER FUNCTIONS ---
 
 function getNormalizedTeamName(name: string): string {
@@ -67,6 +88,8 @@ function getKFactor(tournamentName: string): number {
 }
 
 function inferRegion(tournamentName: string): string|null {
+  if (tournamentName.includes("Asia")) return null;
+  if (tournamentName.includes("Japan") && tournamentName.includes("Pacific")) return null; 
   if (tournamentName.includes("Pacific")) return "Pacific";
   if (tournamentName.includes("Japan")) return "Japan";
   if (tournamentName.includes("China")) return "China";
@@ -126,7 +149,8 @@ export function calculateRankings(matches: any[]) {
         wins: 0,
         losses: 0,
         history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }], // Start point
-        tournaments: []
+        tournaments: [],
+        isPartner: PARTNER_TEAMS_2025.has(name)
       };
     }
     return teams[name];
@@ -164,6 +188,23 @@ export function calculateRankings(matches: any[]) {
         if (teamA.region !== currentRegion) teamA.region = currentRegion;
         if (teamB.region !== currentRegion) teamB.region = currentRegion;
     }
+
+    const matchDateStr = match.date.split(' ')[0]; // Get YYYY-MM-DD
+    
+    [teamA, teamB].forEach(team => {
+        // Find a reset rule for this team that has happened by this match date
+        // AND ensures we haven't already applied it (check lastResetDate)
+        const reset = ROSTER_RESETS.find(r => 
+            r.team === team.name && 
+            r.date <= matchDateStr && 
+            (!team.lastResetDate || team.lastResetDate < r.date)
+        );
+
+        if (reset) { 
+            team.rating = reset.resetTo; 
+            team.lastResetDate = reset.date; 
+        }
+    });
 
     let logoA=match.match2opponents[0].teamtemplate
     let logoB=match.match2opponents[1].teamtemplate
@@ -355,15 +396,57 @@ export function calculateRankings(matches: any[]) {
   const biggestMover = movers.sort((a, b) => b.diff - a.diff)[0];
   const biggestLoser = movers.sort((a, b) => a.diff - b.diff)[0];
   
-  const biggestUpsets = upsets.sort((a, b) => a.prob - b.prob).slice(0, 2);
+  
+  const biggestUpsets = upsets.filter(u => {
+        const t = u.tournament.toLowerCase();
+       
+       // 1. EXCLUDE NOISE
+       // Explicitly block "qualifier" to be safe
+       if (t.includes("qualifier")) return false;
+
+       // 2. INCLUDE ONLY GLOBAL EVENTS
+       // "Champions" is dangerous because the league is "Overwatch Champions Series"
+       // Use "Champions Clash" or just "Clash" instead.
+       const isGlobal = t.includes("major") || 
+                        t.includes("midseason") || 
+                        t.includes("world") || 
+                        t.includes("clash"); // "Champions Clash" specific
+       
+       // 3. (Optional) Continental Events (Asia Main Event)
+       // Uncomment if you want big regional showdowns (KR vs JP)
+       // const isAsiaMain = t.includes("owcs asia") && !t.includes("stage");
+
+       return isGlobal;
+    })
+    .slice(0,2)
+    .sort((a: any, b: any) => a.prob - b.prob);
+
+  // Find "Present Day" (Latest match in DB)
+  let latestDateInDb = new Date('2025-01-01');
+  if (matches.length > 0) {
+      const lastMatch = matches.reduce((latest, current) => new Date(current.date) > new Date(latest.date) ? current : latest);
+      latestDateInDb = new Date(lastMatch.date);
+  }
+  
+  const cutoffDate = new Date(latestDateInDb);
+  cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
+
+  const filteredRankings = currentRankings.filter((t: any) => {
+       // A. Min Games
+       if ((t.wins + t.losses) < MIN_GAMES_PLAYED) return false;
+       // B. Valid Rating
+       if (t.rating < 1000 || t.wins === 0) return false;
+       // C. Inactivity Check
+       const lastPlayedEntry = t.history[t.history.length - 1];
+       if (!lastPlayedEntry) return false;
+       if (new Date(lastPlayedEntry.date) < cutoffDate) return false;
+
+       return true;
+  });
 
   // 5. Return Results
   return {
-    rankings: Object.values(teams)
-      .filter(t => (t.wins + t.losses) >= MIN_GAMES_PLAYED)
-      .filter(t => t.rating >= 1000)
-      .filter(t=> t.wins>0)
-      .sort((a, b) => b.rating - a.rating),
+    rankings: filteredRankings,
     stats: {
       biggestMover,
       biggestLoser,

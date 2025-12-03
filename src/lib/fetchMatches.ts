@@ -38,7 +38,7 @@ export async function fetchRecentMatches(
     endpoint.searchParams.set('wiki', 'overwatch');
     endpoint.searchParams.set('limit', '50'); 
     endpoint.searchParams.set('order', 'date DESC'); 
-    endpoint.searchParams.set('conditions', `[[finished::1] AND [[date::>2025-01-24]] AND [[date::<2025-11-30]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]])`);
+    endpoint.searchParams.set('conditions', `[[finished::1] AND [[date::>2025-01-24]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]])`);
 
     const response = await fetch(endpoint.toString(), {
       method: 'GET',
@@ -97,7 +97,7 @@ export async function fetchAllSeasonMatches(apiKey: string, userAgent: string) {
     endpoint.searchParams.set('wiki', 'overwatch');
     endpoint.searchParams.set('limit', '1000');
     endpoint.searchParams.set('order', 'date ASC');
-    endpoint.searchParams.set('conditions', '[[finished::1]] AND [[date::>2025-01-24]] AND [[date::<2025-11-30]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])');
+    endpoint.searchParams.set('conditions', '[[finished::1]] AND [[date::>2025-01-24]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])');
 
     console.log(`[Liquipedia] Fetching season matches...`);
 

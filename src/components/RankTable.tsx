@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import RankingModal from './ELOGraph';
-
 export interface RankingTeam {
   rank: number;
   name: string;
@@ -22,20 +21,11 @@ interface Props {
   teams: RankingTeam[];
 }
 
-// Filter Options
-const EVENT_FILTERS = [
-  { label: 'All Events', value: 'All' },
-  { label: 'World Finals', value: 'World Finals 2025' },
-  { label: 'Midseason', value: 'Midseason Championship' },
-  { label: 'Champions Clash', value: 'Champions Clash' }
-];
-
 const REGION_FILTERS = ['All Regions', 'Korea', 'North America', 'EMEA', 'China', 'Pacific', 'Japan'];
 
 export default function RankingsTable({ teams }: Props) {
   const [selectedTeam, setSelectedTeam] = useState<RankingTeam | null>(null);
   const [regionFilter, setRegionFilter] = useState('All Regions');
-  const [eventFilter, setEventFilter] = useState('All');
 
   // --- FILTER LOGIC ---
   const filteredTeams = useMemo(() => {
@@ -45,16 +35,13 @@ export default function RankingsTable({ teams }: Props) {
         return false;
       }
       // 2. Event Filter
-      if (eventFilter !== 'All') {
-        const playedInEvent = team.tournaments.some(t => t.includes(eventFilter));
-        if (!playedInEvent) return false;
-      }
       return true;
     });
-  }, [teams, regionFilter, eventFilter]);
-
+  }, [teams, regionFilter]);
   return (
+    
     <>
+    
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm relative z-10">
         
         {/* --- FILTER BAR (Restored) --- */}
@@ -148,7 +135,6 @@ export default function RankingsTable({ teams }: Props) {
                 <div className="flex flex-col min-w-0">
                   <span className={`text-lg font-bold truncate leading-tight ${team.isPartner ? 'text-white' : 'text-neutral-300'}`}>
                     {team.name}
-                    {team.isPartner && <span className="ml-2 inline-block w-1.5 h-1.5 rounded-full align-middle" style={{ backgroundColor: team.color }}></span>}
                   </span>
                   <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-0.5">
                     {team.region}

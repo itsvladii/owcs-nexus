@@ -60,7 +60,7 @@ function getTeamProps(team: {
 //#endregion
 
 const top3 = rankings.slice(0, 3);
-const restOfThePack = rankings.slice(0, 50);
+const restOfThePack = rankings.slice(0, 30);
 
 const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
     const { localTeam, isPartner, hasPage, color, logo } = getTeamProps(team);
@@ -180,7 +180,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                     })()
             }
 
-            {/* CARD 2: BIGGEST FALLER */}
+            {/* CARD 2: LONGEST REIGN */}
             {
                 stats.longestReign &&
                     (() => {
@@ -190,33 +190,17 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                         });
 
                         return (
-                            <div class="bg-neutral-900/90 border border-amber-500/30 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-amber-500/50 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">
-                                {/* Background Icon Decoration */}
+                            <div class="bg-neutral-900/90 border border-purple-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-purple-500/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">
                                 <div class="absolute -top-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="w-40 h-40 text-amber-500"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                    >
-                                        <>
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 0 0-.584.859 6.753 6.753 0 0 0 6.138 5.625 6.752 6.752 0 0 0 5.947-3.097a9.27 9.27 0 0 1 2.742-4.533.75.75 0 0 1 1.195.93a10.781 10.781 0 0 0-3.269 5.765 6.753 6.753 0 0 0 5.947 3.097 6.753 6.753 0 0 0 6.138-5.625.75.75 0 0 0-.584-.859 25.032 25.032 0 0 0-3.072-.543v-.858a.75.75 0 0 0-.75-.75h-16a.75.75 0 0 0-.75.75Z"
-                                                clip-rule="evenodd"
-                                            />
-                                            <path d="M8.25 8.985c.345.018.69.028 1.035.028h5.43c.345 0 .69-.01 1.035-.028a8.254 8.254 0 0 1-1.835 2.712 8.248 8.248 0 0 1-1.915 1.454v8.6l2.844.71a.75.75 0 0 1 .571.835l-.632 4.423a.75.75 0 0 1-.741.644H9.957a.75.75 0 0 1-.741-.644l-.632-4.423a.75.75 0 0 1 .571-.835l2.844-.71v-8.6c-.69-.398-1.336-.885-1.915-1.454a8.255 8.255 0 0 1-1.834-2.712Z" />
-                                        </>
+                                    {/* Crown Icon */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-40 h-40 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M11.7 2.805a.75.75 0 0 1 .6 0A16.035 16.035 0 0 1 16.75 5.75l.875 2.625 3.257-1.63a.75.75 0 0 1 1.034.906l-2.125 8.5a.75.75 0 0 1-.728.568h-14.126a.75.75 0 0 1-.728-.568l-2.125-8.5a.75.75 0 0 1 1.034-.906l3.257 1.629.875-2.625A16.035 16.035 0 0 1 11.7 2.805Z" />
                                     </svg>
                                 </div>
-
-                                {/* Header Badge */}
-                                <p class="text-amber-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center justify-center gap-2 z-10">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />{" "}
+                                <p class="text-purple-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2 z-10">
+                                    <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />{" "}
                                     Longest Reign
                                 </p>
-
-                                {/* Team Info */}
                                 {logo && (
                                     <img
                                         src={logo}
@@ -227,9 +211,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                                 <h3 class="text-2xl font-title text-white mb-2 leading-none line-clamp-1 relative z-10">
                                     {stats.longestReign.name}
                                 </h3>
-
-                                {/* The "Days" Stat */}
-                                <p class="text-4xl font-mono font-bold text-amber-500 tracking-tight relative z-10">
+                                <p class="text-4xl font-mono font-bold text-purple-500 tracking-tight relative z-10">
                                     {stats.longestReign.days}{" "}
                                     <span class="text-base text-neutral-400 font-sans font-normal">
                                         Days
@@ -255,67 +237,49 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                         logoDark: upset.loserLogoDark,
                     });
                     return (
-                        <div class="bg-neutral-900/90 border border-amber-900/30 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden hover:border-amber-500/50 transition-all hover:-translate-y-1 shadow-lg flex flex-col justify-between">
-                            <div>
-                                <p class="text-amber-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                        class="w-4 h-4"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M14.615 1.595a.75.75 0 0 1 .359.852L12.981 9.75h4.75a.75.75 0 0 1 .546 1.27l-10 11a.75.75 0 0 1-1.171-.446l1.993-7.304H4.393a.75.75 0 0 1-.546-1.27l10-11a.75.75 0 0 1 .768-.155Z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                    Biggest Upset
-                                </p>
-
-                                <div class="flex items-center justify-between mb-4">
-                                    {/* Winner */}
-                                    <div class="flex flex-col items-center gap-2 w-[40%]">
-                                        {winnerProps.logo ? (
-                                            <img
-                                                src={winnerProps.logo}
-                                                class="w-12 h-12 object-contain drop-shadow-md"
-                                            />
-                                        ) : (
-                                            <div class="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center text-xs font-bold text-neutral-600">
-                                                {upset.winner
-                                                    .substring(0, 2)
-                                                    .toUpperCase()}
-                                            </div>
-                                        )}
-                                        <span class="font-bold text-white text-sm leading-tight text-center line-clamp-2">
-                                            {upset.winner}
-                                        </span>
-                                    </div>
-
-                                    <span class="text-neutral-600 text-xs font-black font-mono italic">
-                                        DEF.
+                        <div class="bg-neutral-900/90 border border-red-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-red-500/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">
+                            <div class="absolute -top-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
+                                {/* Lightning Icon */}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-40 h-40 text-red-500"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                            </div>
+                            <p class="text-red-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2 z-10">
+                                <span class="text-lg">⚡</span> Biggest Upset
+                            </p>
+                            <div class="flex items-center gap-4 mb-4 relative z-10">
+                                {upset.winnerLogo ? (
+                                    <img
+                                        src={upset.winnerLogo}
+                                        class="w-12 h-12 object-contain"
+                                    />
+                                ) : (
+                                    <span class="text-white font-bold">
+                                        {upset.winner}
                                     </span>
-
-                                    {/* Loser */}
-                                    <div class="flex flex-col items-center gap-2 w-[40%] opacity-60">
-                                        {loserProps.logo ? (
-                                            <img
-                                                src={loserProps.logo}
-                                                class="w-10 h-10 object-contain grayscale"
-                                            />
-                                        ) : (
-                                            <div class="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center text-xs font-bold text-neutral-600">
-                                                {upset.loser
-                                                    .substring(0, 2)
-                                                    .toUpperCase()}
-                                            </div>
-                                        )}
-                                        <span class="font-bold text-neutral-400 text-xs leading-tight text-center line-clamp-2">
-                                            {upset.loser}
-                                        </span>
-                                    </div>
-                                </div>
+                                )}
+                                <span class="text-neutral-500 text-xs font-bold uppercase">
+                                    DEF.
+                                </span>
+                                {upset.loserLogo ? (
+                                    <img
+                                        src={upset.loserLogo}
+                                        class="w-8 h-8 object-contain opacity-50 grayscale"
+                                    />
+                                ) : (
+                                    <span class="text-neutral-500 text-xs">
+                                        {upset.loser}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Tournament Name (With Wrap Fix) */}
@@ -324,13 +288,13 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                                     <span class="text-xs text-neutral-500 leading-tight pr-4 block">
                                         {upset.tournament}
                                     </span>
-                                    <span class="text-amber-500 font-bold font-mono text-xl shrink-0">
+                                    <span class="text-red-500 font-bold font-mono text-xl shrink-0">
                                         {(upset.prob * 100).toFixed(1)}%
                                     </span>
                                 </div>
                                 <div class="w-full bg-neutral-800 h-1.5 rounded-full mt-2 overflow-hidden">
                                     <div
-                                        class="bg-amber-500 h-full"
+                                        class="bg-red-500 h-full"
                                         style={`width: ${upset.prob * 100}%`}
                                     />
                                 </div>
@@ -358,7 +322,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
         </div>
 
         <div class="mt-24 border-t border-neutral-800 pt-12">
-            <GPRExpl></GPRExpl>
+            <GPRExpl />
         </div>
     </div>
 </BaseLayout>

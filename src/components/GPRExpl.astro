@@ -48,14 +48,21 @@ const PROTOCOLS = [
  {
     id: "P-04",
     name: "Ship of Theseus",
-    desc: "If a team replaces >50% of their roster (3+ players), their ELO is soft-reset to their region's baseline. We track the core, not the org tag.",
-    icon: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+    desc: "If a team replaces >50% of their roster (3+ players), their ELO is soft-reset to their region's baseline.",
+    icon: "M2 17h20c0 2.5-4.5 5-10 5S2 19.5 2 17zm10 0V4M7 6h10l-1 8H8L7 6z"
   },
   {
     id: "P-05",
     name: "LAN Mercy Rule",
-    desc: "Losing at an S-Tier LAN applies a 0.5x dampener on point loss, as qualified teams shouldn't be punished heavily for losing to the world's best on stage and non qualified teams shouldn't climb when they're not playing on Majors.",
+    desc: "Losing at an S-Tier LAN applies a 0.5x dampener on point loss, as qualified teams shouldn't be punished too heavily for losing to the world's best on stage and non qualified teams shouldn't climb when they're not playing on international tournaments.",
     icon: "M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+  },
+  {
+    id: "P-06",
+    name: "Inactivity Decay",
+    desc: "Teams that do not play an official OWCS match for 90 days are automatically hidden from the global rankings until they return.",
+    // Icon: Clock
+    icon: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
   }
 ];
 ---
@@ -145,14 +152,14 @@ const PROTOCOLS = [
 
     </div>
 
-<div class="border-t border-neutral-800 pt-12">
+<div>
        <div class="flex items-center gap-4 mb-8">
           <div class="h-px bg-neutral-800 flex-1"></div>
-          <span class="text-neutral-500 font-mono text-xs uppercase tracking-widest">Secondary Protocols</span>
+          <span class="text-neutral-500 font-mono text-xs uppercase tracking-widest">Other Rules</span>
           <div class="h-px bg-neutral-800 flex-1"></div>
        </div>
 
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           {PROTOCOLS.map(p => (
             <div class="flex gap-4 p-4 rounded-lg hover:bg-neutral-900/50 transition-colors group">
                {/* Icon Box */}
