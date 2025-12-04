@@ -7,6 +7,31 @@ import { fetchAllSeasonMatches } from '../../lib/fetchRecent3Matches';
 import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
 
+function getDistinguishedService(career) {
+  if (!career) return [];
+  
+  const serviceMap = new Map();
+
+  career.forEach(entry => {
+    // If team exists, merge notes. If not, create entry.
+    if (!serviceMap.has(entry.team)) {
+      serviceMap.set(entry.team, { 
+        name: entry.team, 
+        years: [entry.date], 
+        accolades: entry.notes || [] 
+      });
+    } else {
+      const existing = serviceMap.get(entry.team);
+      existing.years.push(entry.date); // Collect dates
+      if (entry.notes) existing.accolades.push(...entry.notes);
+    }
+  });
+  return Array.from(serviceMap.values()).sort((a, b) => {
+     const aScore = a.accolades.length + (a.years.some(y => y.includes('Present')) ? 5 : 0);
+     const bScore = b.accolades.length + (b.years.some(y => y.includes('Present')) ? 5 : 0);
+     return bScore - aScore;
+  });
+}
 // --- 1. GET STATIC PATHS ---
 export async function getStaticPaths() {
   const allPlayers = await getCollection('players');
@@ -164,12 +189,6 @@ const teamColor = teamEntry?.data.colour || '#f59e0b';
     {/* --- B. PLAYER IDENTITY LAYER --- */}
     <div class="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-end pb-32 z-30">
        
-       {/* Background Watermark (Role) */}
-       <div class="absolute top-1/2 left-0 -translate-y-1/2 opacity-[0.03] select-none pointer-events-none">
-          <span class="text-[15rem] md:text-[25rem] font-title font-bold text-white leading-none tracking-tighter">
-            {p.role}
-          </span>
-       </div>
 
        {/* INFO BLOCK */}
        <div class="relative">
@@ -389,30 +408,60 @@ const teamColor = teamEntry?.data.colour || '#f59e0b';
        </div>
 
        {/* Timeline */}
+       {/* SERVICE RECORD (Replaces Timeline) */}
        {p.career && p.career.length > 0 && (
-         <div class="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 shadow-inner">
-            <h3 class="font-title text-2xl text-white mb-8 border-b border-neutral-800 pb-2">Career Service</h3>
-            <div class="relative pl-4">
-                <div class="absolute left-1.5 top-2 bottom-2 w-0.5 bg-neutral-800"></div>
-                <div class="space-y-6">
-                    {p.career.map(entry => {
-                        const isCurrent = entry.date.toLowerCase().includes('present');
-                        return (
-                            <div class="relative pl-8 group">
-                                <div class={`absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-neutral-900 transition-transform group-hover:scale-125 ${isCurrent ? 'bg-green-500' : 'bg-neutral-600'}`}></div>
-                                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                                    <h4 class="text-lg font-bold text-white group-hover:text-amber-500 transition-colors">{entry.team}</h4>
-                                    <span class="text-xs font-mono text-neutral-500 bg-neutral-950 px-2 py-0.5 rounded border border-neutral-800">{entry.date}</span>
+         <div class="mt-12">
+            <h3 class="font-title text-2xl text-white mb-6 border-b border-neutral-800 pb-2 flex items-center gap-2">
+               Career Highlights
+               <span class="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
+                  {new Set(p.career.map(c => c.team)).size} Tours
+               </span>
+            </h3>
+
+            <div class="grid grid-cols-1 gap-4">
+                {getDistinguishedService(p.career).map(service => {
+                    const tEntry = allTeams.find(t => t.data.name === service.name);
+                    const logo = tEntry?.data.logo?.replace('/upload/', '/upload/w_100,h_100,c_fit,f_auto/');
+                    const isCurrent = service.years.some(y => y.toLowerCase().includes('present'));
+
+                    return (
+                        <div class={`relative overflow-hidden rounded-xl border p-5 transition-all hover:bg-neutral-900/80 ${isCurrent ? 'bg-neutral-900/60 border-amber-500/30' : 'bg-neutral-900/30 border-neutral-800'}`}>
+                            {/* Background Watermark */}
+                            {logo && <img src={logo} class="absolute -right-4 -bottom-4 w-24 h-24 opacity-5 grayscale rotate-12 pointer-events-none" />}
+                            
+                            <div class="flex items-start gap-4 relative z-10">
+                                {/* Logo Box */}
+                                <div class={`w-12 h-12 rounded-lg flex items-center justify-center border shadow-inner ${isCurrent ? 'bg-amber-500/10 border-amber-500/20' : 'bg-neutral-950 border-neutral-800'}`}>
+                                    {logo ? <img src={logo} class="w-8 h-8 object-contain" /> : <span class="font-bold text-neutral-600">{service.name[0]}</span>}
                                 </div>
-                                {entry.notes && (
-                                    <ul class="mt-1 space-y-1">
-                                        {entry.notes.map(n => <li class="text-sm text-neutral-400 flex gap-2"><span class="text-amber-500">▸</span> {n}</li>)}
-                                    </ul>
-                                )}
+
+                                {/* Content */}
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class={`text-lg font-bold font-title leading-none mb-1 ${isCurrent ? 'text-white' : 'text-neutral-300'}`}>
+                                            {service.name}
+                                        </h4>
+                                        {isCurrent && <span class="text-[9px] font-bold bg-amber-500 text-black px-1.5 py-0.5 rounded tracking-wider uppercase">Active</span>}
+                                    </div>
+                                    
+                                    {/* Accolades List */}
+                                    {service.accolades.length > 0 ? (
+                                        <ul class="mt-3 space-y-1.5">
+                                            {service.accolades.map(note => (
+                                                <li class="flex items-start gap-2 text-sm text-neutral-400">
+                                                    <span class="mt-1 w-1 h-1 rounded-full bg-amber-500 shrink-0"></span>
+                                                    <span>{note}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p class="mt-2 text-xs text-neutral-600 italic">No recorded honors.</p>
+                                    )}
+                                </div>
                             </div>
-                        )
-                    })}
-                </div>
+                        </div>
+                    );
+                })}
             </div>
          </div>
        )}
@@ -426,13 +475,13 @@ const teamColor = teamEntry?.data.colour || '#f59e0b';
                 <IconTwitch class="w-24 h-24 text-white" />
              </div>
              <h3 class="font-title text-xl text-white mb-4 flex items-center gap-2 relative z-10">
-                <span class="text-red-600 animate-pulse">●</span> LIVE FEED
+                <span class="text-red-600 animate-pulse">●</span> LATEST POV
              </h3>
              <div class="relative w-full bg-black rounded-lg overflow-hidden shadow-lg aspect-video z-10">
                <iframe src={mostRecentPovUrl} title="POV" class="absolute top-0 left-0 w-full h-full" allowfullscreen></iframe>
              </div>
              <p class="text-xs text-neutral-500 mt-3 text-center relative z-10">
-                POV Courtesy of <a href="https://www.youtube.com/@ObsSojourn" class="text-white underline decoration-amber-500">@ObsSojourn</a>
+                POV Courtesy of <a href="https://www.youtube.com/@ObsSojourn" class="text-white underline decoration-amber-500">@ObsSojourn!</a>
              </p>
           </div>
        )}
@@ -441,7 +490,7 @@ const teamColor = teamEntry?.data.colour || '#f59e0b';
        <div>
           <h3 class="font-title text-2xl text-white mb-6 flex items-center gap-3">
              <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
-             RECENT OPERATIONS
+             RECENT MATCHES
           </h3>
           
           <div class="space-y-2">
