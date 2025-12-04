@@ -3,7 +3,7 @@ name: 'UltraViolet'
 fullName: 'Benjamin David'
 role: 'Main Support'
 team: 'gk'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/GK/gk_ultraviolet_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533049-detail.jpg?Expires=1764944279&Signature=hix3fNtCnktaC~tdgCaKArW0YJLzDjbg9GFFrUCy1yHkDcmRy-NvapgGhBK6XV-b1O09dzHaN6dKQkK3DvSjX-qFSXYJR-~gWnxxAs68bwTQ2p8BIQRtSxun1M2OHhXlJeU8c87S0NqTgG0hJhdsRkAim-WfsN2twYBcpBQ2FZv0Fn445IFsNaySXgi7hSRgT-wap-7XJTCuV~U7BY6WME1B60fyBwiR07RJCe2DgukVSbTh0mQvsVG937toz5VdgMmSOBU9v1RaKPTD-qdlAfE7RevKrvmlnP0HaehGk8wKjugdEwfqbtlFv~TrfVf6hT3yCYPDOHMxTM~AYptYpg__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "United States"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/us_noaxgh.png"
 signatureHeroes:

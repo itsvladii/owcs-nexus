@@ -3,7 +3,7 @@ name: 'CheckMate'
 fullName: 'Baek Seung-hun'
 role: 'Flex DPS'
 team: 'aq'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/AQ/aq_checkmate_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533026-detail.jpg?Expires=1764944877&Signature=Sa6rzI6O8ZQZlIQ5o-jYPXJJX0K-w0PV9hxfl9UwtwyLjyHUtQQXSWmx3MVwtZWlblNjZOc5yjRfFhOCXZzOqD2GY8d8gF6L~5B7DcmRhL1J9Ok3uRb9nuKHBzKPGK-wSVQPOVz~uvv-B5T5yxOntwxlvh6K1s8bj16QsPSJNLJXLzMlf5j3gOfZXDoqjB3i~CFTrOhCHvSBLMHE5MRfBQUxXYTy6wnKJSUT2yPGCwsx2MvlbgTbq73iSYteI-8o7v5vwL6WTu6lPe5OFl-6agmarwO8H7uiE12hjCfphjfi09w7ecBFZrn7ji01SHTi867wZIpGbIsUkZW39xiSvA__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

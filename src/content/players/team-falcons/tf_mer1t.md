@@ -3,7 +3,7 @@ name: 'MER1T'
 fullName: 'Choi Tae-min'
 role: 'Hitscan DPS'
 team: 'team-falcons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TF/tf_merit_p1.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533004-detail.jpg?Expires=1764942523&Signature=Jbr7Iw08E2au8h-drC5X51Bv5nhKT0iSz8JpTSKi3n38Py8nMZTDeMlwjJ1As~wu~QNpDuUgWJTs3v4HlX9p8XQLq0Da7wcBv6yTnfLJMEpfif2n1Ouj85qqG0cKtrPuGXimMoWPyHSln6zpciIOWQnPkeqhVJVZ9vDl6tn1JgOD~c0RqKb2m-PHmaLe4BjLgqGtydYrdTevNZzvUKwdWInEOPhny1c-9NoEqGrb0mpqUF14j37tyLgz3voF51OLtIFjLzLTbxzT7XsVnqDzW2k9meVd6xO1gpxIO72e1wg5E8vGkPjclMbi-GrGm7MGGt3XMCHqOv77NTAVdxlW6w__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

@@ -3,7 +3,7 @@ name: 'Nico'
 fullName: 'Fujikawa Daisuke'
 role: 'Flex DPS'
 team: 'varrel'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/VL/vl_nico_p1.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535180-detail.jpg?Expires=1764948339&Signature=XO-xZHyeFluAotcoGspbkuXg1U6UGDVdEIEv4Oizk9p73o3tOvY1w0XKfKw7u7Jx3uN4XaEF9IF~dUNXbwzSRGd1HLT4JP1PTGJQB57F3vaZ7xRV~WtmzqRGiSUbgSU0neBeS80Two0GW8MwHhkZa8pG-n~4mriP1fobP4dmXkqDhy7e5GNB8~32FUDnODVe2VqVZ30ZoK5m9VdOkoQJ2YCpTW8b~EM9dtKOcfkA2UGSDET2EAhZsq-~FThQY1HKzUFXfbgKY4dZduN3U0yG9W6Gbzi5Ptkk0QcsWN5XaoR4qVnd9X5k8yIPznW67Jm3b0iuMbzwSe39rCeu8ZNcmQ__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "Japan"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057593/jp_az1ykm.png"
 signatureHeroes:

@@ -3,7 +3,7 @@ name: 'shy'
 fullName: 'Zheng Yangjie'
 role: 'Hitscan DPS'
 team: 'wbg'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/WBG/wbg_shy_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538135-detail.jpg?Expires=1764942889&Signature=e1S3tf7K5x6VXA3RGmC38DvBw-Y-pdDrOU~HYizK71dTXEj4ef~Xg2YbyP8XnOGYWlLUph50XqMkLzARHCsnSghY-wB6C3nRXFj7dW8kFwGvxtqcUUjFpxI1D-J1GF1Ik~cZfbwsNCC5xWjA8Obmnd~PLlQnIwNyui6jx6LBil-EhHP5KjEA~YBZxjfSEEcmycTYPPcjXIi4NjeIo50YZb6WlpDEVjl-tGZHvpqVBNtcma-V02BFYa8xrmmROz8BzLR8qWenE70SGvh~~OC5HJJyE1sSG65f5bfhk2TxTJThlzUWbW9KJRoVkhIOus22yEYpoBKtw7-51rNtuZQxog__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

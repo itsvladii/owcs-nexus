@@ -3,7 +3,7 @@ name: 'JunBin'
 fullName: 'Park Jun-Bin'
 role: 'Tank'
 team: 'crazy-raccoons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053666/overwatch/CR/cr_junbin_p1.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535089-detail.jpg?Expires=1764943085&Signature=b4mLTRs1ytYEhuypYq9gn614ZSeJICeLP-TLJKBTe-O1d6elRmcuLhIypUvXQwmTGm85Zf0WwVXW0rZIgmjxf4UpX3KyxrDQUIWv~rxEuRGbAOELpChdzBfMFWyJBbIHkD4yb09ZKd11p-F9lZioJu5eAABprfHKWNiPHVwBC5PMMqLBt7M6DYtiQZw9rm6h0NbI~bi776~OSedGhNk0A1zAYn4VYJZmv3qp8JqdqxCkExbacXMo1HxEZ1UzJk9XR4nYa5D7rVfruTrdAvbgFq~bHKz3NCT1zOsjwM6KOEt0V~Lt-BC-suM7gFQl90N9AyX6VEbpzun8Nwl9QvnRTA__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

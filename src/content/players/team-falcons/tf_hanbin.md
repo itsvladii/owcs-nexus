@@ -3,7 +3,7 @@ name: 'Hanbin'
 fullName: 'Choi Han-been'
 role: 'Tank'
 team: 'team-falcons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TF/tf_hanbin_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34532984-detail.jpg?Expires=1764942467&Signature=P9UigqviXMgBbfB5y6Dp2iq25D22AbL56k7RwyZCmmvVComYuU0YIpyMp0sALbOOt3LUxth5kDToHhr6AawUaC-JpSi3huyArbiwjMyfltDa8eGAOa2LkbwDEN-h8KwyIH1rKB4dWs47hZovGqbbHFoV-qoZni8~DEnRKeOxLOvxB7JGDIEt4fLqC1I-MRk1rYkFMBorKFotxei83RAE5lFFEf4~E-XdjUryFh7qpe2Kw0dyVvurn2xQHLumXTXpM2sGK~VEqU0sd9BM53LeUaZSJyPq~bJvtj5ofU-VC6l1EAHpa-CMlZcCNDebeiNbEZ0LPKGDYslg~raUBDG9mw__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

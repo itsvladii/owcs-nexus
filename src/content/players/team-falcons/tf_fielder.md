@@ -3,7 +3,7 @@ name: 'Fielder'
 fullName: 'Kwon Joon'
 role: 'Main Support'
 team: 'team-falcons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TF/tf_fielder_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533002-detail.jpg?Expires=1764942571&Signature=MRcYJU2qkCE3t63TeoGDNUW1wkAYOChx7ayObwhRYUXBSOMoMCnJmrWLgw6KEihQT4lyFIM6U3Drj0oSzlH8AqxZ34BRs8sZc6avGW9o7VC3ub~VsLxQfQVEIOzu0LFicJ9yvhlOV0W~g~0aTvlV1VIpbZIlG1E2UpEgf0DkpxeY0XMkawlJp2~KpQjOJMdTzb6MEWjJsyIbbkQKc8E3HvHKrCaIWK2lRoc4aIShQ5gronsUFxjwDwymCHz6bYTSmZPym6C4Qb0ll0I1tBAJvswBxIyXBQFjSQxPs2EWWW83DyP8a1kkdcqpAH0OojpXM2Wsd2ftRCH9t1eCX9Kfhw__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

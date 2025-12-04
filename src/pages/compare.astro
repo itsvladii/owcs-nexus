@@ -1,45 +1,48 @@
 ---
+// src/pages/compare.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import PlayerComparison from '../components/PlayerComparison.tsx';
+import PlayerComparison from '../components/PlayerComparison'; // Ensure this path is correct
 
-// Get all players and sort them alphabetically
-const allPlayers = (await getCollection('players')).sort((a, b) => 
+// 1. Fetch Data
+// We need ALL players for the dropdowns
+// We need ALL teams to look up colors and logos
+const allPlayers = await getCollection('players');
+const allTeams = await getCollection('teams');
+
+// Optional: Sort players alphabetically to make the dropdown easier to use
+const sortedPlayers = allPlayers.sort((a, b) => 
   a.data.name.localeCompare(b.data.name)
 );
 ---
 
-<BaseLayout title="Compare Players" fullWidth={true}>
-
-    <div class="relative w-full h-[60vh] overflow-hidden rounded-xl">
-        {/* Replace src with your preferred background */}
-        <img
-            src="https://live.staticflickr.com/65535/54691711792_ec4236bbf4_k.jpg"
-            alt="OWCS Stage Background"
-            class="w-full h-220 object-cover object-center scale-100 filter brightness-[0.6]"
-        />
-        {/* Gradient Overlay */}
-        <div
-            class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/80 to-neutral-950"
-        >
-        </div>
+<BaseLayout title="Compare Players - Nexus" fullWidth={true}>
+  
+  <div class="min-h-screen bg-neutral-950 pt-32 pb-24 px-4 md:px-8">
+    
+    {/* Page Header */}
+    <div class="max-w-7xl mx-auto text-center mb-16">
+       <div class="inline-block mb-4">
+          <span class="px-3 py-1 rounded border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-widest">
+            Database Analysis
+          </span>
+       </div>
+       <h1 class="font-title text-6xl md:text-8xl text-white italic font-black tracking-tighter mb-6 leading-none">
+         HEAD TO HEAD
+       </h1>
+       <p class="text-neutral-400 text-lg max-w-2xl mx-auto">
+         Select two players to compare career length, acomplishments and signature heroes.
+       </p>
     </div>
 
-    {/* MAIN CONTENT CONTAINER (Overlapping the banner) */}
-    <div class="max-w-6xl mx-auto px-4 relative z-10 -mt-64 md:-mt-80 pb-24">
-        <div class="text-center mb-16 drop-shadow-2xl">
-            <h1 class="text-6xl md:text-8xl font-title text-white mb-4 tracking-tight">
-                Player Comparison
-            </h1>
-            <p class="text-neutral-300 text-lg md:text-xl max-w-2xl mx-auto font-medium">
-                Compare careers, signature heroes, and trophy cabinets to see who's really the better player.
-                <br />
-            </p>
-        </div>
-    
-    {/* The Comparison Component */}
-    <PlayerComparison players={allPlayers} client:load />
-    
+    {/* The Interactive React Component */}
+    {/* client:load is crucial because it needs JavaScript for the dropdowns */}
+    <PlayerComparison 
+      client:load 
+      players={sortedPlayers} 
+      teams={allTeams} 
+    />
+
   </div>
 
 </BaseLayout>

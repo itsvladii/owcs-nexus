@@ -1,415 +1,539 @@
 ---
 // src/pages/players/[...slug].astro
-// We've REMOVED 'export const prerender = false;'. This page is now STATIC.
-//TODO: una volta aggiunti tutti i giocatori, implementa il manual fetch dei POV.
-// --- 1. ALL YOUR IMPORTS ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { fetchRecentPov } from '../../lib/fetchPOV';
+import { fetchAllSeasonMatches } from '../../lib/fetchRecent3Matches';
 import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
-import IconWebsite from '../../components/icons/IconWebsite.astro';
 
-const allPlayers = await getCollection('players');
-// --- 2. GETSTATICPATHS (This runs ONCE at build time) ---
+// --- 1. GET STATIC PATHS ---
 export async function getStaticPaths() {
   const allPlayers = await getCollection('players');
   const allTeams = await getCollection('teams');
+  const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
+  const userAgent = 'OWCS-Nexus-BuildBot/1.0';
+  let allSeasonMatches = [];
+  
+  try {
+     allSeasonMatches = await fetchAllSeasonMatches(apiKey, userAgent);
+  } catch (e) {
+     console.error("⚠️ Failed to fetch matches for player pages:", e);
+  }
 
   const pages = await Promise.all(
     allPlayers.map(async (playerEntry) => {
-      
+      const pData = playerEntry.data;
       let mostRecentPovUrl = null; 
-      if (playerEntry.data.featuredPovId) {
-        // 1. If a manual ID exists, use it!
-        // This is instant and costs 0 API quota.
-        mostRecentPovUrl = `https://www.youtube.com/embed/${playerEntry.data.featuredPovId}`;
-        console.log(`[POV] Using manual override for ${playerEntry.data.name}`);
-      } 
-      else {
-        // 2. If no manual ID, try to auto-fetch from YouTube
+      if (pData.featuredPovId) {
+        mostRecentPovUrl = `https://www.youtube.com/embed/${pData.featuredPovId}`;
+      } else {
         const youtubeKey = import.meta.env.YOUTUBE_API_KEY;
-        const playerName = playerEntry.data.name;
-        const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg"; 
-        
-        mostRecentPovUrl = await fetchRecentPov(
-          playerName, 
-          POV_CHANNEL_ID, 
-          youtubeKey
-        );
+        if (youtubeKey) {
+            try {
+                const POV_CHANNEL_ID = "UCWcMwj6iZCuQ8Klgd42P2Dg"; 
+                mostRecentPovUrl = await fetchRecentPov(pData.name, POV_CHANNEL_ID, youtubeKey);
+            } catch (e) {}
+        }
       }
 
-      // Find this player's team entry
-      const teamEntry = allTeams.find(t => t.slug === playerEntry.data.team);
+      const teamEntry = allTeams.find(t => t.slug === pData.team);
+      const teamName = teamEntry ? teamEntry.data.name.toLowerCase() : pData.team.toLowerCase();
+      
+      const playerMatches = allSeasonMatches.filter(m => {
+        const t1 = m.match2opponents[0]?.name?.toLowerCase() || '';
+        const t2 = m.match2opponents[1]?.name?.toLowerCase() || '';
+        return t1.includes(teamName) || t2.includes(teamName);
+      });
+
+      const now = new Date();
+      const history = playerMatches
+        .filter(m => new Date(m.date) < now)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5);
+
+      const upcoming = playerMatches
+        .filter(m => new Date(m.date) >= now)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, 3);
+
+      const wins = history.filter(m => {
+        const isTeam1 = m.match2opponents[0].name.toLowerCase().includes(teamName);
+        const winner = m.winner; 
+        return (isTeam1 && winner === '1') || (!isTeam1 && winner === '2');
+      }).length;
+      
+      // --- NEW: MAP DIFFERENTIAL LOGIC ---
+      let mapsWon = 0;
+      let mapsLost = 0;
+
+      const recentDiffs = history.slice(0, 5).reverse().map(m => {
+         const isTeam1 = m.match2opponents[0].name.toLowerCase().includes(teamName);
+         const s1 = parseInt(m.match2opponents[0].score || '0');
+         const s2 = parseInt(m.match2opponents[1].score || '0');
+         
+         // Calculate diff for THIS player's team
+         const matchDiff = isTeam1 ? (s1 - s2) : (s2 - s1);
+         
+         // Accumulate totals while we are at it
+         if (isTeam1) { mapsWon += s1; mapsLost += s2; } 
+         else { mapsWon += s2; mapsLost += s1; }
+
+         return { 
+            diff: matchDiff, 
+            opponent: m.match2opponents.find(op => !op.name.toLowerCase().includes(teamName))?.name || 'Op',
+            date: m.date
+         };
+      });
+      
+      const mapDiff = mapsWon - mapsLost;
+      const winRate = history.length > 0 ? Math.round((wins / history.length) * 100) : 0;
 
       return {
-        params: { slug: playerEntry.slug }, // e.g., "team-falcons/proper"
+        params: { slug: playerEntry.slug },
         props: { 
-          playerEntry, 
-          teamEntry,
-          mostRecentPovUrl // Pass the fetched URL as a prop
+          playerEntry, teamEntry, mostRecentPovUrl,
+          // Pass 'recentDiffs' to props
+          stats: { history, upcoming, winRate, totalGames: history.length, mapDiff, mapsWon, mapsLost, recentDiffs }
         },
       };
     })
   );
-
   return pages;
 }
 
-// --- 3. GET DATA FROM PROPS ---
-const { playerEntry, teamEntry, mostRecentPovUrl } = Astro.props;
+// --- 2. PAGE PROPS ---
+const { playerEntry, teamEntry, mostRecentPovUrl, stats } = Astro.props;
+const p = playerEntry.data;
+const { Content } = await playerEntry.render();
 
-// --- 4. GET DATA NEEDED BY THE PAGE ---
-const allTeams = await getCollection('teams'); // For the career timeline logo lookup
-const { Content } = await playerEntry.render(); // Get the markdown body
+// --- 3. FETCH COLLECTIONS ---
+const allPlayers = await getCollection('players');
+const allTeams = await getCollection('teams');
 
-// --- 5. PREPARE ALL URLS (Cloudinary) ---
-const headshotUrl = playerEntry.data.headshot
-  ? playerEntry.data.headshot.replace('/upload/', '/upload/e_background_removal,w_1000,c_fit,f_auto,q_auto:best/')
-  : null;
+// --- 4. ASSET HELPERS ---
+const cloudinaryBaseUrl = p.headshot
+  ? p.headshot.split('/upload/')[0] + '/upload'
+  : 'https://res.cloudinary.com/dm1bfprgq/image/upload';
 
+function getHeroIcon(heroName) {
+    const slug = heroName.toLowerCase().replace(' ', '-').replace('.', '').replace(':', '');
+    return `https://res.cloudinary.com/dm1bfprgq/image/upload/f_auto,q_auto:best/v1762938945/${slug}.png`;
+}
+
+// Optimized Team Logo for the badge
 const teamLogoUrl = teamEntry?.data.logo
   ? teamEntry.data.logo.replace('/upload/', '/upload/w_100,h_100,c_pad,f_auto,q_auto/')
   : null;
 
-const cloudinaryBaseUrl = playerEntry.data.headshot
-  ? playerEntry.data.headshot.split('/upload/')[0] + '/upload'
-  : null;
-
-const bannerUrl = teamEntry?.data.banner
-  ? teamEntry.data.banner.replace('/upload/', '/upload/w_1920,h_1080,c_fill,q_auto,f_auto/')
-  : 'https://images.contentstack.io/v3/assets/blt321317473c90505c/blt04c04346385d3bdd/65f208333626118536797020/OWCS_Stage1_Korea_Day6_Match2_FAL_vs_T1_6.jpg';
-
-  const teamColor = teamEntry?.data.colour || '#f59e0b'; // Fallback Amber
-
-
+const teamColor = teamEntry?.data.colour || '#f59e0b';
 ---
-<BaseLayout title={playerEntry.data.name} fullWidth={true}>
+
+<BaseLayout title={`${p.name} - Nexus`} fullWidth={true}>
+  <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
   
-  {/* ==============================================
-  1. HERO WALLPAPER
-  ============================================== */}
-  <div class="relative w-fullh-[70vh] md:h-[70vh] overflow-hidden rounded-xl">
-    <img 
-      src={bannerUrl} 
-      alt="Background" 
-      class="w-full h-full object-cover object-center scale-105 filter blur-md brightness-[0.4]"
-    />
-    <div class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/60 to-neutral-950"></div>
+  {/* =========================================================================
+      1. CINEMATIC HERO SECTION
+     ========================================================================= */}
+  <div class="relative w-full h-[85vh] min-h-[600px] bg-neutral-950 overflow-hidden group">
+    
+    {/* --- A. BACKGROUND LAYERS --- */}
+    <div class="absolute inset-0 z-0">
+
+      {/* 2. Player Image */}
+      {p.headshot ? (
+        <img 
+          src={p.headshot} 
+          alt={p.name} 
+          class="w-full h-full object-cover object-[center_20%] opacity-90 relative z-10"
+        />
+      ) : (
+        <div class="w-full h-full bg-neutral-900 flex items-center justify-center relative z-10">
+             <h1 class="text-[15rem] font-title text-neutral-800 opacity-50">{p.name[0]}</h1>
+        </div>
+      )}
+
+      {/* 3. Vignette Gradients */}
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent z-20"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/90 via-transparent to-[#0a0a0a]/90 z-20"></div>
+
+      {/* 5. Noise Texture */}
+      <div class="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150 mix-blend-overlay z-20"></div>
+    </div>
+
+    {/* --- B. PLAYER IDENTITY LAYER --- */}
+    <div class="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-end pb-32 z-30">
+       
+       {/* Background Watermark (Role) */}
+       <div class="absolute top-1/2 left-0 -translate-y-1/2 opacity-[0.03] select-none pointer-events-none">
+          <span class="text-[15rem] md:text-[25rem] font-title font-bold text-white leading-none tracking-tighter">
+            {p.role}
+          </span>
+       </div>
+
+       {/* INFO BLOCK */}
+       <div class="relative">
+          
+          {/* BADGE ROW */}
+          <div class="flex items-center gap-3 mb-4">
+             
+             {/* 1. TEAM LOGO BADGE */}
+             {teamEntry ? (
+                 <a href={`/teams/${teamEntry.slug}`} class="relative group/team w-10 h-10 shadow-lg transition-colors flex items-center justify-center">
+                    {teamLogoUrl ? (
+                        <img src={teamLogoUrl} class="w-10 h-10 object-contain drop-shadow-md" alt={teamEntry.data.name} />
+                    ) : (
+                        <span class="text-[10px] font-bold text-white">{teamEntry.data.name.substring(0,3).toUpperCase()}</span>
+                    )}
+                    
+                    {/* Tooltip for Team Name */}
+                    <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-neutral-900 border border-neutral-700 text-white text-[10px] font-bold rounded opacity-0 group-hover/team:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-xl">
+                        {teamEntry.data.name}
+                    </div>
+                 </a>
+             ) : (
+                 // Fallback text pill if no team entry exists
+                 <span class="px-3 py-1 bg-white/10 backdrop-blur border border-white/20 rounded text-xs font-bold uppercase tracking-widest text-white shadow-lg">
+                    {p.team}
+                 </span>
+             )}
+             
+
+             {/* 3. FLAG BADGE */}
+             {p.flagUrl && (
+                <div class="relative group/flag w-10 h-8 rounded overflow-hidden border border-white/20 shadow-sm cursor-help">
+                   <img src={p.flagUrl} class="w-full h-full object-cover" />
+                   <div class="absolute inset-0 bg-black/10 group-hover/flag:bg-transparent transition-colors"></div>
+                   {/* Tooltip */}
+                   <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-neutral-900 border border-neutral-700 text-white text-[10px] font-bold rounded opacity-0 group-hover/flag:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-xl">
+                      {p.nationality || 'Nationality'}
+                   </div>
+                </div>
+             )}
+          </div>
+
+          {/* NAME */}
+          <div class="relative inline-block mb-4">
+             {/* 1. THE MAIN NAME (Blocky & Official) */}
+             <h1 class="text-7xl md:text-9xl font-title text-white font-black italic tracking-tighter drop-shadow-2xl relative z-10">
+               {p.name}
+             </h1>      
+          </div>
+          
+          {/* SIGNATURE HEROES */}
+          <div class="flex flex-col md:flex-row md:items-center gap-12">
+            <div class="border-l-4 pl-4 relative" style={`border-color: ${teamColor}`}>
+                {/* Real Name */}
+                <p class="text-2xl text-white font-medium leading-none">{p.fullName || p.name}</p>
+            </div>
+
+            {/* Signature Heroes */}
+            {p.signatureHeroes && (
+                <div class="flex items-center gap-4">
+                <span class="text-xs text-neutral-500 font-bold uppercase tracking-widest">Signatures</span>
+                <div class="flex items-center -space-x-3">
+                    {p.signatureHeroes.map((hero) => (
+                        <div class="w-12 h-12 rounded-lg bg-neutral-800 border-2 border-[#0a0a0a] overflow-hidden relative z-0 hover:z-10 hover:scale-110 transition-transform shadow-lg group/hero">
+                            <img src={getHeroIcon(hero)} class="w-full h-full object-cover" alt={hero} /> 
+                            <div class="absolute inset-0 bg-neutral-900/40 mix-blend-multiply opacity-0 group-hover/hero:opacity-0 transition-opacity"></div>
+                        </div>
+                    ))}
+                </div>
+                </div>
+            )}
+          </div>
+       </div>
+    </div>
+   
   </div>
 
-  {/* ==============================================
-  2. MAIN CONTENT CONTAINER
-  ============================================== */}
-  <div class="max-w-7xl mx-auto px-4 relative z-10 -mt-64 md:-mt-80 pb-24">
+  {/* =========================================================================
+      2. FLOATING DATA STRIP
+     ========================================================================= */}
+  <div class="relative z-40 -mt-24 max-w-7xl mx-auto px-6 mb-24">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+       
+       {/* STAT 1: Role */}
+       <div class="bg-neutral-900/80 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl hover:border-amber-500/50 transition-colors group">
+          <div class="flex justify-between items-start mb-2">
+             <p class="text-neutral-500 text-xs font-bold uppercase tracking-widest">Role</p>
+             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-500 opacity-50" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <p class="text-4xl font-title font-bold text-white group-hover:text-amber-500 transition-colors uppercase">
+             {p.role}
+          </p>
+       </div>
+
+       {/* STAT 2: Map Differentials */}
+       <label class="relative bg-neutral-900/80 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl hover:border-blue-500/50 transition-all cursor-pointer group h-[120px] block select-none overflow-hidden">
+          
+          {/* THE TOGGLE SWITCH (Hidden) */}
+          <input type="checkbox" class="peer hidden" />
+
+          {/* STATE A: THE SUMMARY (Default Visible) */}
+          <div class="absolute inset-0 p-6 transition-all duration-300 ease-out peer-checked:opacity-0 peer-checked:scale-95 peer-checked:pointer-events-none">
+             <div class="flex justify-between items-start mb-2">
+                <p class="text-neutral-500 text-xs font-bold uppercase tracking-widest group-hover:text-blue-400 transition-colors">Map Diff</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500 opacity-50 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor"><path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.035-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.035-.84-1.875-1.875-1.875h-.75c-1.035 0-1.875.84-1.875 1.875v11.25c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V8.625zM3 13.125c0-1.035-.84-1.875-1.875-1.875h-.75C.34 11.25 0 12.09 0 13.125v6.75C0 20.91.84 21.75 1.875 21.75h.75c1.035 0 1.875-.84 1.875-1.875v-6.75z" /></svg>
+             </div>
+             <div class="flex items-baseline gap-2">
+                <p class={`text-4xl font-mono font-bold tracking-tight ${stats.mapDiff >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
+                   {stats.mapDiff > 0 ? '+' : ''}{stats.mapDiff}
+                </p>
+                <span class="text-xs text-neutral-400 font-bold uppercase">Net Maps</span>
+             </div>
+             <p class="text-[10px] text-neutral-500 mt-1">
+                <span class="text-white">{stats.mapsWon}W</span> - <span class="text-neutral-400">{stats.mapsLost}L</span> Total
+             </p>
+             <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-blue-400 font-mono uppercase tracking-widest">
+                Click for History →
+             </div>
+          </div>
+
+          {/* STATE B: THE GRAPH (Hidden by default) */}
+          <div class="absolute inset-0 p-4 flex flex-col justify-end opacity-0 scale-105 transition-all duration-300 ease-out peer-checked:opacity-100 peer-checked:scale-100 bg-neutral-900">
+              <p class="absolute top-4 left-4 text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Last 5 Matches</p>
+              
+              {/* THE BAR CHART */}
+              <div class="flex items-end justify-between gap-1 h-16 w-full pb-1 border-b border-white/10 relative">
+                 {/* Center Line (0) */}
+                 <div class="absolute top-1/2 left-0 right-0 h-px bg-white/5 z-0"></div>
+
+                 {stats.recentDiffs.map(match => {
+                    // Max height is usually +/- 3. We normalize to fit container.
+                    // Height = abs(diff) * 25% (roughly)
+                    const heightPct = Math.min(100, Math.abs(match.diff) * 25); 
+                    const isPos = match.diff > 0;
+                    const isZero = match.diff === 0;
+                    
+                    return (
+                       <div class="relative flex-1 flex flex-col items-center justify-center group/bar h-full z-10">
+                          {/* The Bar */}
+                          {!isZero ? (
+                              <div 
+                                style={`height: ${heightPct}%;`} 
+                                class={`w-2 md:w-3 rounded-sm mb-auto mt-auto transition-all ${isPos ? 'bg-blue-500 mb-[50%]' : 'bg-red-500 mt-[50%]'}`}
+                              ></div>
+                          ) : (
+                              <div class="w-2 h-1 bg-neutral-600 rounded-full"></div>
+                          )}
+                          
+                          {/* Tooltip on Hover */}
+                          <div class="absolute bottom-full mb-1 opacity-0 group-hover/bar:opacity-100 transition-opacity bg-black border border-white/10 px-2 py-1 rounded text-[9px] text-white whitespace-nowrap z-50">
+                             {match.diff > 0 ? '+' : ''}{match.diff} vs {match.opponent}
+                          </div>
+                       </div>
+                    )
+                 })}
+              </div>
+          </div>
+       </label>
+
+       {/* STAT 3: Socials */}
+       <div class="bg-neutral-900/80 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl hover:border-emerald-500/50 transition-colors group">
+          <div class="flex justify-between items-start mb-2">
+             <p class="text-neutral-500 text-xs font-bold uppercase tracking-widest">Socials</p>
+             <IconTwitter class="w-5 h-5 text-emerald-500 opacity-50" />
+          </div>
+          <div class="flex gap-3 mt-1">
+             {p.socials?.twitter && (
+                 <a href={p.socials?.twitter} target="_blank" class="p-2 bg-neutral-800/50 hover:bg-blue-500/20 border border-neutral-700 hover:border-blue-500 rounded-lg transition-colors text-neutral-400 hover:text-blue-400">
+                    <IconTwitter class="w-5 h-5" />
+                  </a>
+             )}
+             {p.socials?.twitch && (
+                 <a href={p.socials?.twitch} target="_blank" class="p-2 bg-neutral-800/50 hover:bg-purple-500/20 border border-neutral-700 hover:border-purple-500 rounded-lg transition-colors text-neutral-400 hover:text-purple-400">
+                    <IconTwitch class="w-5 h-5" />
+                  </a>
+             )}
+             {!p.socials && <span class="text-neutral-500 italic">No Comms</span>}
+          </div>
+       </div>
+
+       {/* STAT 4: Next Game */}
+       <div class="bg-neutral-950 border border-neutral-800 p-6 rounded-xl flex flex-col justify-center relative overflow-hidden">
+          {stats.upcoming.length > 0 ? (
+             <>
+               <div class="absolute top-0 right-0 p-3">
+                  <span class="flex h-3 w-3 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+               </div>
+               <p class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-2">Next Game</p>
+               <div class="text-white font-bold text-lg leading-tight line-clamp-2">
+                 vs {stats.upcoming[0].match2opponents.find(op => !op.name.toLowerCase().includes(p.team.toLowerCase()))?.name || 'Opponent'}
+               </div>
+               <p class="text-neutral-400 text-xs mt-1">{new Date(stats.upcoming[0].date).toLocaleDateString()}</p>
+             </>
+          ) : (
+             <div class="flex flex-col items-center justify-center text-neutral-600 h-full">
+                <span class="text-xs font-bold uppercase tracking-widest">No Active Missions</span>
+             </div>
+          )}
+       </div>
+
+    </div>
+  </div>
+
+  {/* =========================================================================
+      3. MAIN CONTENT GRID
+     ========================================================================= */}
+  <div class="max-w-7xl mx-auto px-6 pb-24 grid grid-cols-1 lg:grid-cols-3 gap-12">
     
-    {/* PLAYER PROFILE CARD */}
-    <div 
-      class="relative bg-neutral-900/80 backdrop-blur-xl border rounded-3xl overflow-hidden shadow-2xl mb-12 grid grid-cols-1 md:grid-cols-12 min-h-[500px]"
-      style={`border-color: ${teamColor}40; box-shadow: 0 20px 50px -20px ${teamColor}30;`}
-    >
-      
-      {/* LEFT: Player Image (Takes up more space on desktop) */}
-      <div class="md:col-span-5 relative h-[400px] md:h-auto overflow-hidden">
-         {/* Flag Background */}
-         {playerEntry.data.flagUrl && (
-            <img 
-              src={playerEntry.data.flagUrl} 
-              class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay scale-100"
-            />
-         )}
-         {/* Player PNG */}
-         {headshotUrl && (
-            <img 
-              src={headshotUrl} 
-              alt={playerEntry.data.name} 
-              class="absolute inset-0 w-full h-full object-contain object-bottom transition-transform duration-500"
-            />
-         )}
-         {/* Gradient at bottom to blend */}
-         <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-neutral-900/90 to-transparent md:hidden"></div>
-      </div>
+    {/* LEFT COLUMN: Bio & Timeline */}
+    <div class="lg:col-span-2 space-y-12">
+       <div class="prose prose-invert prose-lg max-w-none">
+          <h3 class="font-title text-3xl text-white mb-6 border-l-4 border-white pl-4">ABOUT {p.name}</h3>
+          <Content />
+       </div>
 
-      {/* RIGHT: Info & Stats */}
-      <div class="md:col-span-7 p-8 md:p-12 flex flex-col justify-center relative z-10">
-         
-         {/* Team Badge */}
-         {teamEntry && (
-           <a href={`/teams/${teamEntry.slug}/`} class="inline-flex items-center gap-3 mb-4 group w-fit">
-             {teamLogoUrl && <img src={teamLogoUrl} class="w-10 h-10 object-contain" />}
-             <span class="text-xl text-neutral-400 font-bold group-hover:text-white transition-colors font-title tracking-wide">
-               {teamEntry.data.name}
-             </span>
-           </a>
-         )}
-
-         <h1 class="text-6xl md:text-8xl font-title text-white mb-2 tracking-tight leading-none drop-shadow-lg">
-           {playerEntry.data.name}
-         </h1>
-         
-         <div class="flex items-center gap-4 mb-8">
-            <span class="text-2xl md:text-3xl font-bold" style={`color: ${teamColor};`}>
-              {playerEntry.data.role}
-            </span>
-            {playerEntry.data.fullName && (
-              <span class="text-xl text-neutral-500 border-l border-neutral-700 pl-4">
-                {playerEntry.data.fullName}
-              </span>
-            )}
+       {/* Timeline */}
+       {p.career && p.career.length > 0 && (
+         <div class="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 shadow-inner">
+            <h3 class="font-title text-2xl text-white mb-8 border-b border-neutral-800 pb-2">Career Service</h3>
+            <div class="relative pl-4">
+                <div class="absolute left-1.5 top-2 bottom-2 w-0.5 bg-neutral-800"></div>
+                <div class="space-y-6">
+                    {p.career.map(entry => {
+                        const isCurrent = entry.date.toLowerCase().includes('present');
+                        return (
+                            <div class="relative pl-8 group">
+                                <div class={`absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-neutral-900 transition-transform group-hover:scale-125 ${isCurrent ? 'bg-green-500' : 'bg-neutral-600'}`}></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                                    <h4 class="text-lg font-bold text-white group-hover:text-amber-500 transition-colors">{entry.team}</h4>
+                                    <span class="text-xs font-mono text-neutral-500 bg-neutral-950 px-2 py-0.5 rounded border border-neutral-800">{entry.date}</span>
+                                </div>
+                                {entry.notes && (
+                                    <ul class="mt-1 space-y-1">
+                                        {entry.notes.map(n => <li class="text-sm text-neutral-400 flex gap-2"><span class="text-amber-500">▸</span> {n}</li>)}
+                                    </ul>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
          </div>
-
-         {/* Signature Heroes */}
-         {playerEntry.data.signatureHeroes && (
-           <div class="flex flex-wrap gap-3">
-              {playerEntry.data.signatureHeroes.map(heroName => {
-                 const heroSlug = heroName.toLowerCase();
-                 const iconUrl = `${cloudinaryBaseUrl}/f_auto,q_auto:best/v1762938948/${heroSlug}.png`;
-                 return (
-                   <div class="relative group" title={heroName}>
-                     <img src={iconUrl} class="w-20 h-20 rounded-lg border-2 bg-neutral-800 transition-colors"  style={`border-color: ${teamColor}40;`}/>
-                   </div>
-                 );
-              })}
-           </div>
-         )}
-      </div>
+       )}
     </div>
 
+    {/* RIGHT COLUMN: POV & Match Log */}
+    <div class="space-y-8">
+       {mostRecentPovUrl && (
+          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+             <div class="absolute top-0 right-0 p-4 opacity-10">
+                <IconTwitch class="w-24 h-24 text-white" />
+             </div>
+             <h3 class="font-title text-xl text-white mb-4 flex items-center gap-2 relative z-10">
+                <span class="text-red-600 animate-pulse">●</span> LIVE FEED
+             </h3>
+             <div class="relative w-full bg-black rounded-lg overflow-hidden shadow-lg aspect-video z-10">
+               <iframe src={mostRecentPovUrl} title="POV" class="absolute top-0 left-0 w-full h-full" allowfullscreen></iframe>
+             </div>
+             <p class="text-xs text-neutral-500 mt-3 text-center relative z-10">
+                POV Courtesy of <a href="https://www.youtube.com/@ObsSojourn" class="text-white underline decoration-amber-500">@ObsSojourn</a>
+             </p>
+          </div>
+       )}
+
+       {/* Match History */}
+       <div>
+          <h3 class="font-title text-2xl text-white mb-6 flex items-center gap-3">
+             <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+             RECENT OPERATIONS
+          </h3>
+          
+          <div class="space-y-2">
+             {stats.history.length > 0 ? stats.history.map(match => {
+                const teamName = teamEntry ? teamEntry.data.name.toLowerCase() : p.team.toLowerCase();
+                const isTeam1 = match.match2opponents[0].name.toLowerCase().includes(teamName);
+                const isWinner = match.winner === (isTeam1 ? '1' : '2');
+                
+                const opponent = match.match2opponents.find(op => !op.name.toLowerCase().includes(teamName))?.name || 'Unknown';
+                const s1 = match.match2opponents[0].score || 0;
+                const s2 = match.match2opponents[1].score || 0;
+                const scoreDisplay = isTeam1 ? `${s1} - ${s2}` : `${s2} - ${s1}`;
+
+                return (
+                  <div class="group flex items-center justify-between p-3 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-neutral-600 transition-all hover:bg-neutral-800/50">
+                     
+                     {/* LEFT: Match Info */}
+                     <div class="flex flex-col gap-0.5">
+                        <span class="text-[9px] text-neutral-500 font-bold uppercase tracking-wider">
+                            {match.tournament.replace('Overwatch Champions Series 2025', 'OWCS').split(' - ')[0]}
+                        </span>
+                        <div class="flex items-center gap-1.5">
+                           <span class="text-neutral-600 font-bold text-xs">VS</span>
+                           <span class="text-sm font-bold text-white group-hover:text-amber-500 transition-colors">
+                              {opponent}
+                           </span>
+                        </div>
+                     </div>
+
+                     {/* RIGHT: The Tactical Score Pill */}
+                     <div class="flex items-center gap-3">
+                        {/* Date (Hidden on small screens) */}
+                        <span class="text-[10px] text-neutral-600 font-mono hidden sm:block">
+                           {new Date(match.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
+                        </span>
+
+                        {/* The Badge */}
+                        <div class={`flex h-8 rounded border overflow-hidden ${isWinner ? 'border-green-500/30 bg-green-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
+                           {/* Score Number */}
+                           <div class="px-2.5 flex items-center justify-center font-mono font-bold text-white text-sm tracking-widest bg-black/20">
+                              {scoreDisplay}
+                           </div>
+                           
+                           {/* W/L Indicator */}
+                           <div class={`w-8 flex items-center justify-center text-xs font-black ${isWinner ? 'bg-green-500 text-black' : 'bg-red-500 text-white'}`}>
+                              {isWinner ? 'W' : 'L'}
+                           </div>
+                        </div>
+                     </div>
+
+                  </div>
+                );
+             }) : (
+                <div class="p-8 text-center text-neutral-600 border border-dashed border-neutral-800 rounded bg-neutral-900/50">
+                   <p class="text-sm">No recent combat data found.</p>
+                </div>
+             )}
+          </div>
+       </div>
+    </div>
 
     {/* ==============================================
-    3. TWO COLUMN CONTENT
+    SIMILAR PLAYERS
     ============================================== */}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      {/* LEFT COLUMN (Bio & Timeline) */}
-      <div class="lg:col-span-2 space-y-8">
-        
-        {/* ABOUT CARD */}
-        <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
-           <h2 class="font-title text-3xl text-white mb-4 border-b border-neutral-800 pb-2">About</h2>
-           <div class="prose prose-invert prose-lg max-w-none text-neutral-300">
-             <Content />
-           </div>
-        </div>
-
-        {/* CAREER TIMELINE */}
-        {playerEntry.data.career && playerEntry.data.career.length > 0 && (() => {
-  // 1. Logic: Split the career into "Top 5" and "The Rest"
-  const fullCareer = playerEntry.data.career; // Newest first
-  const VISIBLE_COUNT = 5;
-  
-  const visibleItems = fullCareer.slice(0, VISIBLE_COUNT);
-  const hiddenItems = fullCareer.slice(VISIBLE_COUNT);
-  
-  // Helper function to render a single timeline item
-  const renderTimelineItem = (entry) => {
-    const foundTeam = allTeams.find(t => t.data.name === entry.team);
-    const isCurrent = entry.date.includes('Present');
-    
-    let logoUrl = null;
-    if (foundTeam) {
-      logoUrl = foundTeam.data.logo.replace('/upload/', '/upload/w_48,h_48,c_pad,f_auto,q_auto:best/');
-    } else if (entry.logo) {
-      logoUrl = entry.logo.replace('/upload/', '/upload/w_48,h_48,c_pad,f_auto,q_auto:best/');
-    }
-    const teamUrl = foundTeam ? `/teams/${foundTeam.slug}/` : null;
-
-    return (
-      <div class="relative pl-10 py-1">
-        <div class={`absolute left-0 top-2.5 w-3 h-3 rounded-full border-2 border-neutral-900 ${isCurrent ? 'bg-green-500 scale-125' : 'bg-amber-500'}`} style="left: 1.35rem;"></div>
-        <p class="text-xs font-mono text-neutral-500 mb-1">{entry.date}</p>
-        
-        <div class="flex items-center gap-3 mb-2">
-          {logoUrl && <img src={logoUrl} alt={entry.team} class="w-6 h-6 object-contain opacity-80" />}
-          {teamUrl ? (
-            <a href={teamUrl} class="text-xl font-bold text-white hover:text-amber-400 transition-colors">{entry.team}</a>
-          ) : (
-            <h3 class="text-xl font-bold text-white">{entry.team}</h3>
-          )}
-        </div>
-
-        {entry.notes && (
-          <ul class="space-y-1 mb-4">
-            {entry.notes.map(note => (
-              <li class="text-sm text-neutral-400 flex gap-2">
-                <span class="text-amber-500 mt-0.5">▸</span> {note}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
-      <h2 class="font-title text-3xl text-white mb-8 border-b border-neutral-800 pb-2">Career Timeline</h2>
-      
-      <div class="relative pl-4">
-        {/* The Vertical Line */}
-        <div class="absolute left-6 top-2 bottom-2 w-0.5 bg-neutral-800"></div>
-        
-        <div class="space-y-4">
-          
-          {/* 1. Render the Visible Items */}
-          {visibleItems.map(item => renderTimelineItem(item))}
-
-          {/* 2. Render the Hidden Items (if any) */}
-          {hiddenItems.length > 0 && (
-            <>
-              <div id="hidden-timeline" class="hidden space-y-4">
-                 {hiddenItems.map(item => renderTimelineItem(item))}
-              </div>
-              
-              {/* 3. The Toggle Button */}
-              <button 
-                id="toggle-timeline-btn"
-                class="w-full mt-4 py-3 bg-neutral-800/50 hover:bg-neutral-800 text-neutral-400 hover:text-white rounded-lg border border-neutral-700 transition-all text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 group"
-              >
-                <span>View Full History ({hiddenItems.length} more)</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-
-              {/* 4. The Script to make it work */}
-              <script>
-                const btn = document.getElementById('toggle-timeline-btn');
-                const content = document.getElementById('hidden-timeline');
-                
-                if (btn && content) {
-                  btn.addEventListener('click', () => {
-                    const isHidden = content.classList.contains('hidden');
-                    if (isHidden) {
-                      content.classList.remove('hidden');
-                      btn.innerHTML = `
-                        <span>Show Less</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
-                      `;
-                    } else {
-                      content.classList.add('hidden');
-                      // Reset button text is hard without passing the count again, 
-                      // but "View Full History" works fine as a reset too.
-                      btn.innerHTML = `
-                        <span>View Full History</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                      `;
-                      // Optional: Scroll back to the button
-                      // btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  });
-                }
-              </script>
-            </>
-          )}
-
-        </div>
-      </div>
-    </div>
-  );
-})()}
-      </div>
-
-      {/* RIGHT COLUMN (Media & Socials) */}
-      <div class="space-y-8">
-        
-        {/* POV VIDEO */}
-        {mostRecentPovUrl && (
-          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
-            <h3 class="font-title text-xl text-white mb-4 flex items-center gap-2">
-              <span class="text-red-600">▶</span> Recent POV (Courtesy of<a href="https://www.youtube.com/@ObsSojourn">@ObsSojourn</a>!)
-            </h3>
-            <div class="relative w-full bg-black rounded-lg overflow-hidden shadow-lg" style="padding-bottom: 56.25%;">
-              <iframe 
-                src={mostRecentPovUrl} 
-                title="POV" 
-                class="absolute top-0 left-0 w-full h-full" 
-                allowfullscreen
-              ></iframe>
-            </div>
-          </div>
-        )}
-
-        {/* SOCIALS */}
-        {playerEntry.data.socials && (
-          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
-            <h3 class="font-title text-xl text-white mb-4">Follow</h3>
-            <div class="flex flex-col gap-3">
-              {playerEntry.data.socials.twitter && (
-                <a href={playerEntry.data.socials.twitter} target="_blank" class="flex items-center gap-3 p-3 bg-neutral-800/50 rounded-lg hover:bg-blue-500/10 hover:border-blue-500/50 border border-transparent transition-all group">
-                  <IconTwitter class="w-5 h-5 text-neutral-400 group-hover:text-blue-400" />
-                  <span class="font-bold text-neutral-300 group-hover:text-white">Twitter</span>
-                </a>
-              )}
-              {playerEntry.data.socials.twitch && (
-                <a href={playerEntry.data.socials.twitch} target="_blank" class="flex items-center gap-3 p-3 bg-neutral-800/50 rounded-lg hover:bg-purple-500/10 hover:border-purple-500/50 border border-transparent transition-all group">
-                  <IconTwitch class="w-5 h-5 text-neutral-400 group-hover:text-purple-400" />
-                  <span class="font-bold text-neutral-300 group-hover:text-white">Twitch</span>
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-
-      </div>
-
-    </div>
-
     {(() => {
-      // 1. Find other players with the same role
-      const similarPlayers = allPlayers.filter(p => 
-        p.data.role === playerEntry.data.role && // Same Role
-        p.slug !== playerEntry.slug              // Not this player
-      );
-
-      // 2. Safety Check (Need at least a few to make it look good)
+      const similarPlayers = allPlayers.filter(pl => pl.data.role === p.role && pl.slug !== playerEntry.slug);
       if (similarPlayers.length === 0) return null;
-
-      // 3. Pick 4 Random ones
-      const showcase = similarPlayers
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 4);
+      const showcase = similarPlayers.sort(() => 0.5 - Math.random()).slice(0, 4);
 
       return (
-        <div class="mt-16 border-t border-neutral-800 pt-12">
+        <div class="mt-16 border-t border-neutral-800 pt-12 col-span-full">
           <div class="flex items-center justify-between mb-8">
              <h2 class="font-title text-3xl text-white flex items-center gap-3">
-               Other <span style={`color: ${teamColor};`}>{playerEntry.data.role}</span> Players
+               Other <span style={`color: ${teamColor};`}>{p.role}</span> Players
              </h2>
-             <a href="/players" class="text-sm font-bold text-neutral-500 hover:text-white transition-colors uppercase tracking-wider">
-               View All →
-             </a>
+             <a href="/players" class="text-sm font-bold text-neutral-500 hover:text-white transition-colors uppercase tracking-wider">View All →</a>
           </div>
-
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {showcase.map(p => {
-               const headshot = p.data.headshot?.replace('/upload/', '/upload/w_400,c_fit,b_transparent,f_auto,q_auto:best/');
-               const pTeam = allTeams.find(t => t.slug === p.data.team);
+            {showcase.map(pl => {
+               const pHeadshot = pl.data.headshot?.replace('/upload/', '/upload/w_400,c_fit,b_transparent,f_auto,q_auto:best/');
+               const pTeam = allTeams.find(t => t.slug === pl.data.team);
                const pColor = pTeam?.data.colour || '#525252';
-
                return (
-                 <a 
-                   href={`/players/${p.slug}/`} 
-                   class="group relative h-72 bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden hover:border-neutral-600 transition-all hover:-translate-y-1 shadow-lg"
-                   style={`--hover-color: ${pColor};`}
-                 >
-                   {/* Dynamic colored border on hover */}
+                 <a href={`/players/${pl.slug}/`} class="group relative h-72 bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden hover:border-neutral-600 transition-all hover:-translate-y-1 shadow-lg" style={`--hover-color: ${pColor};`}>
                    <div class="absolute inset-0 border-2 border-transparent group-hover:border-[color:var(--hover-color)] rounded-xl transition-colors pointer-events-none z-20"></div>
-
-                   {/* Image */}
-                   {headshot ? (
-                     <img 
-                       src={headshot} 
-                       class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" 
-                     />
-                   ) : (
-                     <div class="absolute inset-0 bg-neutral-800"></div>
-                   )}
-                   
-                   {/* Gradient & Info */}
+                   {pHeadshot ? (
+                     <img src={pHeadshot} class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                   ) : <div class="absolute inset-0 bg-neutral-800"></div>}
                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
-                   
                    <div class="absolute bottom-0 left-0 right-0 p-4">
                       <p class="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1">{pTeam?.data.name}</p>
-                      <h4 class="font-title text-3xl text-white leading-none">{p.data.name}</h4>
+                      <h4 class="font-title text-3xl text-white leading-none">{pl.data.name}</h4>
                    </div>
                  </a>
                )
@@ -418,5 +542,7 @@ const bannerUrl = teamEntry?.data.banner
         </div>
       );
     })()}
+
   </div>
+
 </BaseLayout>

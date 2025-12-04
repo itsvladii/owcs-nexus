@@ -3,7 +3,7 @@ name: 'Quartz'
 fullName: 'Ibrahem Alali'
 role: 'Hitscan DPS'
 team: 'twisted-minds'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TM/tm_quartz_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538154-detail.jpg?Expires=1764942842&Signature=XUA4Oq2Y15xwIip~izTT2WqeQ82VJZMid~wH3xEIMMckQor56oeX4qY4wUXiArtCkrB4le0dk3bRhxn60pXEkeioZHdsItGyK2ZSDkJ5iI0BcPbzvAQC9~cXyP41w~w0~Iv6sOP~egHvsIC-12V1am7094EMWQgubwSuuSztliIJIEfC5oMZGL9dhxTbGiPptAZZjuSkHwT47BvmCmDK0tBoZkfOxbOkiSoDnzMAJ4jz2iwGkwVngJtEsqu53NoUF2pJ3TJAVK0dJuytw-82TQZ-Qi2LfkvpOqAUV6c-PvoKMZMoA1p8fhYPKwH5Zg5PwvP1RhBpmacvBE8m~mi8BQ__&Key-Pair-Id=K1STXM1X7UGUFM'
 isFeatured: true
 country: "Saudi Arabia"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057518/sa_oc9ami.png"

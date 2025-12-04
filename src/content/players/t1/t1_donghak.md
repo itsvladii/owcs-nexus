@@ -3,7 +3,7 @@ name: 'DONGHAK'
 fullName: 'Kim Min-sung'
 role: 'Tank'
 team: 't1'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/T1/t1_donghak_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34561157-detail.jpg?Expires=1764943840&Signature=NqkhgcWv2OLkiSuYYS~22yFAvBvC2Vl3UPdOfHPiVFCiRABb7-aA5lzsgKc7OH0CBr2HK3V8y1AdWqlHcrddKhFqIWBkJDZyJFnIw6rE239MTggAiqx8XRuq0At-8N0oyHI5itToFGyqlHWEtWGmIk86~T8Zv28Snzqr0a8HOVak996OFmCKBTvL952Sk4~0vQ47MXTth0EItN1-0HisY6-fNeTENstEzviPgEYCjjmBi6D94CMuDwAQ~MOiOoudPvcsZ4Gpa0VpvLK4fYpuQ4LpaQ~KcoxbNVM~hpD1sr0S03H8hphv4okwO763l2jf0v5Ye6-9tBbz5lxHQZQ2iA__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

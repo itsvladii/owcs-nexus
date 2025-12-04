@@ -3,7 +3,7 @@ name: 'Simple'
 fullName: 'Kim Ji-sung'
 role: 'Main Support'
 team: 'twisted-minds'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TM/tm_simple_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533085-detail.jpg?Expires=1764945319&Signature=HMicsMm7vzHYOLvtq7Ud1nAT7l8UmOw0J~Wk96NQGJwfpkYR2EOJb~GCzTgpbPQhHPsMkhxF9I20z8A-F9URN9Lw3qVT5tvaEOuazLlvfWLzT7bQtdOIcWp-q0nIS-Yv8adHvNOGLPIJ0e-tfpckaENVlrz8FQJrNYypZIsMfsmWGWIC5OgkABCrOt~ZFQ9PviQODxDsIuJORrzyJTFJU9eFcScTiL4CkeFfbhXhpAwzAqCLBU~t796brZ6QCRaitiQOParWtsSXrptv~R521e1SURNlj1-FNTxa3aYYIuUrP1pRI6sB7py1my34pTJRwR~uAK5fkAsaHnk3X6L2QQ__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

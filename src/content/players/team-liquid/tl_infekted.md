@@ -3,7 +3,7 @@ name: 'Infekted'
 fullName: 'Boston Fine'
 role: 'Tank'
 team: 'team-liquid'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/TL/tl_infekted_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535008-detail.jpg?Expires=1764944683&Signature=d~QTdpxhe39wKHBGjP9Ic6pt27ouktkjeehdP70EM0pFCYW6NdwJ3x6cldg4WJomxrRAe14qO~vWvzD7nk6DsbJWLoi-QOxzvburSRPT~jyu6mI9kC7C32XscetFxlkDMQc22tmDJ7BQ5LgbfVWeG1GEDKs0BA9tCTghUEkAwfOfbdAw8UWUlu7CJIypJFUBB-j7Sko8RsdHJpsQO0t-Ielwkos40eNS2aUcKLt3BxgJ3NXVXss2jUiLUWT72dzF2eEyzB1a4p5ruZPJmXJQPTRCi7POEpu28MjQcUFuJDapzaWTawbEZvbI5KUJ6XGUYyr~~C6tM7-az8Pn0cQX-A__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "United States"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/us_noaxgh.png"
 signatureHeroes:

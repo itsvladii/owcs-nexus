@@ -3,7 +3,7 @@ name: 'Qloud'
 fullName: 'Takashi Umeda'
 role: 'Main Support'
 team: 'varrel'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/VL/vl_qloud_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535173-detail.jpg?Expires=1764948375&Signature=EO3elYqHNjmlR3U7FLIL23nIVOYIdX6UUOUmthk8GaEf8SH6B7H~HTr4E~wGrzUwbcfD-wrFzDqjnVjL6lpBK61nC4weM9BkWzpTAwfpb3PfVEz9jgd5QTH9FUFFhH5l8x~UJTcSVee76HqLDJC8ULEuyfsMbgP2ScjZMu4HmxFLvokr4wi-yT~~5OKUA3RUOoaEOACJS6~pjLslEOs8Bd8cp8fsFJguc0e21byrtKgf1KkPNmUquLkdp35P~Vf4vVl5cQ8Qdhw8o6wrsZEPV6nSZg2D9nXMfLD6mQOvVrW34en0qk-eVTkqMUompbaHarruRcHEauLER~8HC6wm0Q__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "Japan"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057593/jp_az1ykm.png"
 signatureHeroes:

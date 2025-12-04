@@ -3,7 +3,7 @@ name: 'guxue'
 fullName: 'Xu Qiulin'
 role: 'Tank'
 team: 'wbg'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/WBG/wbg_guxue_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538134-detail.jpg?Expires=1764942888&Signature=iCseTBl~rPguMkAEMpO0Nan2kLXPhLIx6F7LlptRPaV1jUO0uVI6S7VLvxkIaoqjutS2uNRVknSuVlHZLOqx67hDDSQfFo33xE0b8xmi2d3Q7J3XMAK5R9NC3d1SaRVt0Qt~KN8QeJpgAgHxKGBiX-Yd6i~NwqK3mecXGC7Efd81vsig-8qKOIdjSOQowdkPiMNtMqoqJmWCPQtsWR-daXM5vZvm3b931B5cY~ehX0UrcYHF5XYB8JcW74yWdQvV0pdMV3Hk2ShsOa05L5GPGY1-qdzu71sn9CrdtkqmK5aG2oRphENaCnDgMkr5JpnRXmH3CYprELUZHbpiTkP2gg__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

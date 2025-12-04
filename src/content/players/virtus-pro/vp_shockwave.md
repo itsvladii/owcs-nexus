@@ -3,7 +3,7 @@ name: 'sHockWave'
 fullName: 'Niclas Smidt Jensen'
 role: 'Hitscan DPS'
 team: 'virtus-pro'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/VP/vp_shockwave_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535219-detail.jpg?Expires=1764945680&Signature=NHgZuElkoBhK8Z~MtFnernpUJZBpy6nZ4skdIaekOPTRyzlRX~j0900L1ODavz4Knc6IFCHOaF4rATm0iatqpsGGwFpxeJeHyhWlWzocZSI4TcRKtfVxJUlsRrOVR8IrPv0LYqIaoilDiDNmBvCr430eHZbeN8MpaHlVwWI7Xj9Ie0wNXbk7bB~bfpIQuGC1PRjJvE4ufCe46Pxv7TCFGYF10AIr~8jz9QfaM3V~fzIPN2j7QMjRPGOJK3hJC80WbZjsq8d6Y69-tmKKjmW-vWl-ywGtEAx6f018PJt-HUCl0~cDSq12KdsqAVOuaNKsgzkU3yrtRnNDK1N-q636xw__&Key-Pair-Id=K1STXM1X7UGUFM'
 isFeatured: true
 country: "Denmark"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057545/dk_gequy2.png"

@@ -3,7 +3,7 @@ name: 'SOMEONE'
 fullName: 'Ham Jeong-wan'
 role: 'Tank'
 team: 'team-falcons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/TF/tf_someone_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34561061-detail.jpg?Expires=1764942660&Signature=cBsUWqCN9p7HnasmhRZ-9XaUqBheXurqm4qVmOw3HKEohIf1CMMxjT2N~bEglUxBbF87edHqUni372vpi5Jz9DeSTkmpqII8AAmZfk861IVGP0-P3gzdAWk61ZD6YAO-mB2l68oLb~MVPGycZ75xUKmZO6xe8SeDO2QLgX1xb0F35VdHwhuvF7gBAThff-7u5kkZQJTssC0cc07aLcfnPIZFikPZrxw7Fu0zLHvJxB1529owEOLEvvjyPD8yPKa6WD9K-WsJDUZBiq-ho60Z590hYTlt7EZ-WbJlv9J5zYYHloBulAtMHu7Vz-wnCE-HY7chzuoJ9C0NNxZVD-js2Q__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

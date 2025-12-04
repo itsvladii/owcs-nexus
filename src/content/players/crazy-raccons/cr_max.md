@@ -3,7 +3,7 @@ name: 'MAX'
 fullName: 'Choi Su-min'
 role: 'Tank'
 team: 'crazy-raccoons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053666/overwatch/CR/cr_max_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34561020-detail.jpg?Expires=1764943172&Signature=eRkPVYVvRjlIB87Q0SRZhYVVqN56pHUdFAuHOgC3n5yNHXtR0CxDqXhKpdvt8q6FvZGN0XYhkDJQkuRJWE2tncUgvRTIF0Srk9P0ok1RSRRZhdVAEw8S9T7jx8oAn37E-8uPF0NGkc64fUFZahZZFy2uPY20A1pe3z79VxM986jWpCoXFhZ45RtYTN3dUFXF7oT9rgviXymjXZ0ICem9X13CA6ETSSIRgpvArlwSKPV~i1ycJ1pJydn-yb-ricGR7ojeaTubFkSLCON8m4VvkzCr7Rr29euRebwpBPD6KKX9jUt6cTLLp~u3v1umyDjiZT1OmysUGsxION1D0pmoZQ__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

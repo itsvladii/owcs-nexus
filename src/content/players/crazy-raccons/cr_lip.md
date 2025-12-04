@@ -3,7 +3,7 @@ name: 'LIP'
 fullName: 'Lee Jae-won'
 role: 'Hitscan DPS'
 team: 'crazy-raccoons'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053666/overwatch/CR/cr_lip_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535083-detail.jpg?Expires=1764942806&Signature=dbphyYNfj7h0fvZDh29PQV289wrR1K9DBsKW4LORGdT09kXRuwRA6OKootwTv9~hMxW0RSVSg3DVSt3BK~fkqfbPY9xoBE4qK2ccb2TlWKw94hR1FUJ1CukRqGds6WxLzw5cdPk7PwaDJ0JzgWgboNsHTfLdWSYzrCfdVr2Zvs7DKdTqdLVgjmO5kL99k91yHE7qmdjNJMPLgiFsCFKg-ona0IdUEcSv~rIH0RAw-Q-8C3mFSQmz~UIRuTb9-Ak6m3h03l8TIjLuJpMnmAFU-6akGPsGy87uvK9moAAU~AAaOh1vgA8mIemaP2FDq8OsCe5ujPHCQNhdTuCJmDLZdA__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

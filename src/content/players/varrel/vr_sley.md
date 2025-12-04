@@ -3,7 +3,7 @@ name: 'Sley'
 fullName: 'Kim Jae-hwan'
 role: 'Flex Support'
 team: 'varrel'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/VL/vl_sley_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535166-detail.jpg?Expires=1764948392&Signature=jGZ0dmXHE7bXoC-~NmeRYc5WVey9KWYtWDg2uUmHe84N7aYp9oTGlFA0lcHIdUns6jHIgLejDimAukfsL230zof5owdQM-M1Pr5nF9hq5hveFRda0mFC-aDWqE7BB~65ljolZNmxUbkb5acNLDV9sDtxralYf9jiVqkDVOu41VkWCx52D57BWCcSMfCArv6phdXef~F5YCHR1U-L4xTVRJPznedJbcAk4UHJUAm4BOUytZllQ7IzaV9bAmO1WL5B2NwqlJYvrv9kSXgUDqBtS4Z3t1U8XEmsfwkLLbZcNuj4EO8mKBjuA7m6ydLfDuHX1IoimtjHU46BvAfvlrYmOQ__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

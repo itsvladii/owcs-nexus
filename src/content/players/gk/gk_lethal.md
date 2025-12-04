@@ -3,7 +3,7 @@ name: 'Lethal'
 fullName: 'Denis Tari'
 role: 'Hitscan DPS'
 team: 'gk'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/GK/gk_lethal_p2.png'
+headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533065-detail.jpg?Expires=1764944254&Signature=cu6FN2HoMGOFzqzxMmHpKxi2j~nJ0xWa1U257G5X5bL6kMMj4GX6KllvCe~Azdm8AQLnSL9TC1I-H1~n9oAFSRYQzHL8VzQ4V~HXnepZ~KfgNd5U4YiIOpl3nVVsnRDV3sHujtJq3kBT5vCwQ9Zkcvl2~BBokDTvOGMi5JCGAFsO-BVBNl~zMEMS7h65xUe64mu~VvefOTvfPT3fqy5tAliYFof336rm0C-rKXsjEjFay5xlVtR9KMJQQrgwc3~T-DFJ8mheeJvY-kxe2B7T-sWp2~bHNY4h0yhrdMqAP6Vm3W3tAdyMEuia8IdSzDvhNBARdPEc7vMcLDipce-hkA__&Key-Pair-Id=K1STXM1X7UGUFM'
 country: "Turkey"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057380/tr_qnlczz.png"
 signatureHeroes:
