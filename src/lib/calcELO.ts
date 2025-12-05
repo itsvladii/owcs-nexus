@@ -18,7 +18,14 @@ export interface RatedTeam {
 // --- CONFIGURATION ---
 
 const MIN_GAMES_PLAYED = 10;
-const K_FACTOR_BASE = 20;
+
+// 3-PHASE PULSE SYSTEM CONSTANTS
+const K_CALIBRATION = 50;  // First 10 games: Rocket Fuel
+const K_STABILITY = 20;    // Regular Season: Stability
+const K_MAJOR = 60;        // Majors/Internationals: The Truth
+const SEASONAL_RETENTION = 0.75; // Keep 75% rating on year reset
+const STARTING_ELO_BASELINE = 1200; // Baseline for soft resets
+
 //if a team didn't play an official OWCS match for 90 days, they'll be counted as disbanded untill they play a game again
 const INACTIVITY_DAYS = 90; 
 
@@ -57,7 +64,7 @@ const STARTING_ELO: Record<string, number> = {
   "default":1200
 };
 
-// 3. TOURNAMENT WEIGHTS
+// 3. TOURNAMENT WEIGHTS (Kept for reference or other uses, but K-factor now uses 3-Phase Logic)
 const TOURNAMENT_WEIGHTS: Record<string, number> = {
   'World Finals': 2.5,
   'Midseason': 2.0,
@@ -82,9 +89,37 @@ function getExpectedScore(ratingA: number, ratingB: number): number {
   return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
 }
 
-function getKFactor(tournamentName: string): number {
-  const key = Object.keys(TOURNAMENT_WEIGHTS).find(k => tournamentName.includes(k));
-  return (key ? TOURNAMENT_WEIGHTS[key] : TOURNAMENT_WEIGHTS['default']) * K_FACTOR_BASE;
+// Helper to determine if a tournament is an International Major
+function isMajorTournament(name: string): boolean {
+  const n = name.toLowerCase();
+  return n.includes('major') || 
+         n.includes('world') || 
+         n.includes('midseason') || 
+         n.includes('clash') ||
+         n.includes('ewc'); 
+}
+
+// 3-PHASE K-FACTOR LOGIC
+function getThreePhaseKFactor(gamesPlayed: number, isMajor: boolean): number {
+  // 1. THE MAJOR (International Correction) - Highest Priority
+  if (isMajor) return K_MAJOR;
+
+  // 2. CALIBRATION (Placement Matches) - Fast climbing for new/low-match teams
+  if (gamesPlayed < 10) return K_CALIBRATION;
+
+  // 3. STABILITY (Regular Season) - Standard
+  return K_STABILITY;
+}
+
+// SEASONAL SOFT RESET LOGIC
+function applySeasonalSquish(teams: Record<string, RatedTeam>) {
+  // console.log("❄️ Applying Seasonal Soft Reset...");
+  for (const team of Object.values(teams)) {
+    // Pull everyone closer to the 1200 baseline by 25%
+    const baseline = STARTING_ELO_BASELINE; 
+    const newRating = baseline + (team.rating - baseline) * SEASONAL_RETENTION;
+    team.rating = Math.round(newRating);
+  }
 }
 
 function inferRegion(tournamentName: string): string|null {
@@ -101,7 +136,6 @@ function inferRegion(tournamentName: string): string|null {
 }
 
 function getMovMultiplier(scoreA: number, scoreB: number): number {
-  // Handle missing scores or draws (should be filtered out, but safety first)
   if (scoreA === undefined || scoreB === undefined) return 1.0;
   
   const diff = Math.abs(scoreA - scoreB);
@@ -119,11 +153,9 @@ function getMovMultiplier(scoreA: number, scoreB: number): number {
 // --- MAIN ALGORITHM ---
 
 export function calculateRankings(matches: any[]) {
-  // --- 1. SAFETY CHECK (THE FIX) ---
-  // If matches is undefined, null, or not an array, stop immediately.
+  // --- 1. SAFETY CHECK ---
   if (!matches || !Array.isArray(matches)) {
     console.error("[ELO] Error: 'matches' is not an array. Received:", typeof matches);
-    // Return empty structure so the page doesn't crash
     return { 
       rankings: [], 
       stats: { biggestMover: null, biggestLoser: null, biggestUpsets: [] } 
@@ -157,14 +189,14 @@ export function calculateRankings(matches: any[]) {
   };
 
   // 2. Sort matches chronologically (Oldest -> Newest)
-  // Now safe because we know 'matches' is an array
   const sortedMatches = [...matches].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   // 3. Process Matches
+  let currentYear: number | null = null;
+
   for (const match of sortedMatches) {
-    // Validate Data
     if (!match.match2opponents || match.match2opponents.length < 2) continue;
 
     const rawNameA = match.match2opponents[0].name;
@@ -190,10 +222,17 @@ export function calculateRankings(matches: any[]) {
     }
 
     const matchDateStr = match.date.split(' ')[0]; // Get YYYY-MM-DD
+
+    // --- NEW: SEASONAL RESET CHECK ---
+    const matchYear = new Date(match.date).getFullYear();
+    if (currentYear !== null && matchYear > currentYear) {
+       applySeasonalSquish(teams);
+    }
+    currentYear = matchYear;
+    // --------------------------------
+
     
     [teamA, teamB].forEach(team => {
-        // Find a reset rule for this team that has happened by this match date
-        // AND ensures we haven't already applied it (check lastResetDate)
         const reset = ROSTER_RESETS.find(r => 
             r.team === team.name && 
             r.date <= matchDateStr && 
@@ -206,8 +245,8 @@ export function calculateRankings(matches: any[]) {
         }
     });
 
-    let logoA=match.match2opponents[0].teamtemplate
-    let logoB=match.match2opponents[1].teamtemplate
+    let logoA = match.match2opponents[0].teamtemplate
+    let logoB = match.match2opponents[1].teamtemplate
 
     const rawScoreA = match.match2opponents[0].score;
     const rawScoreB = match.match2opponents[1].score;
@@ -243,25 +282,33 @@ export function calculateRankings(matches: any[]) {
     if (!teamA.tournaments.includes(tournament)) teamA.tournaments.push(tournament);
     if (!teamB.tournaments.includes(tournament)) teamB.tournaments.push(tournament);
 
-    let k = getKFactor(tournament);
-    // APPLY MoV MULTIPLIER
-    // We multiply the tournament weight by the performance weight
-    const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
-    k = k * movMultiplier;
-  // --- NEW: LAN PROTECTION (The Fix) ---
-    // If this is a high-stakes tournament (K > 40 means Major/Worlds),
-    // we protect the loser so they don't tank their rating just for qualifying.
-    let kA = k;
-    let kB = k;
+    // --- NEW: 3-PHASE K-FACTOR LOGIC ---
+    const isMajor = isMajorTournament(tournament);
+    const gamesA = teamA.wins + teamA.losses;
+    const gamesB = teamB.wins + teamB.losses;
 
+    let kA = getThreePhaseKFactor(gamesA, isMajor);
+    let kB = getThreePhaseKFactor(gamesB, isMajor);
+
+    // Apply MoV Multiplier to both (Keeping your bonus logic)
+    const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
+    kA *= movMultiplier;
+    kB *= movMultiplier;
+    
+    // Define base K for the existing LAN protection check
+    // We use the Major K if it's a major, otherwise we check games played for a generic 'k'
+    let k = isMajor ? K_MAJOR : (gamesA < 10 ? K_CALIBRATION : K_STABILITY);
+    // -----------------------------------
+
+    // --- LAN PROTECTION (Preserved) ---
     const isBigTournament = k >= 40; 
 
     if (isBigTournament) {
         // If Team A lost, halve their K-factor (Half penalty)
-        if (scoreA === 0) kA = k * 0.5;
+        if (scoreA === 0) kA = kA * 0.5;
         
         // If Team B lost, halve their K-factor
-        if (scoreB === 0) kB = k * 0.5;
+        if (scoreB === 0) kB = kB * 0.5;
     }
     // -------------------------------------
 
@@ -285,11 +332,11 @@ export function calculateRankings(matches: any[]) {
       
       upsets.push({
         winner: winnerTeam.name,
-        winnerLogo: winnerTeam.logo,          // <--- Pass logo
-        winnerLogoDark: winnerTeam.logoDark,  // <--- Pass dark logo
+        winnerLogo: winnerTeam.logo,          
+        winnerLogoDark: winnerTeam.logoDark, 
         loser: loserTeam.name,
-        loserLogo: loserTeam.logo,            // <--- Pass logo
-        loserLogoDark: loserTeam.logoDark,    // <--- Pass dark logo
+        loserLogo: loserTeam.logo,            
+        loserLogoDark: loserTeam.logoDark,    
         prob: probability,
         date: match.date,
         tournament: match.tournament,
@@ -298,35 +345,28 @@ export function calculateRankings(matches: any[]) {
     }
   }
 
+  // --- REST OF STATS CALCULATION (UNCHANGED) ---
 
   const daysAtOne: Record<string, number> = {};
   const allDates = new Set<string>();
   
-  // A. Collect all dates where ELO changed
   Object.values(teams).forEach(t => t.history.forEach(h => allDates.add(h.date.split(' ')[0])));
   const sortedDates = Array.from(allDates).sort();
   
-  // B. Add "Today" to close the loop (so the current #1 gets credit until today)
   const today = new Date().toISOString().split('T')[0];
   if (sortedDates[sortedDates.length - 1] < today) sortedDates.push(today);
 
-  // C. Replay History Day-by-Day
   for (let i = 0; i < sortedDates.length - 1; i++) {
       const startDate = sortedDates[i];
       const endDate = sortedDates[i+1];
-      
-      // How many days in this window?
       const diffTime = Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-      // Find who was #1 on 'startDate'
       let topTeam = null;
       let maxElo = -1;
 
       Object.values(teams).forEach(t => {
-          // Find the team's rating as of 'startDate'
           let elo = STARTING_ELO[t.region] || 1200;
-          // Look backwards in history for the latest entry before/on this date
           for (let h = t.history.length - 1; h >= 0; h--) {
               if (t.history[h].date.split(' ')[0] <= startDate) {
                   elo = t.history[h].elo;
@@ -339,89 +379,61 @@ export function calculateRankings(matches: any[]) {
           }
       });
 
-      // Give credit to the King
       if (topTeam) {
           daysAtOne[topTeam] = (daysAtOne[topTeam] || 0) + diffDays;
       }
   }
   
-  // D. Find the Winner
   const kingName = Object.keys(daysAtOne).reduce((a, b) => daysAtOne[a] > daysAtOne[b] ? a : b, null as string | null);
   const longestReign = kingName ? { name: kingName, days: daysAtOne[kingName] } : null;
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  // 2. Helper to get a team's rating at a specific past date
   const getPastRating = (team: RatedTeam) => {
-    // Find the last history entry before or on the snapshot date
     const entry = team.history.filter(h => new Date(h.date) <= oneWeekAgo).pop();
-    // If no history existed then, use their starting/reset rating
     return entry ? entry.elo : (STARTING_ELO[team.region] || 1200);
   };
 
-  // 3. Sort the list as it would have been 7 days ago
-  // We use the full list of teams calculated in the main loop
   const allTeams = Object.values(teams);
-  
   const oldRankings = [...allTeams].sort((a, b) => getPastRating(b) - getPastRating(a));
   const currentRankings = [...allTeams].sort((a, b) => b.rating - a.rating);
 
-  // 4. Compare Ranks
-  // Create a map for fast lookup: "Team Name" -> "Old Rank"
   const oldRankMap = new Map<string, number>();
   oldRankings.forEach((t, i) => oldRankMap.set(t.name, i + 1));
 
   currentRankings.forEach((team, index) => {
     const currentRank = index + 1;
-    const oldRank = oldRankMap.get(team.name) || currentRank; // If new, assume no change
-    
-    // Calculate Delta: (Old - New). 
-    // Example: Was #5, Now #3. Delta = 5 - 3 = +2 (Moved UP)
+    const oldRank = oldRankMap.get(team.name) || currentRank;
     team.rankDelta = oldRank - currentRank;
   });
 
-  // --- CALCULATE MOVERS (UPDATED TO INCLUDE LOGOS) ---
   const movers = Object.values(teams).map(t => {
     const start = startRatings[t.name] || t.rating;
     return {
       name: t.name,
       diff: t.rating - start,
       current: t.rating,
-      logo: t.logo,         // <--- Pass logo
-      logoDark: t.logoDark  // <--- Pass dark logo
+      logo: t.logo,         
+      logoDark: t.logoDark  
     };
   });
 
   const biggestMover = movers.sort((a, b) => b.diff - a.diff)[0];
   const biggestLoser = movers.sort((a, b) => a.diff - b.diff)[0];
   
-  
   const biggestUpsets = upsets.filter(u => {
         const t = u.tournament.toLowerCase();
-       
-       // 1. EXCLUDE NOISE
-       // Explicitly block "qualifier" to be safe
        if (t.includes("qualifier")) return false;
-
-       // 2. INCLUDE ONLY GLOBAL EVENTS
-       // "Champions" is dangerous because the league is "Overwatch Champions Series"
-       // Use "Champions Clash" or just "Clash" instead.
        const isGlobal = t.includes("major") || 
                         t.includes("midseason") || 
                         t.includes("world") || 
-                        t.includes("clash"); // "Champions Clash" specific
-       
-       // 3. (Optional) Continental Events (Asia Main Event)
-       // Uncomment if you want big regional showdowns (KR vs JP)
-       // const isAsiaMain = t.includes("owcs asia") && !t.includes("stage");
-
+                        t.includes("clash"); 
        return isGlobal;
     })
     .slice(0,2)
     .sort((a: any, b: any) => a.prob - b.prob);
 
-  // Find "Present Day" (Latest match in DB)
   let latestDateInDb = new Date('2025-01-01');
   if (matches.length > 0) {
       const lastMatch = matches.reduce((latest, current) => new Date(current.date) > new Date(latest.date) ? current : latest);
@@ -432,11 +444,8 @@ export function calculateRankings(matches: any[]) {
   cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
 
   const filteredRankings = currentRankings.filter((t: any) => {
-       // A. Min Games
        if ((t.wins + t.losses) < MIN_GAMES_PLAYED) return false;
-       // B. Valid Rating
        if (t.rating < 1000 || t.wins === 0) return false;
-       // C. Inactivity Check
        const lastPlayedEntry = t.history[t.history.length - 1];
        if (!lastPlayedEntry) return false;
        if (new Date(lastPlayedEntry.date) < cutoffDate) return false;
@@ -444,7 +453,6 @@ export function calculateRankings(matches: any[]) {
        return true;
   });
 
-  // 5. Return Results
   return {
     rankings: filteredRankings,
     stats: {
