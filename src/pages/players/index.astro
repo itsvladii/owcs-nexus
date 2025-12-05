@@ -1,25 +1,21 @@
 ---
-//pagina che mostra TUTTI i giocatori registrati
-
-// --- IMPORT DI TUTTO IL NECESSARIO ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlayerDirectory from '../../components/PlayerDirectory'; // Check your import path!
 import { getCollection } from 'astro:content';
-import FilteredPlayerList from '../../components/FilteredPlayerList.tsx'; // importo il componente che fa da "filtro" per i giocatori
 
-//recupero tutti i giocatori e squadre
+// 1. Fetch Data
 const allPlayers = await getCollection('players');
 const allTeams = await getCollection('teams');
+
+// 2. Sort Players (Alphabetical)
+const sortedPlayers = allPlayers.sort((a, b) => 
+  a.data.name.localeCompare(b.data.name)
+);
 ---
 
-<BaseLayout title="All OWCS Players">
-
-  <h1 class="text-4xl font-bold text-white mb-8 font-title">OWCS Players</h1>
-
-  {/*in base ai filtri applicati, mostriamo i giocatori. se non sono applicati filtri, mostriamo tutti */}
-  <FilteredPlayerList 
-    players={allPlayers} 
-    teams={allTeams} 
-    client:load 
-  />
-
+<BaseLayout title="All Featured Players" fullWidth={true}>
+  <div class="min-h-screen bg-neutral-950 pt-24">
+      {/* Client Load is needed for search/filtering interactivity */}
+      <PlayerDirectory client:load players={sortedPlayers} teams={allTeams} />
+  </div>
 </BaseLayout>
