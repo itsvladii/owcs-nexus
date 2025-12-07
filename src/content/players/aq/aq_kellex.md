@@ -3,7 +3,7 @@ name: 'Kellex'
 fullName: 'Kristian Keller'
 role: 'Flex Support'
 team: 'aq'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533022-detail.jpg?Expires=1764944924&Signature=hNl7jVX5SPi5k176XK3OCre9VjVIYqIQSvc55sD40b2D3qY~coo-iyw1ayED27oBeJrXnN17TOsxXmazVeRSYu-fbMfBR5NSXQ2sJQ4zHDFGam4nOwTSnOMYuc2FSlZfa9ogIS8naF7dOI87D7~53NeBq6UkYByOjmS5y8E-62-Ne0IcqGKX9fBnIwrtmqQDypTwGgJ9ibcQ-lOiPT~xpvOHLfG0yMF7ffcF-a1dQfBovE4-9VcKDVFJ2YeGRd5~g9ME0-~DojD7LaOsVZAMtniNxRe7j-dgc-20ko6Dnw4UW5tyYs00c30yRPRyZ-mfO5POcKQqyuepwNAaZGHrkA__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/kellex.jpg'
 country: "Denmark"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057545/dk_gequy2.png"
 signatureHeroes:

@@ -3,7 +3,7 @@ name: 'Viper'
 fullName: 'Lee Jung-woong'
 role: 'Flex DPS'
 team: 't1'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34561173-detail.jpg?Expires=1764943887&Signature=RvUDKNlBgyUiKU9Ouac5gtZ~1xNwWq5i8HAYcP8ztYqNJc9-Nz7gYaGMLl5pRQR9g9A6TomC3iMONKDumjg2U~a26Unvj741~WKTyhiNIzPQMN1VbSrO1jJ7mx79fkt~CJ2BHq6xwD7a1apCJeCBatQFREi03cXSXRTBX11C8xm8BZtqOiEjJ2vyJgANM4BnOGdeI8MVztFKWPqC1rG6VOIPJNL~FL17Xd52nZHcgx~YB8Sbs~Gu0iRBqlTtUEcUUmxLUJUPeyQkMeSyAdETdk~dbV2Bee8Iq76Ii2uTDq99K0qPbzXwp21axUl980CJUBD2dq80Dgh6M9YYoV4t~w__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1754055471/overwatch/T1/t1_viper_p2.png'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

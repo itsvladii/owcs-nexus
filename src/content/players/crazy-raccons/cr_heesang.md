@@ -3,7 +3,7 @@ name: 'HeeSang'
 fullName: 'Chae Hee-sang'
 role: 'Flex DPS'
 team: 'crazy-raccoons'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535102-detail.jpg?Expires=1764943144&Signature=TC6ELwVEd3XZUX7i06RD5fxNaOgMtp6B3tdRf4SZTmNA2ZYi2Mf0Cpxv9PuzvKiCZ8tdz2nA8~-l5JYuzI01-8T-EyoIYLpb1jVUKARJDCQArf3KaYWDqwm78HGoBV-Qcfplz5jA80qfjZxkQ~L~6joWSFOZzUsI68Go7xhaO6fd0NSPe2qDITrFUpcBoOd505n30DPlVvKjxobDRKHmDSAw5tSl7j769UqJ1zQ5xqOugMtjn0fID1rb9B7gsJ9CEwL1lz-c2vdTQR8-t9hvD3BQuYf7qtNrj3Axcd31sa2kaPUbFBQ~ONVaWRuVIzfW8v5F15r7hO2RiOOwpImSYQ__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/heesang.jpg'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

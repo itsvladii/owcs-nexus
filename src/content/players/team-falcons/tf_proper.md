@@ -3,7 +3,7 @@ name: 'Proper'
 fullName: 'Kim Dong-hyun'
 role: 'Flex DPS'
 team: 'team-falcons'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34532981-download.jpg?Expires=1764942206&Signature=Pqk9ERkFvlLL0tZ1MISznfqQteBaYgjrs5vzPb19cCCON96mxbKmQWsVUc~~~XA17E5ryb5Dvs9x~POayJr~nJDTDy8JBc4Yc8MdiZJVmt62NfRKv5IlG-FnTvpYqWczwgx5usOYCvKukqP1OqzMJBARq0wJ4zX3pXFdBVsY1IXOx4xEJjgiS777dlBoc-EWxohBHyzSzBf-fFz-LWjkQo5xz-0nbe0cJCCwwDxxuN2mMVpc2JFWfBIUYt7hIMMIDW90FDIlKADNcO78x6p3S0HmSLfFXiPc2cGz6lS9eG826~7oS~1YuODrKDZxVfdA~lIuWPeWHJLxpSerXrKULg__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/proper.jpg'
 isFeatured: true
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"

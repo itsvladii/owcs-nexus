@@ -3,7 +3,7 @@ name: 'Mew'
 fullName: 'Li Xianyao'
 role: 'Flex Support'
 team: 'wbg'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538142-detail.jpg?Expires=1764942886&Signature=GOXBDvskiL13UV8sDjsEc92YweSlQ2Xp5HilJ1R0KB7c4gReXVqmskKcNmQTIKSrQoWIV1v~j3lD3BbO5TCndGEMkOMckOmZ8IQ6CpcvM6B2ol5LlbYBefW7svO4Yk9q20yKkiAlT-ngqWsxC-bTNqIwrd7tcoJX~7jhCnzM7sp26aUP8hWrGVFBF2mAur~OuAkCuINoADkz-DkkVaBf5kGvm7XY9R9ROpDJqFch0UJASjP9Lbu1Uy0c1~OxumtkTo331eCPuhAhSenNzTA91iwM7WtHpLJh7TeIcrnUjbBHVgsZqeg4UPSN11rsJmPawwh1erxIpKsq~CuWC3HygA__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1754055165/overwatch/WBG/wbg_mew_p2.png'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

@@ -3,7 +3,7 @@ name: 'Shu'
 fullName: 'Kim Jin-seo'
 role: 'Main Support'
 team: 'crazy-raccoons'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535077-detail.jpg?Expires=1764943002&Signature=SygLvKHclG5Z9-rs~cgUL~bjHh8iJvGVsn81EgPwoz43LDqR3x74tKHWWyoiKvSXeKKWhKGW3vwt0RSdGBGdRlHI~650Wf3OzZVp37hILY3g2Tfeg-bSn7XuFcKln9h~xuVJf2RcjZgBHaCXqmwcRIDvx3kP9F1vzOtJUeGmGArOmksNMwmrZYw0IhM~INfQVh6qfTevg3r5o6QpRY5p1dcLJF-~NiNSaEA5QMdNf5HcTb0jdCR0ncI367KE4ASJ3tyXmS288n28wjrefyvZl1Kd4EnHYTIMz8YHZ45qgZp9RSK1EAp26LTkCG5knuWUJ3sBkKicJlMJO71UsnLLjQ__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/shu.jpg'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

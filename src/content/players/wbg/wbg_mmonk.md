@@ -3,7 +3,7 @@ name: 'Mmonk'
 fullName: 'Zhou Xiang'
 role: 'Flex Support'
 team: 'wbg'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538148-detail.jpg?Expires=1764942802&Signature=O2hbru58vPPwTO97rOJOzbskEtPJsdSAHZpLWBzz2~jY9pIif6-c827sqtJR4jc-2kU7NWMlk3~D1h4ByS6ve0ncFgnWMrNR6tDwQnRiN27bUWvJoi3Oc2qJPW9ieeLJOKM8WGVmpWKz5M168R2YzvumKyHBOEaBq4uh-HpfTAKrxzNTkcucykhicQkp5qeO3c5eF1uJcqwnIH2rsTqXT4KNhmzDO2zR8t4tqsnibMZ~QZWvu5nC5LqtzswhzmNLDM~tmjxZTlrkNCe-iX56kA9loqq3zjuCehXV2B5Wy5Cus9UyppIrLeomp6~~YKNG1IzCSLrRxrxhGPbWNt4wcw__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1754055165/overwatch/WBG/wbg_mmonk_p2.png'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

@@ -3,7 +3,7 @@ name: 'Kaneki'
 fullName: 'Liu Nian'
 role: 'Flex DPS'
 team: 'cc'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538109-detail.jpg?Expires=1764942900&Signature=A3VyS95i78cWHCYEZBSdYDVeITAJm9QKbhnEUK0iuEIuANkp5I2l23gL0wetMNih1fQoGVgbNnIKh8ZtX69mN6KJGCaDjR0J~FHbfm0tbijt00BuRGm0YtoRdep3Nra-or-UJbO-XSPny3IqF-15b3pzLGder58wLQMmUwol8eiMc-ACs27TSRKwOPCf7v~D8qdTTrw7wx8SojagP-FOQyfjyTsGGYWEF87hYI4zypOlal-MtooH~lnLjAGcZt4eTMpwnNe63YSlSCFcHpUdB1J6XARJ2fWYlf8xck7aOjEHdFxN9DoXjFW1hsc4gG3XRXL0RimsJEZisKDNYTBu9A__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/kaneki.jpg'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

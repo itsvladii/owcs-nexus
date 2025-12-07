@@ -3,7 +3,7 @@ name: 'CH0R0NG'
 fullName: 'Sung Yoo-min'
 role: 'Flex Support'
 team: 'crazy-raccoons'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34535111-detail.jpg?Expires=1764943311&Signature=DXLr0bmnIQAZxlv8no6eost9LYgKrTsiLHuqqQWYhPvfJgyaZebVP70gao-RNIF~42j5JC2jWrF-5P3hYNALDNzEMwsLxHIAnNmnEbKS5DAcFiO7BoWgQaUGb1wiY39a1hlkIZ1jDPkJijouUm-oPTHF48pX7CS6eAmmg9O9E9yePNPOW649D0GXLtvhWHIAvgML-BIHu20ODwMIMdGv-glm2BoU97ZXqrgqvMwF8LR9oMm87D2kXcW103vLXIEoulO1DkChk4BebaX~BhAeYD9XFfn41UrXy2nfv-vuB2xVakoFD7QH4ZXE68xl4UWyLgqeg5zaexQSnF6bYavFeQ__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/chorong.jpg'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

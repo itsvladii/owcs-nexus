@@ -3,7 +3,7 @@ name: 'Landon'
 fullName: 'Landon McGee'
 role: 'Main Support'
 team: 'aq'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533033-detail.jpg?Expires=1764944829&Signature=kxWWtBGL1IoorTEnHDBAqUOI2CAd4x6WwB1rKqP9kpXG0uh5clnAbbC28YO~j-z1rRloYpj7Sjg4o7WQayxiFDgC1Esw5TygqXt4X~1CA0VKYp6EHHOsWfFa02noAO8M0-mNnPo7BsqNHZvYF~xf7dNgZxRHdMAeYlnFBqIHu2DFd4D18HlB03P3ZjDgM8OF8I2PHH-OTi1NLj8mJr5Pkt29h-a1ir2RIohWNFIpOaEAMMYMiI17PoCgJnHE2alwu7RyAA01ErQJfmf4F4yTLqTkBNQPd7Wc0sL1GwQW8qBA04av-6jq5xA9Fa2QqABAhy5gD987JlyGcu6hv3~RCA__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/landon.jpg'
 country: "United States"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/us_noaxgh.png"
 signatureHeroes:

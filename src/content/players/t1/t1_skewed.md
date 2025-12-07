@@ -3,7 +3,7 @@ name: 'skewed'
 fullName: 'Kim Min-seok'
 role: 'Flex Support'
 team: 't1'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34561168-detail.jpg?Expires=1764943745&Signature=Gq-8sGjhNOWPSd-rGg~6ypTW-b4Qc-zvYYT~nvtyAQ5rzlKgqIbJOtXiD7okfc~7ug6oIUOCuvFBay3CvvnQoYlZPJgwd2zvPc1QWB2wCClLM9JcdyH266Pkyed90JumsAt0eJE5XAvdFyYkUW3LpPNCNlcXDHUAKaq-Br0BlL5YIigeTA~4SOQmw0dEYagT3pQ93sIHbyDLJ4kuGn20kurlT927ujsT0O8wIi--jt~GFAGHYTOyl5F5S8HarrxchPAyfN4BYQsQkiQWfXjvGx5nE2HdX8AJnuxzEr~PrdXgkofiNo73yB5ws1SLv5PagypAX2UuFq2SKEbd5CcLfA__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/skewed.jpg'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

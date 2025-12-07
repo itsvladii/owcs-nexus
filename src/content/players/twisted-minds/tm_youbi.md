@@ -3,7 +3,7 @@ name: 'Youbi'
 fullName: 'Ahmad Alyoubi'
 role: 'Flex DPS'
 team: 'twisted-minds'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533090-detail.jpg?Expires=1764945201&Signature=WcorBs7WAqygEdUJkg-wvRI1jHG9s4ZzJyX6B4f9QwMNZMxZl8cwVcCc3a35VvjESzyeQNoCLjq-SQWdyCi~Df0koDT5m0iKhEaqAj9ZlIGHeKQ9rmWpbRGiHh3-DAt28S-i1k8UenM3NdlO5uS-wGkBtrZvGrwkOm0X1K2Sh7PvH6kXkvS2HbHbH3z4dbNaueNqZRzgxWyqPtKEw3i-lqePAe2Xj3hVVdBR1-65M4SjdOHy3K2fvuMbiX1wW~qPfGh5HIKcu3z3cgfV16rgBLCUn1qtl25FWCHqAjis5a2mxJZkVqCTHPB0EZe7SyCVNbn6NnC2Kz~LVQ8ENG~Yug__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/youbi.jpg'
 country: "Saudi Arabia"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057518/sa_oc9ami.png"
 signatureHeroes:

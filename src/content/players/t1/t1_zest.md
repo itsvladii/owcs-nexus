@@ -3,7 +3,7 @@ name: 'ZEST'
 fullName: 'Kim Hyun-woo'
 role: 'Flex DPS'
 team: 't1'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34561175-detail.jpg?Expires=1764943915&Signature=RhIjfIHnrWugb5-mLebhMrjQ7DiRWvzkdJmhJW59RMeD0qfbBkGnGNNbT7Zyw-psSXrTE0tyYQgm17fbfi1p33ZMoiMQEsIMuXt8y9Fcy9ugKBLY8P9lo68ziRhfAT8q0Offj00rVVqigaDWdJYwAxR1ZbH1BNMtbrHKqQJP4rRMwdwEzvZM31M7EMV4f7afDUN~ZlJ7HLhliUYEPDuaq9visIznburJDv-2nlPpVkk0obkiIqhdiGtS4DYM5Glj6bbhzqHtWRYXrMBCdCYsu62GwQ2nrgyQDHc3SNfRxiFhQV~LPlke9qJGOqBG3ijJouKQhRJQZFQw5Y89DCg6vQ__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1754055471/overwatch/T1/t1_zest_p2.png'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

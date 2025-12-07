@@ -3,7 +3,7 @@ name: 'ChiYo'
 fullName: 'Han Hyeon-seok'
 role: 'Flex Support'
 team: 'team-falcons'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34533016-detail.jpg?Expires=1764942416&Signature=UCy~gUX3CZcbvUQvQTAQsXjYS43tDTiu9o6qAG9-zbSqDa1sCDWjT-qzHBol6LU8PCfEjjweCihzlolyYYEfG6MhhzGEM2d5PtPSM1sAVdt~MOJUqsmkb~RMO57OLPv6-dLI2QT5TWEV9TQWdeQ8auOFGMKcpH1t8sWU8SoBHXFU9CaefjkhUtYuNmpMBLIqXORnZ9ZMSnJU~mIxX6YWW5o~tqpGhzmpErijlMgi6IYW25x7fzzEb2EmL0s1LQwGLXwpW2GTjIHVqOan4bO4mdVNrV6gBvYRKWGhpxlGXlJRJUocqbzcvb3o77cro~zFSBeYnklDOkFP-qzbsDYJoQ__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/chiyo.jpg'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:

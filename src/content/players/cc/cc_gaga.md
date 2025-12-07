@@ -3,7 +3,7 @@ name: 'GAGA'
 fullName: 'Qui Jiaxin'
 role: 'Tank'
 team: 'cc'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538123-detail.jpg?Expires=1764942800&Signature=LyJ2zt~ayVqFUyb6hJHZk9sCn~diYeI4U~U9xpv~Mfi8j923EaPqUppij9lEolLk-AIsr5WJ-V1hWUv9uHxxquXr5Hsqukks72GHCDiWodTGEe5fZrkjQNDIhJGbHi7YEGa0HTMTofLjnUvlzbGcvrvr0bD12EDgH9-96Ct0FbVLj7~b-TTajkWR8pr~7RkUnSCUiX6QRwniHrsHf1HFaCV5CgK69IV1ZAhvWRHxzOheGvD0ooMhy5yBLHmgXTWOkcKsZ~hu8aQSXkyldutq2tW4kua-qM-rRVMU2wdUj0VlfxnSc~-keKlMlsYaR5XeEbJaZRwDS-Nc3YZeocF6~g__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/gaga.jpg'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

@@ -3,7 +3,7 @@ name: 'Pineapple'
 fullName: 'Li Zhuo'
 role: 'Flex DPS'
 team: 'cc'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538115-detail.jpg?Expires=1764942899&Signature=RZU89I52544tDFHACIiBTvR2c0u-D~tQAZ8YdE4KV4V4WBe~~r7ut0VaYAY20XRNb2nGRO9IbiQgXM17r4wj7hLf0YX1lLuM3vZ3QzHJfptCFHdg2youyI32rsX6em1UBxXpmgvxdgS09Rpgx6c62QIzkOQJinALPLdxavfIrv0Oa3TsH9aRX9ILepSdHPUVPop~opS45pfI1tbgn6oY1FUvkBw2rNKfC3gPKnCgqgI-BeD8uNZbQgm2jIA-~hkWmZ9jOX~ZorzDBfD~43K18KsJ3N8glg7jsxbZ19eEFijuwKb4R5bxUeLkKwVlXmSMVtuZLx9Ipqm3BHB72p8MAg__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/pineapple.jpg'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

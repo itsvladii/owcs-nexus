@@ -3,7 +3,7 @@ name: 'Leave'
 fullName: 'Huang Xin'
 role: 'Flex DPS'
 team: 'wbg'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34538143-detail.jpg?Expires=1764945198&Signature=VmKTQjbPAVIAMLd66FSXHJXbNmkJw9Qvu4yavMBQA~R8dUmM5BW42wtqjoN8M96dkrSnyOMI8UrgrvLTmFTvxIKtNr6stWnjxVckJILhyOE1ADVYrVnk1diPfhgFjyUV3HdtwHs1Z4rn1-445j~Cz43M3dXdE78BF3HQgxnNBv~7UOexlRD~~zMunUYpkMaN360LUrH1AcpiiM49jgkZR-94N1kIIuPiD1xyPMlcsAO-ETaPNFqyKCGLFXV3fAW~lqglLkZU0OybfvsOqDAii-sc0y074mMx2Ogw9Ajj7CFfmssYRN3jg066d9MxNRCv~oD0uImxuAxnzMcw0zShyw__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/leave.jpg'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

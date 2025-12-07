@@ -3,7 +3,7 @@ name: 'vigilante'
 fullName: 'Kim Joon'
 role: 'Main Support'
 team: 't1'
-headshot: 'https://greenfly.media/g/29s/okovwwww/m/orgId=451/companyId=2908/galleryId=176607/34568673-detail.jpg?Expires=1764943708&Signature=VBXTr7acPYAqmMko8rtwD-YE4CtD1V1AHEnXvrULIpRakRt9YN~Cw2ZqT1rxp0aSCV6biBITKOM69I-caKdSNdEuiYg3B5FWGV7ekiIqyl-on8bxaVLCh5x8UC6udTECSMZ2Oi9BHRoIAicWag470d3SQkQ3PcdUJGT9Xvrah1u2r4BndPh~bg8nrZX7NdaeAl97YXFtEPZkGFnZd9my7Ufgkjla~km6pBG1NdJG73LQDrDsjgj2RcfVyDc0AIuanTxFqGPROhw7UM~GeavLZ934WmnfFx8JXXCNvU80qDQnJcum7UG~rWzj~xn~S3fyW4TncNkga0Ew7mldtBpYYQ__&Key-Pair-Id=K1STXM1X7UGUFM'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/v1764954494/vigilante.jpg'
 country: "South Korea"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2ak.png"
 signatureHeroes:
