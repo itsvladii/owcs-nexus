@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom'; // 1. Import createPortal
+import { createPortal } from 'react-dom';
 import {
   AreaChart,
   Area,
@@ -7,7 +7,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  ReferenceLine,
+  Label
 } from 'recharts';
 
 interface Props {
@@ -16,12 +18,38 @@ interface Props {
   onClose: () => void;
 }
 
+// 1. CONFIGURATION
+const SEASON_START_DATE = '2025-01-24'; // <--- IGNORE DATA BEFORE THIS
+const MAJOR_EVENTS = [
+  { label: 'Dallas Major', date: '2024-06-02' },
+  { label: 'EWC', date: '2024-07-28' },
+  { label: 'Stockholm', date: '2024-11-24' },
+];
+
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
+    const data = payload[0].payload;
     return (
-      <div className="bg-neutral-900 border border-neutral-700 p-3 rounded-lg shadow-xl">
-        <p className="text-neutral-400 text-xs mb-1">{label}</p>
-        <p className="text-amber-500 font-mono font-bold text-lg">
+      <div className="bg-neutral-900 border border-neutral-700 p-3 rounded-lg shadow-xl z-50">
+        <p className="text-neutral-400 text-xs mb-1">{data.cleanDate}</p>
+        
+        {data.isMajorEvent && (
+            <div className="text-amber-500 font-bold text-xs uppercase mb-1 flex items-center gap-1">
+                <span>📍</span> {data.majorLabel}
+            </div>
+        )}
+        {data.isPeak && !data.isMajorEvent && (
+            <div className="text-amber-500 font-bold text-xs uppercase mb-1">
+                All-Time Peak
+            </div>
+        )}
+        {data.isLow && !data.isMajorEvent && (
+            <div className="text-red-500 font-bold text-xs uppercase mb-1">
+                All-Time Low
+            </div>
+        )}
+
+        <p className="text-white font-mono font-bold text-lg">
           {payload[0].value} <span className="text-xs text-neutral-500">ELO</span>
         </p>
       </div>
@@ -30,46 +58,180 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+// --- SMART DOT ---
+const CustomDot = (props: any) => {
+  const { cx, cy, payload, index, points } = props;
+  
+  // Edge detection to prevent text clipping
+  const isNearRightEdge = index > (points?.length || 0) - 4; 
+  const isNearLeftEdge = index < 4;
+
+  let textAnchor = "middle";
+  let xOffset = 0;
+
+  if (isNearRightEdge) {
+      textAnchor = "end"; 
+      xOffset = -8;
+  } else if (isNearLeftEdge) {
+      textAnchor = "start"; 
+      xOffset = 8;
+  }
+
+  // PEAK (Gold)
+  if (payload.isPeak) {
+    return (
+      <g transform={`translate(${cx},${cy})`}>
+        <circle r={5} fill="#f59e0b" stroke="white" strokeWidth={2} />
+        <text 
+            x={xOffset} 
+            y={isNearRightEdge || isNearLeftEdge ? 4 : -10}
+            textAnchor={textAnchor}
+            fill="#f59e0b" 
+            fontSize={9} 
+            fontWeight="bold"
+            style={{ textShadow: '0px 2px 4px rgba(0,0,0,0.8)' }}
+        >
+            PEAK
+        </text>
+      </g>
+    );
+  }
+
+  // LOW (Red)
+  if (payload.isLow) {
+    return (
+      <g transform={`translate(${cx},${cy})`}>
+        <circle r={5} fill="#ef4444" stroke="white" strokeWidth={2} />
+        <text 
+            x={xOffset} 
+            y={isNearRightEdge || isNearLeftEdge ? 4 : 18}
+            textAnchor={textAnchor}
+            fill="#ef4444" 
+            fontSize={9} 
+            fontWeight="bold"
+            style={{ textShadow: '0px 2px 4px rgba(0,0,0,0.8)' }}
+        >
+            LOW
+        </text>
+      </g>
+    );
+  }
+
+  return null;
+};
+
 export default function RankingModal({ team, isOpen, onClose }: Props) {
   const [mounted, setMounted] = useState(false);
 
-  // 2. Handle Mounting & Scroll Locking
   useEffect(() => {
     setMounted(true);
-    
-    if (isOpen) {
-      // Prevent background scrolling when modal is open
-      document.body.style.overflow = 'hidden'; 
-    }
-    
-    return () => {
-      // Re-enable scrolling when closed/unmounted
-      document.body.style.overflow = 'unset';
-    };
+    if (isOpen) document.body.style.overflow = 'hidden'; 
+    return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  // Don't render anything on the server (SSR) or if closed
   if (!isOpen || !team || !mounted) return null;
 
-  const data = (team.history || []).map((h: any) => ({
-    elo: Math.round(h.elo),
-    date: new Date(h.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  const formatDate = (dateInput: string | number | Date) => {
+      const d = new Date(dateInput);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  };
+
+  // --- 2. DATA FILTERING & PROCESSING ---
+  const startTimestamp = new Date(SEASON_START_DATE).getTime();
+
+  let rawData = (team.history || [])
+    // A. FILTER: Remove any "seed data" before season start
+    .filter((h: any) => new Date(h.date).getTime() >= startTimestamp)
+    .map((h: any) => ({
+        elo: Math.round(h.elo),
+        rawDate: new Date(h.date).getTime(),
+        cleanDate: formatDate(h.date),
+        displayDate: formatDate(h.date),
+        isMajorEvent: false
+    }))
+    .sort((a: any, b: any) => a.rawDate - b.rawDate);
+
+  // Safety: If no data after filtering, just use whatever we have or return empty
+  if (rawData.length === 0 && team.history?.length > 0) {
+      // Fallback: Just take the last known point if everything was filtered out
+      rawData = [
+          {
+              elo: Math.round(team.history[team.history.length - 1].elo),
+              rawDate: new Date().getTime(),
+              cleanDate: "Season Start",
+              displayDate: "Season Start",
+              isMajorEvent: false
+          }
+      ];
+  }
+
+  // --- 3. FIX DUPLICATES ---
+  const dateCounts: Record<string, number> = {};
+  rawData = rawData.map((d: any) => {
+      const count = dateCounts[d.cleanDate] || 0;
+      dateCounts[d.cleanDate] = count + 1;
+      if (count > 0) {
+          return { ...d, displayDate: d.cleanDate + ' '.repeat(count) };
+      }
+      return d;
+  });
+
+  // --- 4. INJECT MAJORS ---
+  MAJOR_EVENTS.forEach(event => {
+      const eventTime = new Date(event.date).getTime();
+      const eventDisplayDate = formatDate(event.date);
+      const minTime = rawData[0]?.rawDate;
+      const maxTime = rawData[rawData.length - 1]?.rawDate;
+
+      if (eventTime >= minTime && eventTime <= maxTime) {
+          const existingIndex = rawData.findIndex((d: any) => d.cleanDate === eventDisplayDate);
+
+          if (existingIndex !== -1) {
+              rawData[existingIndex].isMajorEvent = true;
+              rawData[existingIndex].majorLabel = event.label;
+          } else {
+              const insertIndex = rawData.findIndex((d: any) => d.rawDate > eventTime);
+              if (insertIndex !== -1) {
+                  const prev = rawData[insertIndex - 1];
+                  const next = rawData[insertIndex];
+                  
+                  // Safe interpolation check
+                  if (prev && next) {
+                      const ratio = (eventTime - prev.rawDate) / (next.rawDate - prev.rawDate);
+                      const interpolatedElo = Math.round(prev.elo + (next.elo - prev.elo) * ratio);
+    
+                      const ghostPoint = {
+                          elo: interpolatedElo,
+                          rawDate: eventTime,
+                          cleanDate: eventDisplayDate,
+                          displayDate: eventDisplayDate,
+                          isMajorEvent: true,
+                          majorLabel: event.label
+                      };
+                      rawData.splice(insertIndex, 0, ghostPoint);
+                  }
+              }
+          }
+      }
+  });
+
+  // --- 5. IDENTIFY PEAK & LOW ---
+  const maxVal = Math.max(...rawData.map((d: any) => d.elo));
+  const minVal = Math.min(...rawData.map((d: any) => d.elo));
+
+  const chartData = rawData.map((d: any) => ({
+      ...d,
+      isPeak: d.elo === maxVal,
+      isLow: d.elo === minVal
   }));
 
-  const minElo = Math.min(...data.map((d: any) => d.elo)) - 20;
-  const maxElo = Math.max(...data.map((d: any) => d.elo)) + 20;
+  const minElo = minVal - 20;
+  const maxElo = maxVal + 20;
 
-  // 3. THE PORTAL: Moves this div to document.body
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 font-sans">
-      
-      {/* Backdrop (Now covers the WHOLE screen) */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onClick={onClose}></div>
 
-      {/* Modal Window */}
       <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
@@ -86,18 +248,27 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-8">
-           
-           {/* Chart */}
            <div className="mb-8">
              <div className="flex justify-between items-end mb-4">
-                <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Season Performance</h3>
-                <span className="text-xs text-neutral-600 bg-neutral-900 border border-neutral-800 px-2 py-1 rounded">Last 30 Days</span>
+                <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Performance History</h3>
+                <div className="flex gap-4">
+                    <span className="text-[10px] text-amber-500 font-bold uppercase flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span> Peak: {maxVal}
+                    </span>
+                    <span className="text-[10px] text-red-500 font-bold uppercase flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-red-500"></span> Low: {minVal}
+                    </span>
+                </div>
              </div>
-             <div className="w-full h-64 bg-neutral-950/30 rounded-xl border border-neutral-800/50 p-2 relative">
+             
+             <div className="w-full h-72 bg-neutral-950/30 rounded-xl border border-neutral-800/50 p-2 pt-4 relative">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data}>
+                  <AreaChart 
+                    data={chartData}
+                    // Margins to prevent text clip
+                    margin={{ top: 20, right: 30, left: 30, bottom: 20 }} 
+                  >
                     <defs>
                       <linearGradient id="colorElo" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
@@ -105,10 +276,54 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                    <XAxis dataKey="date" stroke="#525252" tick={{fontSize: 10}} tickMargin={10} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                    
+                    <XAxis 
+                        dataKey="displayDate" 
+                        stroke="#525252" 
+                        tick={{fontSize: 10}} 
+                        tickMargin={10} 
+                        axisLine={false} 
+                        tickLine={false} 
+                        interval="preserveStartEnd"
+                        minTickGap={30} 
+                    />
+                    
                     <YAxis domain={[minElo, maxElo]} hide={true} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#525252', strokeWidth: 1, strokeDasharray: '5 5' }} />
-                    <Area type="monotone" dataKey="elo" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorElo)" animationDuration={1500} />
+                    
+                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#f59e0b', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                    
+                    {chartData.filter((d: any) => d.isMajorEvent).map((d: any, i: number) => (
+                        <ReferenceLine 
+                            key={i} 
+                            x={d.displayDate} 
+                            stroke="#525252" 
+                            strokeOpacity={0.8}
+                            strokeDasharray="3 3"
+                        >
+                            <Label 
+                                value={d.majorLabel} 
+                                position="insideTopLeft" 
+                                angle={-90} 
+                                offset={15}
+                                fill="#737373"
+                                fontSize={10}
+                                fontWeight="bold"
+                                style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
+                            />
+                        </ReferenceLine>
+                    ))}
+
+                    <Area 
+                        type="monotone" 
+                        dataKey="elo" 
+                        stroke="#f59e0b" 
+                        strokeWidth={3} 
+                        fillOpacity={1} 
+                        fill="url(#colorElo)" 
+                        animationDuration={1500}
+                        dot={<CustomDot />} 
+                        activeDot={{ r: 6, fill: '#fff', stroke: '#f59e0b', strokeWidth: 2 }}
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
              </div>
@@ -134,8 +349,7 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
 
         </div>
 
-        {/* Footer */}
-        <div className="p-4 bg-neutral-950 border-t border-neutral-800 text-center">
+         <div className="p-4 bg-neutral-950 border-t border-neutral-800 text-center">
            {team.slug && (
              <a href={`/teams/${team.slug}/`} className="inline-flex items-center gap-2 text-amber-500 hover:text-amber-400 font-bold text-sm transition-colors">
                View Full Team Profile 
@@ -146,6 +360,6 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
 
       </div>
     </div>,
-    document.body // <-- Render directly into the body
+    document.body
   );
 }
