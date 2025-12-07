@@ -9,7 +9,7 @@ flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057531/kr_fzs2a
 signatureHeroes:
   - 'Reinhardt'
   - 'Winston'
-  - 'Wreking Ball'
+  - 'Wrecking Ball'
 socials:
   twitter: 'https://twitter.com/magmag1219'
   twitch: 'https://www.twitch.tv/magmag1215'

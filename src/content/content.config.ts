@@ -22,6 +22,7 @@ const playerSchema=z.object({
     z.object({
       date: z.string(), // e.g., "2024 - Present"
       team: z.string(),
+      teamLogo: z.string().optional(),
       note: z.array(z.string()).optional(), // e.g., "Won OWCS World Finals"
     })
   ).optional(),

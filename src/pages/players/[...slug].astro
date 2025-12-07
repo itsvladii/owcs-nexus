@@ -6,6 +6,7 @@ import { fetchRecentPov } from '../../lib/fetchPOV';
 import { fetchAllSeasonMatches } from '../../lib/fetchRecent3Matches';
 import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
+import PlayerTimeline from '../../components/PlayerTimeline.tsx'
 
 function getDistinguishedService(career) {
   if (!career) return [];
@@ -457,64 +458,13 @@ const getOptimizedImage = (url: string | undefined, type: 'ghost' | 'portrait') 
           <Content />
        </div>
 
-       {/* Timeline */}
-       {/* SERVICE RECORD (Replaces Timeline) */}
-       {p.career && p.career.length > 0 && (
-         <div class="mt-12">
-            <h3 class="font-title text-2xl text-white mb-6 border-b border-neutral-800 pb-2 flex items-center gap-2">
-               Career Highlights
-               <span class="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
-                  {new Set(p.career.map(c => c.team)).size} Tours
-               </span>
-            </h3>
-
-            <div class="grid grid-cols-1 gap-4">
-                {getDistinguishedService(p.career).map(service => {
-                    const tEntry = allTeams.find(t => t.data.name === service.name);
-                    const logo = tEntry?.data.logo?.replace('/upload/', '/upload/w_100,h_100,c_fit,f_auto/');
-                    const isCurrent = service.years.some(y => y.toLowerCase().includes('present'));
-
-                    return (
-                        <div class={`relative overflow-hidden rounded-xl border p-5 transition-all hover:bg-neutral-900/80 ${isCurrent ? 'bg-neutral-900/60 border-amber-500/30' : 'bg-neutral-900/30 border-neutral-800'}`}>
-                            {/* Background Watermark */}
-                            {logo && <img src={logo} class="absolute -right-4 -bottom-4 w-24 h-24 opacity-5 grayscale rotate-12 pointer-events-none" />}
-                            
-                            <div class="flex items-start gap-4 relative z-10">
-                                {/* Logo Box */}
-                                <div class={`w-12 h-12 rounded-lg flex items-center justify-center border shadow-inner ${isCurrent ? 'bg-amber-500/10 border-amber-500/20' : 'bg-neutral-950 border-neutral-800'}`}>
-                                    {logo ? <img src={logo} class="w-8 h-8 object-contain" /> : <span class="font-bold text-neutral-600">{service.name[0]}</span>}
-                                </div>
-
-                                {/* Content */}
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-start">
-                                        <h4 class={`text-lg font-bold font-title leading-none mb-1 ${isCurrent ? 'text-white' : 'text-neutral-300'}`}>
-                                            {service.name}
-                                        </h4>
-                                        {isCurrent && <span class="text-[9px] font-bold bg-amber-500 text-black px-1.5 py-0.5 rounded tracking-wider uppercase">Active</span>}
-                                    </div>
-                                    
-                                    {/* Accolades List */}
-                                    {service.accolades.length > 0 ? (
-                                        <ul class="mt-3 space-y-1.5">
-                                            {service.accolades.map(note => (
-                                                <li class="flex items-start gap-2 text-sm text-neutral-400">
-                                                    <span class="mt-1 w-1 h-1 rounded-full bg-amber-500 shrink-0"></span>
-                                                    <span>{note}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p class="mt-2 text-xs text-neutral-600 italic">No recorded honors.</p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-         </div>
-       )}
+       <div class="mt-12 mb-12">
+    <PlayerTimeline 
+        client:visible 
+        career={playerEntry.data.career} 
+        teams={allTeams} 
+    />
+</div>
     </div>
 
     {/* RIGHT COLUMN: POV & Match Log */}
