@@ -3,7 +3,7 @@ name: 'BILIDENG'
 fullName: 'Chen Cheng'
 role: 'Tank'
 team: 'cc'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754053877/overwatch/CC/cc_billideng_p2.png'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/c_fill/v1754053877/overwatch/CC/cc_billideng_p2.png'
 country: "China"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057417/cn_ubqprk.png"
 signatureHeroes:

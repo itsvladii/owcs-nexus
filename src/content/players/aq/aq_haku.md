@@ -3,7 +3,7 @@ name: 'Haku'
 fullName: 'Osama Abdullah'
 role: 'Tank'
 team: 'aq'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/overwatch/AQ/aq_haku_p2.png'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/c_fill/v1754055963/overwatch/AQ/aq_haku_p2.png'
 isFeatured: true
 country: "Saudi Arabia"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057518/sa_oc9ami.png"

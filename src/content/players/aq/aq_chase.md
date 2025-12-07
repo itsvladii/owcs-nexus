@@ -3,7 +3,7 @@ name: 'Chase'
 fullName: 'Olekandr Okseschenko'
 role: 'Tank'
 team: 'aq'
-headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/w_500,h_500,c_fill/v1754055963/player_placeholder.png'
+headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/c_fill/v1754055963/player_placeholder.png'
 isFeatured: true
 country: "Ukraine"
 flagUrl: "https://res.cloudinary.com/dm1bfprgq/image/upload/v1754057383/ua_ofxkwn.png"
