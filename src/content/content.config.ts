@@ -12,6 +12,13 @@ const playerSchema=z.object({
     country: z.string().optional(),
     flagUrl: z.string().url().optional(), // URL to a flag image (e.g., from Cloudinary)
     signatureHeroes:z.array(z.string()).optional(),
+    settings: z.object({
+      mouse: z.string().optional(),
+      dpi: z.number().optional(),
+      sens: z.number().optional(),
+      crosshair: z.string().optional(),
+      monitor: z.string().optional(),
+    }).optional(),
     //featuredPovId: z.string().optional(), //POV piu nuovo in caso in cui l'auto-fetch non dia risultati sperati
     socials:z.object({
         twitter: z.string().url().optional(),

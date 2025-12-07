@@ -10,6 +10,10 @@ signatureHeroes:
   - 'Sombra'
   - 'Sojourn'
   - 'Widowmaker'
+settings:
+  mouse: "Logitech G PRO X SUPERLIGHT"
+  dpi: 800
+  sens: 5.4
 socials:
   twitter: 'https://twitter.com/socutelip'
   twitch: 'https://www.twitch.tv/owl_lip'

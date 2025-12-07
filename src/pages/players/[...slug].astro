@@ -6,33 +6,10 @@ import { fetchRecentPov } from '../../lib/fetchPOV';
 import { fetchAllSeasonMatches } from '../../lib/fetchRecent3Matches';
 import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
-import PlayerTimeline from '../../components/PlayerTimeline.tsx'
+import PlayerTimeline from '../../components/PlayerTimeline.tsx';
+import CinematicVideo from '../../components/POVVideo.tsx'
+import PlayerGear from '../../components/PlayerGear.astro'
 
-function getDistinguishedService(career) {
-  if (!career) return [];
-  
-  const serviceMap = new Map();
-
-  career.forEach(entry => {
-    // If team exists, merge notes. If not, create entry.
-    if (!serviceMap.has(entry.team)) {
-      serviceMap.set(entry.team, { 
-        name: entry.team, 
-        years: [entry.date], 
-        accolades: entry.notes || [] 
-      });
-    } else {
-      const existing = serviceMap.get(entry.team);
-      existing.years.push(entry.date); // Collect dates
-      if (entry.notes) existing.accolades.push(...entry.notes);
-    }
-  });
-  return Array.from(serviceMap.values()).sort((a, b) => {
-     const aScore = a.accolades.length + (a.years.some(y => y.includes('Present')) ? 5 : 0);
-     const bScore = b.accolades.length + (b.years.some(y => y.includes('Present')) ? 5 : 0);
-     return bScore - aScore;
-  });
-}
 // --- 1. GET STATIC PATHS ---
 export async function getStaticPaths() {
   const allPlayers = await getCollection('players');
@@ -471,83 +448,18 @@ const getOptimizedImage = (url: string | undefined, type: 'ghost' | 'portrait') 
     <div class="space-y-8">
        {mostRecentPovUrl && (
           <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-             <div class="absolute top-0 right-0 p-4 opacity-10">
-                <IconTwitch class="w-24 h-24 text-white" />
-             </div>
              <h3 class="font-title text-xl text-white mb-4 flex items-center gap-2 relative z-10">
-                <span class="text-red-600 animate-pulse">●</span> LATEST POV
+                <span class="text-red-600 animate-pulse">●</span> LATEST POV (Courtesy of <a href="https://www.youtube.com/@ObsSojourn" class="text-white underline decoration-amber-500">@ObsSojourn!</a>)
              </h3>
              <div class="relative w-full bg-black rounded-lg overflow-hidden shadow-lg aspect-video z-10">
-               <iframe src={mostRecentPovUrl} title="POV" class="absolute top-0 left-0 w-full h-full" allowfullscreen></iframe>
+               <CinematicVideo client:load src=`${mostRecentPovUrl}`/>
              </div>
-             <p class="text-xs text-neutral-500 mt-3 text-center relative z-10">
-                POV Courtesy of <a href="https://www.youtube.com/@ObsSojourn" class="text-white underline decoration-amber-500">@ObsSojourn!</a>
-             </p>
           </div>
        )}
 
        {/* Match History */}
        <div>
-          <h3 class="font-title text-2xl text-white mb-6 flex items-center gap-3">
-             <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
-             RECENT MATCHES
-          </h3>
-          
-          <div class="space-y-2">
-             {stats.history.length > 0 ? stats.history.map(match => {
-                const teamName = teamEntry ? teamEntry.data.name.toLowerCase() : p.team.toLowerCase();
-                const isTeam1 = match.match2opponents[0].name.toLowerCase().includes(teamName);
-                const isWinner = match.winner === (isTeam1 ? '1' : '2');
-                
-                const opponent = match.match2opponents.find(op => !op.name.toLowerCase().includes(teamName))?.name || 'Unknown';
-                const s1 = match.match2opponents[0].score || 0;
-                const s2 = match.match2opponents[1].score || 0;
-                const scoreDisplay = isTeam1 ? `${s1} - ${s2}` : `${s2} - ${s1}`;
-
-                return (
-                  <div class="group flex items-center justify-between p-3 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-neutral-600 transition-all hover:bg-neutral-800/50">
-                     
-                     {/* LEFT: Match Info */}
-                     <div class="flex flex-col gap-0.5">
-                        <span class="text-[9px] text-neutral-500 font-bold uppercase tracking-wider">
-                            {match.tournament.replace('Overwatch Champions Series 2025', 'OWCS').split(' - ')[0]}
-                        </span>
-                        <div class="flex items-center gap-1.5">
-                           <span class="text-neutral-600 font-bold text-xs">VS</span>
-                           <span class="text-sm font-bold text-white group-hover:text-amber-500 transition-colors">
-                              {opponent}
-                           </span>
-                        </div>
-                     </div>
-
-                     {/* RIGHT: The Tactical Score Pill */}
-                     <div class="flex items-center gap-3">
-                        {/* Date (Hidden on small screens) */}
-                        <span class="text-[10px] text-neutral-600 font-mono hidden sm:block">
-                           {new Date(match.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
-                        </span>
-
-                        {/* The Badge */}
-                        <div class={`flex h-8 rounded border overflow-hidden ${isWinner ? 'border-green-500/30 bg-green-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
-                           {/* Score Number */}
-                           <div class="px-2.5 flex items-center justify-center font-mono font-bold text-white text-sm tracking-widest bg-black/20">
-                              {scoreDisplay}
-                           </div>
-                           
-                           {/* W/L Indicator */}
-                           <div class={`w-8 flex items-center justify-center text-xs font-black ${isWinner ? 'bg-green-500 text-black' : 'bg-red-500 text-white'}`}>
-                              {isWinner ? 'W' : 'L'}
-                           </div>
-                        </div>
-                     </div>
-
-                  </div>
-                );
-             }) : (
-                <div class="p-8 text-center text-neutral-600 border border-dashed border-neutral-800 rounded bg-neutral-900/50">
-                   <p class="text-sm">No recent combat data found.</p>
-                </div>
-             )}
+          <PlayerGear settings={playerEntry.data.settings} />
           </div>
        </div>
     </div>
