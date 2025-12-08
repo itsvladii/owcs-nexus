@@ -34,7 +34,9 @@ const categorizeNotes = (notes: string[] = []) => {
     const minor = [] as string[];
     const misc=[] as string[]
 
-    notes.forEach(note => {
+    const safeNotes = Array.isArray(notes) ? notes : [];
+
+    safeNotes.forEach(note => {
         const lower = note.toLowerCase();
         const cleanText = note.replace('🏆', '').replace(/^ Won /, '').trim();
         
@@ -61,6 +63,7 @@ const categorizeNotes = (notes: string[] = []) => {
 
     return { major, individual, minor,misc };
 };
+
 
 const getDuration = (startDateStr: string, endDateStr: string = new Date().toISOString()) => {
     // 1. Parse Dates
