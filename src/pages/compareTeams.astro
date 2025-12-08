@@ -1,8 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { fetchAllSeasonMatches } from "../lib/fetchMatches";
-import { calculateRankings } from "../lib/calcELO";
-import TeamComparison from "../components/TeamComparison"
+import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
+import { calculateRankings } from "../lib/elo/calcELO";
+import TeamComparison from "../components/comparisonComps/TeamComparison"
 
 // 1. Fetch Data
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;

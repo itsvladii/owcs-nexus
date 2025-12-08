@@ -2,13 +2,13 @@
 // src/pages/players/[...slug].astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { fetchRecentPov } from '../../lib/fetchPOV';
-import { fetchAllSeasonMatches } from '../../lib/fetchRecent3Matches';
+import { fetchRecentPov } from '../../lib/contentScripts/fetchPOV.ts';
+import { fetchAllSeasonMatches } from '../../lib/stats/fetchRecent3Matches.ts';
 import IconTwitter from '../../components/icons/IconTwitter.astro';
 import IconTwitch from '../../components/icons/IconTwitch.astro';
-import PlayerTimeline from '../../components/PlayerTimeline.tsx';
-import CinematicVideo from '../../components/POVVideo.tsx'
-import PlayerGear from '../../components/PlayerGear.astro'
+import PlayerTimeline from '../../components/playerComps/PlayerTimeline.tsx';
+import CinematicVideo from '../../components/playerComps/POVVideo.tsx'
+import PlayerGear from '../../components/playerComps/PlayerGear.astro';
 
 // --- 1. GET STATIC PATHS ---
 export async function getStaticPaths() {
@@ -114,10 +114,34 @@ const { Content } = await playerEntry.render();
 const allPlayers = await getCollection('players');
 const allTeams = await getCollection('teams');
 
-// --- 4. ASSET HELPERS ---
-const cloudinaryBaseUrl = p.headshot
-  ? p.headshot.split('/upload/')[0] + '/upload'
-  : 'https://res.cloudinary.com/dm1bfprgq/image/upload';
+// --- DEV MODE LOGIC (FOR MATCH CARD) ---
+const DEV_MODE = false; // <--- TOGGLE THIS TO TRUE TO SEE LIVE CARD
+
+let activeMatch = null;
+const realNextMatch = stats.upcoming.length > 0 ? stats.upcoming[0] : null;
+
+if (DEV_MODE) {
+    // MOCK DATA: Force a Live Game state
+    activeMatch = {
+        isLive: true,
+        opponent: "Team Falcons (DEV)",
+        date: new Date(), 
+        tournament: "OWCS Finals",
+        score: "2 - 1", 
+        map: "King's Row"
+    };
+} else if (realNextMatch) {
+    // REAL DATA
+    const enemyName = realNextMatch.match2opponents.find(op => !op.name.toLowerCase().includes(p.team.toLowerCase()))?.name || 'Opponent';
+    activeMatch = {
+        isLive: false,
+        opponent: enemyName,
+        date: new Date(realNextMatch.date),
+        tournament: "Next Match",
+        score: null,
+        map: null
+    };
+}
 
 function getHeroIcon(heroName) {
     const slug = heroName.toLowerCase().replace(' ', '-').replace('.', '').replace(':', '');
@@ -398,20 +422,58 @@ const getOptimizedImage = (url: string | undefined, type: 'ghost' | 'portrait') 
        </div>
 
        {/* STAT 4: Next Game */}
-       <div class="bg-neutral-950 border border-neutral-800 p-6 rounded-xl flex flex-col justify-center relative overflow-hidden">
-          {stats.upcoming.length > 0 ? (
+       <div class={`
+            p-6 rounded-xl flex flex-col justify-center relative overflow-hidden border transition-all duration-500 shadow-xl
+            ${activeMatch?.isLive 
+                ? 'bg-neutral-900 border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]' 
+                : 'bg-neutral-950 border-neutral-800'
+            }
+       `}>
+          {activeMatch ? (
              <>
-               <div class="absolute top-0 right-0 p-3">
-                  <span class="flex h-3 w-3 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                  </span>
+               {/* LIVE INDICATOR */}
+               {activeMatch.isLive && (
+                  <div class="absolute top-0 right-0 p-4 flex items-center gap-2">
+                     <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">Live</span>
+                     <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                     </span>
+                  </div>
+               )}
+
+               {/* HEADER */}
+               <p class={`text-xs font-bold uppercase tracking-widest mb-2 ${activeMatch.isLive ? 'text-red-500' : 'text-neutral-500'}`}>
+                  {activeMatch.tournament || "Next Game"}
+               </p>
+
+               {/* OPPONENT */}
+               <div class="mb-1">
+                 <div class="text-white font-bold text-lg leading-tight line-clamp-2">
+                   vs {activeMatch.opponent}
+                 </div>
+                 
+                 {/* SCOREBOARD (Only if Live/Dev Mode) */}
+                 {activeMatch.score && (
+                    <div class="text-2xl font-mono font-black text-white mt-2 flex items-center gap-2">
+                        <span class="text-green-400">{activeMatch.score.split('-')[0]}</span>
+                        <span class="text-neutral-600">-</span>
+                        <span class="text-red-400">{activeMatch.score.split('-')[1]}</span>
+                    </div>
+                 )}
                </div>
-               <p class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-2">Next Game</p>
-               <div class="text-white font-bold text-lg leading-tight line-clamp-2">
-                 vs {stats.upcoming[0].match2opponents.find(op => !op.name.toLowerCase().includes(p.team.toLowerCase()))?.name || 'Opponent'}
-               </div>
-               <p class="text-neutral-400 text-xs mt-1">{new Date(stats.upcoming[0].date).toLocaleDateString()}</p>
+
+               {/* FOOTER */}
+               <p class="text-neutral-400 text-xs mt-1 font-mono">
+                  {activeMatch.isLive ? `Playing on ${activeMatch.map}` : activeMatch.date.toLocaleDateString()}
+               </p>
+
+               {/* Dev Mode Warning */}
+               {DEV_MODE && (
+                  <div class="absolute bottom-2 right-4 text-[9px] text-yellow-500/30 uppercase font-mono">
+                     Dev Mode
+                  </div>
+               )}
              </>
           ) : (
              <div class="flex flex-col items-center justify-center text-neutral-600 h-full">

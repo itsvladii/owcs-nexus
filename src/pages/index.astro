@@ -4,8 +4,8 @@ export const prerender = false;
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
-import LiveMatchCard from '../components/LiveMatchCard.tsx';
-import FeatureSection from "../components/FeatureSection.astro";
+import LiveMatchCard from "../components/homeComps/LiveMatchCard";
+import FeatureSection from "../components/homeComps/FeatureSection.astro";
 
 const top5=[
   { name: "Team Falcons", rating: 1606, region: "Korea" },

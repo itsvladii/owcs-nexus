@@ -10,16 +10,16 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 * **Detailed player profiles**, with:
     * Career timelines and acomplishments.
     * Signature heroes.
-    * Most recent Player POV's so you can catch all the most recent best maps of your favourite players. (thanks to [ObsSojourn's Youtube channel](https://www.youtube.com/@ObsSojourn) for the Player POV's, make sure to subscribe to the GOAT!)
+    * Most recent Player POV's so you can catch all the most recent best maps of your favourite players. (huge thanks to [ObsSojourn's Youtube channel](https://www.youtube.com/@ObsSojourn) for the Player POV's, make sure to subscribe to the GOAT!)
 * **Detailed Team Rosters**, with:
-    * The most recent 3 matches, pulled from Liquipedia using the Liquipedia API
+    * The most recent 3 matches, pulled from Liquipedia using the Liquipedia API.
     * Advanced FACEIT Stats like historical map win rate, recent 5 map results and map win streaks (EMEA/NA only, no Asia :( )
 * **Interactive Player List:** A React "island" that lets users instantly search and filter all players by name, role, and team.
-* **Global Team Power Rankings:** An (un)official global leaderboard of the Top 25 teams across all OWCS regions based on their performances.
+* **Global Team Power Rankings:** An (un)official global leaderboard of the Top 30 teams across all official OWCS regions based on their performances.
 * **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
 
 ## 📔 TODO list
-* [ ] Coaching staff for all the teams
+* [x] Coaching staff for all the teams
 * [ ] Updated Player and Team Info
 * [x] Player and Team Comparison
 * [x] Team Power Rankings (a la LoL Esports)
@@ -28,7 +28,7 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 ## 🛠️ Tech Stack
 
 * **Framework:** [Astro](https://astro.build/)
-* **UI:** [React](https://react.dev/) (for interactive islands like the Quiz and Player Filter)
+* **UI:** [React](https://react.dev/) (for interactive components the Player/Team Filter)
 * **Styling:** [Tailwind CSS](https://tailwindcss.com/) (with the Vite plugin)
 * **Content:** [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
 * **Deployment:** [Vercel](https://vercel.com/)

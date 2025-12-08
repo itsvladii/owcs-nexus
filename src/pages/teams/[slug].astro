@@ -5,13 +5,11 @@ import { getCollection } from "astro:content";
 import IconTwitter from "../../components/icons/IconTwitter.astro";
 import IconTwitch from "../../components/icons/IconTwitch.astro";
 import IconWebsite from "../../components/icons/IconWebsite.astro";
-import LiveBadge from "../../components/LiveBadge";
-import Quiz from "../../components/Quiz.tsx";
-import { fetchFaceitStats } from "../../lib/fetchAdvStats";
-import { generateTeamQuiz } from "../../lib/quizGenerator";
+import LiveBadge from "../../components/teamComps/LiveBadge.tsx";
+import { fetchFaceitStats } from "../../lib/stats/fetchAdvStats.ts";
 
 // We use the "Fetch All" function to get the master list once during build
-import { fetchAllSeasonMatches } from "../../lib/fetchMatches";
+import { fetchAllSeasonMatches } from "../../lib/stats/fetchMatches.ts";
 
 // --- 2. GETSTATICPATHS (The Brains) ---
 export async function getStaticPaths() {
@@ -79,14 +77,8 @@ export async function getStaticPaths() {
         faceitKey,
       );
 
-      // 2. Quiz
-      const teamQuizQuestions = generateTeamQuiz(
-        teamEntry,
-        roster,
-        allPlayers,
-        allTeams,
-      );
 
+      
       // 3. Matches (Filter from global list)
       const teamName = (
         teamEntry.data.liquipediaName || teamEntry.data.name
@@ -138,7 +130,6 @@ export async function getStaticPaths() {
         props: {
           teamEntry,
           recentMatches,
-          teamQuizQuestions,
           roster,
           advancedStats,
         },
@@ -148,7 +139,7 @@ export async function getStaticPaths() {
 }
 
 // --- 3. GET DATA FROM PROPS ---
-const { teamEntry, recentMatches, teamQuizQuestions, roster, advancedStats } =
+const { teamEntry, recentMatches, roster, advancedStats } =
   Astro.props;
 const { Content } = await teamEntry.render();
 
@@ -659,19 +650,8 @@ const logoUrl = teamEntry.data.logo.replace(
           </div>
         </div>
 
-        {/* QUIZ */}
       </div>
     </div>
-    <br />
-    <div
-      class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl"
-    >
-      <h3
-        class="text-xl font-title text-white mb-4 border-b border-neutral-800 pb-2"
-      >
-        Trivia
-      </h3>
-      <Quiz questions={teamQuizQuestions} client:load />
-    </div>
+
   </div>
 </BaseLayout>

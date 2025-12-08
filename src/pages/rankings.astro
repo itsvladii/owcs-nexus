@@ -1,15 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import RankingsTable, { type RankingTeam } from "../components/RankTable";
-import GPRExpl from "../components/GPRExpl.astro";
-import { fetchAllSeasonMatches } from "../lib/fetchMatches";
-import { calculateRankings } from "../lib/calcELO";
+import RankingsTable, { type RankingTeam } from "../components/eloComps/RankTable";
+import GPRExpl from "../components/eloComps/GPRExpl.astro";
+import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
+import { calculateRankings } from "../lib/elo/calcELO";
 import { getCollection } from "astro:content";
 
 //#region
 // 1. Fetch Data & Run Algo
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
-const userAgent = "OWCS-Nexus (your-email@example.com)";
+const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
 const { rankings, stats } = calculateRankings(matches);
 Astro.response.headers.set(
