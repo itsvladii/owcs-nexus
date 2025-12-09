@@ -1,7 +1,7 @@
 ---
 name: 'Haku'
 fullName: 'Osama Abdullah'
-role: 'Tank'
+role: 'Main Support'
 team: 'aq'
 headshot: 'https://res.cloudinary.com/dm1bfprgq/image/upload/c_fill/v1754055963/overwatch/AQ/aq_haku_p2.png'
 isFeatured: true

@@ -4,7 +4,7 @@ import { getLatestTransfers} from '../lib/contentScripts/fetchTransfers.ts'
 import TransferTicket from '../components/transferComps/TransferTicket.astro';
 import FA_Row from '../components/transferComps/FA_Row.astro';
 
-const DEV_MODE = true; 
+const DEV_MODE = false; 
 
 let allTransfers = [];
 
@@ -52,9 +52,33 @@ if (DEV_MODE) {
     allTransfers = await getLatestTransfers();
 }
 
-// --- LOGIC 1: DISPLAY FEED ---
-const meaningfulTransfers = allTransfers.filter(t => t.isImportant);
-const displayTransfers = meaningfulTransfers.length > 0 ? meaningfulTransfers : allTransfers.slice(0, 15);
+const groupedTransfers = [];
+
+allTransfers.forEach((transfer) => {
+    const lastGroup = groupedTransfers[groupedTransfers.length - 1];
+
+    // Check if this transfer matches the previous one (Same Day, Same Teams)
+    const isSameBatch = lastGroup && 
+                        lastGroup.date === transfer.date &&
+                        lastGroup.from === transfer.from &&
+                        lastGroup.to === transfer.to;
+
+    if (isSameBatch) {
+        // Add player to the existing group
+        lastGroup.players.push({ 
+            name: transfer.player, 
+            role: transfer.role 
+        });
+    } else {
+        // Create a new group
+        groupedTransfers.push({
+            ...transfer,
+            players: [{ name: transfer.player, role: transfer.role }] // Array of players
+        });
+    }
+});
+const meaningfulTransfers = groupedTransfers.filter(t => t.isImportant);
+const displayTransfers = meaningfulTransfers.slice(0, 15);
 
 // --- LOGIC 2: MARKET CALCULATION ---
 // Find players whose *latest* status is "Free Agent"
@@ -73,7 +97,8 @@ for (const t of allTransfers) {
     }
 }
 // Take top 5 for the sidebar
-const marketWatch = freeAgents.slice(0, 5);
+const meaningfulFA=freeAgents.filter(t => t.isImportant)
+const marketWatch = meaningfulFA.slice(0, 5);
 ---
 
 <BaseLayout title="Transfer Hub">
@@ -119,6 +144,17 @@ const marketWatch = freeAgents.slice(0, 5);
 
             {/* RIGHT COLUMN: MARKET WATCH & INFO */}
             <div class="w-full lg:w-96 space-y-8">
+
+                <div class="bg-neutral-950 border border-neutral-800 p-6 rounded-xl">
+                    <h4 class="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Transfer Window</h4>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
+                        <span class="text-white font-bold text-lg">OPEN</span>
+                    </div>
+                    <p class="text-xs text-neutral-400 leading-relaxed">
+                        Teams are currently permitted to sign free agents and trade contracts until the roster lock for Stage 1.
+                    </p>
+                </div>
                 
                 {/* 1. MERCENARY MARKET (NEW WIDGET) */}
                 <div class="bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden">
