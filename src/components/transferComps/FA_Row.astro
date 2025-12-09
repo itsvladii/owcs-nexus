@@ -1,0 +1,50 @@
+---
+const { agent } = Astro.props;
+
+// Role Logic
+const role = agent.role.toLowerCase();
+const isTank = role.includes("tank");
+const isSupp = role.includes("support");
+const isDps = role.includes("dps");
+
+let theme = { border: "border-neutral-700", text: "text-neutral-500", bg: "bg-neutral-800" };
+
+if (isTank) theme = { border: "border-blue-500", text: "text-blue-500", bg: "bg-blue-500/10" };
+if (isDps) theme = { border: "border-red-500", text: "text-red-500", bg: "bg-red-500/10" };
+if (isSupp) theme = { border: "border-green-500", text: "text-green-500", bg: "bg-green-500/10" };
+
+// Clean Name (remove team tags if any)
+const playerName = agent.player;
+---
+
+<div class="flex items-center justify-between p-3 bg-neutral-900/50 border border-white/5 rounded-lg hover:bg-neutral-800 transition-colors group cursor-pointer">
+    
+    {/* PLAYER INFO */}
+    <div class="flex items-center gap-3">
+        {/* Role Indicator */}
+        <div class={`w-1 h-8 rounded-full ${theme.bg} ${theme.border} border-l-2`}></div>
+        
+        <div class="flex flex-col">
+            <span class="text-sm font-black text-white italic uppercase leading-none group-hover:text-amber-500 transition-colors">
+                {playerName}
+            </span>
+            <div class="flex items-center gap-2 mt-1">
+                <span class={`text-[9px] font-bold uppercase tracking-wider ${theme.text}`}>
+                    {agent.role}
+                </span>
+                <span class="text-[9px] text-neutral-600 font-mono">
+                    Ex-{agent.from}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {/* STATUS ICON */}
+    <div class="flex flex-col items-end">
+        <span class="flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+    </div>
+
+</div>

@@ -1,0 +1,92 @@
+---
+const { transfer } = Astro.props;
+
+// 1. Detect Transfer Type
+const isJoin = transfer.from === "Free Agent" || transfer.from === "";
+const isLeave = transfer.to === "Free Agent" || transfer.to === "";
+
+// 2. Theme Logic
+let theme = {
+    border: "border-neutral-800",
+    bg: "bg-neutral-900",
+    glow: "shadow-none",
+    icon: "text-neutral-500",
+    label: "TRANSFER"
+};
+
+if (isJoin) {
+    theme = { border: "border-green-500/30", bg: "bg-green-950/10", glow: "group-hover:shadow-[0_0_20px_rgba(34,197,94,0.1)]", icon: "text-green-500", label: "SIGNED" };
+} else if (isLeave) {
+    theme = { border: "border-red-500/30", bg: "bg-red-950/10", glow: "group-hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]", icon: "text-red-500", label: "RELEASED" };
+} else {
+    theme = { border: "border-amber-500/30", bg: "bg-amber-950/10", glow: "group-hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]", icon: "text-amber-500", label: "TRADED" };
+}
+
+// 3. Role Logic
+const rawRole = transfer.role || "Player";
+const isCoach = rawRole.toLowerCase().includes("coach") || rawRole.toLowerCase().includes("analyst") || rawRole.toLowerCase().includes("manager");
+const displayRole = isCoach ? rawRole.toUpperCase() : "PRO PLAYER";
+---
+
+<div class={`group relative w-full ${theme.bg} border ${theme.border} rounded-xl p-4 transition-all duration-300 hover:border-opacity-100 hover:bg-opacity-30 hover:-translate-y-0.5 ${theme.glow}`}>
+    
+    <div class="flex flex-col md:flex-row items-center gap-4 md:gap-0 justify-between">
+
+        {/* LEFT: DATE & PERSON */}
+        <div class="flex items-center gap-4 w-full md:w-1/3">
+            {/* Date Block */}
+            <div class="flex flex-col text-center w-12 shrink-0">
+                <span class="text-[10px] font-mono text-neutral-500">{new Date(transfer.date).toLocaleString('default', { month: 'short' })}</span>
+                <span class="text-lg font-black text-white leading-none">{new Date(transfer.date).getDate()}</span>
+            </div>
+            
+            <div class="w-px h-8 bg-white/10 mx-2"></div>
+
+            {/* Name & Role */}
+            <div class="flex flex-col">
+                <span class={`text-[9px] font-black uppercase tracking-widest mb-0.5 ${theme.icon}`}>
+                    {theme.label}
+                </span>
+                
+                <span class="text-lg font-black italic text-white uppercase leading-none truncate max-w-[180px]">
+                    {transfer.player}
+                </span>
+
+                <span class={`text-[9px] font-bold uppercase tracking-wider mt-0.5 ${isCoach ? 'text-amber-500' : 'text-cyan-500'}`}>
+                    {isCoach ? displayRole : (transfer.role || "PRO PLAYER")}
+                </span>
+            </div>
+        </div>
+
+        {/* RIGHT: THE MOVE (Text Only) */}
+        <div class="flex items-center justify-center gap-4 w-full md:w-2/3 bg-black/20 md:bg-transparent p-3 md:p-0 rounded-lg">
+            
+            {/* FROM TEAM */}
+            <div class="flex flex-col justify-center min-w-[120px] items-end text-right">
+                <span class={`text-xs font-black uppercase tracking-wide truncate max-w-[150px] ${(transfer.from === "Free Agent" || !transfer.from) ? 'text-neutral-600' : 'text-white'}`}>
+                    {transfer.from || "Free Agent"}
+                </span>
+                {transfer.from && transfer.from !== "Free Agent" && (
+                    <span class="text-[9px] font-bold text-neutral-500 uppercase">Team</span>
+                )}
+            </div>
+
+            {/* ARROW */}
+            <div class={`text-neutral-600 ${theme.icon} opacity-80 shrink-0`}>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            </div>
+
+            {/* TO TEAM */}
+            <div class="flex flex-col justify-center min-w-[120px] items-start text-left">
+                <span class={`text-xs font-black uppercase tracking-wide truncate max-w-[150px] ${(transfer.to === "Free Agent" || !transfer.to) ? 'text-neutral-600' : 'text-white'}`}>
+                    {transfer.to || "Free Agent"}
+                </span>
+                {transfer.to && transfer.to !== "Free Agent" && (
+                    <span class="text-[9px] font-bold text-neutral-500 uppercase">Team</span>
+                )}
+            </div>
+
+        </div>
+
+    </div>
+</div>
