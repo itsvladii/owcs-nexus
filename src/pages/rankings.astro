@@ -59,8 +59,7 @@ function getTeamProps(team: {
 }
 //#endregion
 
-const top3 = rankings.slice(0, 3);
-const restOfThePack = rankings.slice(0, 30);
+const restOfThePack = rankings.slice(0, 100);
 
 const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
     const { localTeam, isPartner, hasPage, color, logo } = getTeamProps(team);

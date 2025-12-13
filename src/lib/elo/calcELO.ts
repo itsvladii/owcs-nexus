@@ -11,6 +11,7 @@ export interface RatedTeam {
   history: { date: string, elo: number }[];
   rankDelta?: number;
   tournaments: string[];
+  form: string[];
   lastResetDate?: string;
   isPartner?:boolean
 }
@@ -51,6 +52,7 @@ const TEAM_ALIASES: Record<string, string> = {
   "Team CC (Chinese orgless team)": "Team CC",
   "Cheeseburger (Korean team)": "Cheeseburger",
   "Quick Esports": "Vanir Quick",
+  "VortexWolf":"REJECT"
 };
 
 // 2. REGIONAL SEEDING
@@ -99,15 +101,30 @@ function isMajorTournament(name: string): boolean {
          n.includes('ewc'); 
 }
 
-// 3-PHASE K-FACTOR LOGIC
 function getThreePhaseKFactor(gamesPlayed: number, isMajor: boolean): number {
-  // 1. THE MAJOR (International Correction) - Highest Priority
+  // 1. THE MAJOR (Always takes priority)
   if (isMajor) return K_MAJOR;
 
-  // 2. CALIBRATION (Placement Matches) - Fast climbing for new/low-match teams
-  if (gamesPlayed < 10) return K_CALIBRATION;
+  // 2. CALIBRATION SLIDE (Games 0-20)
+  // We want to slide from K=50 down to K=20 over the first 20 games.
+  const CALIBRATION_GAMES = 10;
+  
+  if (gamesPlayed < CALIBRATION_GAMES) {
+    // Calculate how far along the slide we are (0.0 to 1.0)
+    const progress = gamesPlayed / CALIBRATION_GAMES;
+    
+    // Linearly interpolate between 50 and 20
+    // Formula: Start - (Difference * Progress)
+    const currentK = K_CALIBRATION - ((K_CALIBRATION - K_STABILITY) * progress);
+    
+    return currentK; 
+    // Example: 
+    // Game 0  -> 50
+    // Game 10 -> 35
+    // Game 20 -> 20
+  }
 
-  // 3. STABILITY (Regular Season) - Standard
+  // 3. STABILITY (Standard)
   return K_STABILITY;
 }
 
@@ -182,6 +199,7 @@ export function calculateRankings(matches: any[]) {
         losses: 0,
         history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }], // Start point
         tournaments: [],
+        form:[],
         isPartner: PARTNER_TEAMS_2025.has(name)
       };
     }
@@ -294,23 +312,6 @@ export function calculateRankings(matches: any[]) {
     const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
     kA *= movMultiplier;
     kB *= movMultiplier;
-    
-    // Define base K for the existing LAN protection check
-    // We use the Major K if it's a major, otherwise we check games played for a generic 'k'
-    let k = isMajor ? K_MAJOR : (gamesA < 10 ? K_CALIBRATION : K_STABILITY);
-    // -----------------------------------
-
-    // --- LAN PROTECTION (Preserved) ---
-    const isBigTournament = k >= 40; 
-
-    if (isBigTournament) {
-        // If Team A lost, halve their K-factor (Half penalty)
-        if (scoreA === 0) kA = kA * 0.5;
-        
-        // If Team B lost, halve their K-factor
-        if (scoreB === 0) kB = kB * 0.5;
-    }
-    // -------------------------------------
 
     // Calculate Points Change (Using individual K values)
     const changeA = kA * (scoreA - expectedA);
@@ -322,8 +323,20 @@ export function calculateRankings(matches: any[]) {
     teamA.history.push({ date: match.date, elo: teamA.rating });
     teamB.history.push({ date: match.date, elo: teamB.rating });
 
-    if (scoreA) { teamA.wins++; teamB.losses++; }
-    else { teamB.wins++; teamA.losses++; }
+
+    if (scoreA) { 
+        // Team A Won
+        teamA.wins++; 
+        teamB.losses++; 
+        teamA.form.push('W'); // Add Win to A
+        teamB.form.push('L'); // Add Loss to B
+    } else { 
+        // Team B Won
+        teamB.wins++; 
+        teamA.losses++; 
+        teamB.form.push('W'); // Add Win to B
+        teamA.form.push('L'); // Add Loss to A
+    }
 
     const probability = scoreA ? expectedA : expectedB;
     if (probability < 0.35) {
@@ -449,8 +462,13 @@ export function calculateRankings(matches: any[]) {
        const lastPlayedEntry = t.history[t.history.length - 1];
        if (!lastPlayedEntry) return false;
        if (new Date(lastPlayedEntry.date) < cutoffDate) return false;
-
        return true;
+  });
+
+  filteredRankings.forEach(t => {
+      if (t.form.length > 5) {
+          t.form = t.form.slice(-5); 
+      }
   });
 
   return {
