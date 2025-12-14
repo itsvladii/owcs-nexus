@@ -16,7 +16,7 @@ export interface RankingTeam {
   history: { date: string; elo: number }[];
   tournaments: string[];
   rankDelta?: number;
-  form?: string[]; // e.g. ['W', 'L', 'W', 'W', 'L']
+  form?: string[]; 
 }
 
 interface Props {
@@ -32,7 +32,6 @@ export default function RankingsTable({ teams }: Props) {
   // --- FILTER LOGIC ---
   const filteredTeams = useMemo(() => {
     return teams.filter(team => {
-      // 1. Region Filter
       if (regionFilter !== 'All Regions' && team.region !== regionFilter) {
         return false;
       }
@@ -47,7 +46,6 @@ export default function RankingsTable({ teams }: Props) {
         {/* --- FILTER BAR --- */}
         <div className="p-4 border-b border-neutral-800 bg-neutral-950/50 flex flex-wrap gap-4 items-center justify-between">
            <div className="flex items-center gap-4">
-             {/* Region Select */}
              <div className="relative">
                 <select 
                   value={regionFilter}
@@ -61,36 +59,23 @@ export default function RankingsTable({ teams }: Props) {
                 </div>
              </div>
            </div>
-
            <span className="text-xs text-neutral-500 font-mono">
               Showing {filteredTeams.length} Teams
            </span>
         </div>
 
         {/* --- TABLE HEADER --- */}
-        {/* Adjusted Cols: Rank(1) Team(5) Rating(2) Record(2) Form(2) */}
         <div className="grid grid-cols-12 gap-4 p-4 border-b border-neutral-800 bg-neutral-950/80 text-neutral-500 font-bold text-xs sm:text-sm uppercase tracking-wider">
-          
-          {/* Rank: 2 cols mobile, 1 col desktop */}
           <div className="col-span-2 sm:col-span-1 text-center">Rank</div>
-          
-          {/* Team: 7 cols mobile, 5 cols desktop (Shrunk from 6) */}
           <div className="col-span-7 sm:col-span-5">Team</div>
-          
-          {/* Rating: 3 cols mobile, 2 cols desktop */}
           <div className="col-span-3 sm:col-span-2 text-center">Rating</div>
-          
-          {/* Record: Hidden mobile, 2 cols desktop (Shrunk from 3) */}
           <div className="col-span-2 hidden sm:block text-center">Record</div>
-          
-          {/* Form: Hidden mobile, 2 cols desktop (NEW) */}
           <div className="col-span-2 hidden sm:block text-center">Form</div>
         </div>
 
         {/* --- ROWS --- */}
         {filteredTeams.length > 0 ? filteredTeams.map((team) => {
           
-          // 1. Top 3 Styling
           let rankColor = "text-neutral-500";
           let rowBg = "";
           let rankIcon = null;
@@ -99,7 +84,6 @@ export default function RankingsTable({ teams }: Props) {
           else if (team.rank === 2) { rankColor = "text-gray-300"; rowBg = "bg-neutral-800/20"; }
           else if (team.rank === 3) { rankColor = "text-orange-700"; rowBg = "bg-orange-950/10"; }
 
-          // 2. Trend Logic
           let TrendIcon = null;
           let trendClass = "text-neutral-600";
           if (team.rankDelta && team.rankDelta > 0) {
@@ -123,7 +107,7 @@ export default function RankingsTable({ teams }: Props) {
               style={{ borderLeft: team.isPartner ? `4px solid ${team.color}` : `4px solid transparent` }}
             >
               
-              {/* 1. RANK (1 col) */}
+              {/* Rank */}
               <div className="col-span-2 sm:col-span-1 text-center flex flex-col items-center justify-center">
                 {rankIcon && <span className="text-xs mb-1 animate-pulse">{rankIcon}</span>}
                 <span className={`font-title text-3xl ${rankColor} group-hover:scale-110 transition-transform leading-none`}>
@@ -132,7 +116,7 @@ export default function RankingsTable({ teams }: Props) {
                 {TrendIcon && <div className={`text-[10px] font-bold mt-1 ${trendClass}`}>{TrendIcon}</div>}
               </div>
 
-              {/* 2. TEAM (5 cols) */}
+              {/* Team */}
               <div className="col-span-7 sm:col-span-5 flex items-center gap-4">
                 <div className="w-10 h-10 items-center justify-center p-1 shadow-inner flex-shrink-0">
                   {team.logo ? (
@@ -151,31 +135,33 @@ export default function RankingsTable({ teams }: Props) {
                 </div>
               </div>
 
-              {/* 3. RATING (2 cols) */}
+              {/* Rating */}
               <div className="col-span-3 sm:col-span-2 text-center font-mono font-bold text-neutral-300 group-hover:text-amber-400 transition-colors">
                 {Math.round(team.rating)}
               </div>
 
-              {/* 4. RECORD (2 cols) */}
+              {/* Record */}
               <div className="col-span-2 hidden sm:block text-center text-neutral-500 text-sm font-mono">
                 {team.wins}W - {team.losses}L
               </div>
 
-              {/* 5. FORM (2 cols) - NEW */}
-              <div className="col-span-2 hidden sm:flex items-center justify-center gap-1">
+              {/* FORM GUIDE (SQUARES) */}
+              <div className="col-span-2 hidden sm:flex items-center justify-center gap-1.5">
                 {team.form && team.form.length > 0 ? (
                   team.form.slice(-5).map((result, idx) => ( 
                     <div 
                         key={idx}
-                        title={result === 'W' ? 'Win' : 'Loss'} 
                         className={`
-                          w-2 h-2 rounded-full 
+                          w-6 h-6 rounded-md flex items-center justify-center
+                          text-[10px] font-mono font-bold border transition-transform group-hover:scale-110
                           ${result === 'W' 
-                            ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' 
-                            : 'bg-red-500/40'
+                            ? 'bg-green-500/10 border-green-500/30 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]' 
+                            : 'bg-red-500/10 border-red-500/30 text-red-500'
                           }
                         `}
-                    ></div>
+                    >
+                      {result}
+                    </div>
                   ))
                 ) : (
                   <span className="text-neutral-700 text-xs">-</span>
@@ -192,7 +178,6 @@ export default function RankingsTable({ teams }: Props) {
 
       </div>
 
-      {/* Modal */}
       {selectedTeam && (
         <RankingModal 
           team={selectedTeam} 

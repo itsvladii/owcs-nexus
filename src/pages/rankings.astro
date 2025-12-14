@@ -59,7 +59,7 @@ function getTeamProps(team: {
 }
 //#endregion
 
-const restOfThePack = rankings.slice(0, 100);
+const restOfThePack = rankings.slice(0, 30);
 
 const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
     const { localTeam, isPartner, hasPage, color, logo } = getTeamProps(team);
@@ -78,6 +78,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
         history: team.history, // Passing the ELO history for the graph!
         rankDelta: team.rankDelta,
         tournaments: team.tournaments,
+        form: team.form
     };
 });
 ---
