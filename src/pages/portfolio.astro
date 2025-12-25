@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PortfolioDashboard from "../components/portfolioComps/PorfolioDashboard";
+import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
+import { calculateRankings } from "../lib/elo/calcELO";
+import { supabase } from "../lib/contentScripts/supabase";
+import '.././styles/global.css'
+
+// 1. CONFIGURATION
+const API_KEY = import.meta.env.LIQUIPEDIA_API_KEY; 
+const USER_AGENT = "OWCS_Ranking_Site/1.0 (barcanvladi@gmail.com)";
+const IS_DEV = false; // true when running 'npm run dev'
+
+let rankings = [];
+
+// 2. DATA FETCHING STRATEGY
+if (IS_DEV) {
+  console.log("🔧 DEV MODE ACTIVE: Using Mock Prices (No API Calls)");
+  // Mock Data mimicking the output of calculateRankings
+  rankings = [
+    { name: "Team Falcons", rating: 1650 },
+    { name: "Crazy Raccoon", rating: 1620 },
+    { name: "Team Liquid", rating: 1480 },
+    { name: "Spacestation Gaming", rating: 1450 },
+    { name: "Toronto Defiant", rating: 1410 },
+    { name: "Twisted Minds", rating: 1380 },
+    { name: "ZETA DIVISION", rating: 1350 },
+    { name: "Fnatic", rating: 1320 },
+    { name: "NRG Shock", rating: 1300 },
+    { name: "Gaimin Gladiators", rating: 1280 },
+  ];
+} else {
+  // PRODUCTION: Real API Fetch
+  try {
+    const matches = await fetchAllSeasonMatches(API_KEY, USER_AGENT);
+    const result = calculateRankings(matches);
+    rankings = result.rankings;
+  } catch (e) {
+    console.error("Failed to fetch rankings:", e);
+    rankings = []; // Fallback empty array prevents crash
+  }
+}
+
+// 3. Create Price Map
+const currentPrices = {};
+rankings.forEach(team => {
+  currentPrices[team.name] = team.rating;
+});
+
+const allTeams = rankings.map(t => {
+  // Math: Divide by 10, then force to 2 decimals
+  // e.g. 1545.2391 -> 154.52
+  const price = parseFloat((t.rating / 10).toFixed(2));
+
+  return {
+    name: t.name,
+    rating: price, 
+    logo: t.logoDark,
+    region: t.region,
+    history: t.history || []
+  };
+});
+
+(async () => {
+    const upsertData = allTeams.map(t => ({ name: t.name, rating: t.rating }));
+    await supabase.from('teams').upsert(upsertData);
+})();
+---
+
+<BaseLayout title="Portfolio OWCS">
+  <div class="pt-24 pb-12 px-4 md:px-8">
+    
+    <div class="max-w-7xl mx-auto mb-8">
+      <h1 class="text-7xl font-black text-white uppercase tracking-tighter font-title">
+        Market <span class="text-emerald-500">Overview</span>
+      </h1>
+      <p class="text-neutral-400 mt-2">
+        Buy and sell team stocks based on live ELO ratings.
+      </p>
+    </div>
+
+    {/* client:only="react" is CRITICAL here. 
+      It prevents the "Hydration Mismatch" errors we saw earlier 
+      by rendering the dashboard entirely in the browser.
+    */}
+    <PortfolioDashboard 
+      client:only="react" 
+      currentPrices={currentPrices} 
+      allTeams={allTeams} 
+    />
+    
+  </div>
+</BaseLayout>

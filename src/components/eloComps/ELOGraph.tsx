@@ -1,16 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-  Label
-} from 'recharts';
+import Chart from 'react-apexcharts';
+import type { ApexOptions } from 'apexcharts';
 
 interface Props {
   team: any;
@@ -19,106 +10,12 @@ interface Props {
 }
 
 // 1. CONFIGURATION
-const SEASON_START_DATE = '2025-01-24'; // <--- IGNORE DATA BEFORE THIS
+const SEASON_START_DATE = '2025-01-24'; 
 const MAJOR_EVENTS = [
   { label: 'Dallas Major', date: '2024-06-02' },
   { label: 'EWC', date: '2024-07-28' },
   { label: 'Stockholm', date: '2024-11-24' },
 ];
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    return (
-      <div className="bg-neutral-900 border border-neutral-700 p-3 rounded-lg shadow-xl z-50">
-        <p className="text-neutral-400 text-xs mb-1">{data.cleanDate}</p>
-        
-        {data.isMajorEvent && (
-            <div className="text-amber-500 font-bold text-xs uppercase mb-1 flex items-center gap-1">
-                <span>📍</span> {data.majorLabel}
-            </div>
-        )}
-        {data.isPeak && !data.isMajorEvent && (
-            <div className="text-amber-500 font-bold text-xs uppercase mb-1">
-                All-Time Peak
-            </div>
-        )}
-        {data.isLow && !data.isMajorEvent && (
-            <div className="text-red-500 font-bold text-xs uppercase mb-1">
-                All-Time Low
-            </div>
-        )}
-
-        <p className="text-white font-mono font-bold text-lg">
-          {payload[0].value} <span className="text-xs text-neutral-500">ELO</span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// --- SMART DOT ---
-const CustomDot = (props: any) => {
-  const { cx, cy, payload, index, points } = props;
-  
-  // Edge detection to prevent text clipping
-  const isNearRightEdge = index > (points?.length || 0) - 4; 
-  const isNearLeftEdge = index < 4;
-
-  let textAnchor = "middle";
-  let xOffset = 0;
-
-  if (isNearRightEdge) {
-      textAnchor = "end"; 
-      xOffset = -8;
-  } else if (isNearLeftEdge) {
-      textAnchor = "start"; 
-      xOffset = 8;
-  }
-
-  // PEAK (Gold)
-  if (payload.isPeak) {
-    return (
-      <g transform={`translate(${cx},${cy})`}>
-        <circle r={5} fill="#f59e0b" stroke="white" strokeWidth={2} />
-        <text 
-            x={xOffset} 
-            y={isNearRightEdge || isNearLeftEdge ? 4 : -10}
-            textAnchor={textAnchor}
-            fill="#f59e0b" 
-            fontSize={9} 
-            fontWeight="bold"
-            style={{ textShadow: '0px 2px 4px rgba(0,0,0,0.8)' }}
-        >
-            PEAK
-        </text>
-      </g>
-    );
-  }
-
-  // LOW (Red)
-  if (payload.isLow) {
-    return (
-      <g transform={`translate(${cx},${cy})`}>
-        <circle r={5} fill="#ef4444" stroke="white" strokeWidth={2} />
-        <text 
-            x={xOffset} 
-            y={isNearRightEdge || isNearLeftEdge ? 4 : 18}
-            textAnchor={textAnchor}
-            fill="#ef4444" 
-            fontSize={9} 
-            fontWeight="bold"
-            style={{ textShadow: '0px 2px 4px rgba(0,0,0,0.8)' }}
-        >
-            LOW
-        </text>
-      </g>
-    );
-  }
-
-  return null;
-};
 
 export default function RankingModal({ team, isOpen, onClose }: Props) {
   const [mounted, setMounted] = useState(false);
@@ -129,117 +26,183 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  if (!isOpen || !team || !mounted) return null;
+  const chartConfig = useMemo(() => {
+    if (!team || !team.history) return null;
 
-  const formatDate = (dateInput: string | number | Date) => {
-      const d = new Date(dateInput);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
-  };
-
-  // --- 2. DATA FILTERING & PROCESSING ---
-  const startTimestamp = new Date(SEASON_START_DATE).getTime();
-
-  let rawData = (team.history || [])
-    // A. FILTER: Remove any "seed data" before season start
-    .filter((h: any) => new Date(h.date).getTime() >= startTimestamp)
-    .map((h: any) => ({
-        elo: Math.round(h.elo),
-        rawDate: new Date(h.date).getTime(),
-        cleanDate: formatDate(h.date),
-        displayDate: formatDate(h.date),
-        isMajorEvent: false
-    }))
-    .sort((a: any, b: any) => a.rawDate - b.rawDate);
-
-  // Safety: If no data after filtering, just use whatever we have or return empty
-  if (rawData.length === 0 && team.history?.length > 0) {
-      // Fallback: Just take the last known point if everything was filtered out
-      rawData = [
-          {
-              elo: Math.round(team.history[team.history.length - 1].elo),
-              rawDate: new Date().getTime(),
-              cleanDate: "Season Start",
-              displayDate: "Season Start",
-              isMajorEvent: false
-          }
-      ];
-  }
-
-  // --- 3. FIX DUPLICATES ---
-  const dateCounts: Record<string, number> = {};
-  rawData = rawData.map((d: any) => {
-      const count = dateCounts[d.cleanDate] || 0;
-      dateCounts[d.cleanDate] = count + 1;
-      if (count > 0) {
-          return { ...d, displayDate: d.cleanDate + ' '.repeat(count) };
-      }
-      return d;
-  });
-
-  // --- 4. INJECT MAJORS ---
-  MAJOR_EVENTS.forEach(event => {
-      const eventTime = new Date(event.date).getTime();
-      const eventDisplayDate = formatDate(event.date);
-      const minTime = rawData[0]?.rawDate;
-      const maxTime = rawData[rawData.length - 1]?.rawDate;
-
-      if (eventTime >= minTime && eventTime <= maxTime) {
-          const existingIndex = rawData.findIndex((d: any) => d.cleanDate === eventDisplayDate);
-
-          if (existingIndex !== -1) {
-              rawData[existingIndex].isMajorEvent = true;
-              rawData[existingIndex].majorLabel = event.label;
-          } else {
-              const insertIndex = rawData.findIndex((d: any) => d.rawDate > eventTime);
-              if (insertIndex !== -1) {
-                  const prev = rawData[insertIndex - 1];
-                  const next = rawData[insertIndex];
-                  
-                  // Safe interpolation check
-                  if (prev && next) {
-                      const ratio = (eventTime - prev.rawDate) / (next.rawDate - prev.rawDate);
-                      const interpolatedElo = Math.round(prev.elo + (next.elo - prev.elo) * ratio);
+    // --- A. PROCESS DATA ---
+    const startTimestamp = new Date(SEASON_START_DATE).getTime();
     
-                      const ghostPoint = {
-                          elo: interpolatedElo,
-                          rawDate: eventTime,
-                          cleanDate: eventDisplayDate,
-                          displayDate: eventDisplayDate,
-                          isMajorEvent: true,
-                          majorLabel: event.label
-                      };
-                      rawData.splice(insertIndex, 0, ghostPoint);
-                  }
-              }
-          }
-      }
-  });
+    // Filter & Sort
+    let rawData = team.history
+        .filter((h: any) => new Date(h.date).getTime() >= startTimestamp)
+        .map((h: any) => ({
+            x: new Date(h.date).getTime(),
+            y: Math.round(h.elo),
+            dateStr: new Date(h.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        }))
+        .sort((a: any, b: any) => a.x - b.x);
 
-  // --- 5. IDENTIFY PEAK & LOW ---
-  const maxVal = Math.max(...rawData.map((d: any) => d.elo));
-  const minVal = Math.min(...rawData.map((d: any) => d.elo));
+    // Fallback if empty
+    if (rawData.length === 0 && team.history.length > 0) {
+        const last = team.history[team.history.length - 1];
+        rawData = [{
+            x: new Date().getTime(),
+            y: Math.round(last.elo),
+            dateStr: "Season Start"
+        }];
+    }
 
-  const chartData = rawData.map((d: any) => ({
-      ...d,
-      isPeak: d.elo === maxVal,
-      isLow: d.elo === minVal
-  }));
+    // --- B. CALCULATE STATS ---
+    const values = rawData.map((d: any) => d.y);
+    const maxVal = Math.max(...values);
+    const minVal = Math.min(...values);
 
-  const minElo = minVal - 20;
-  const maxElo = maxVal + 20;
+    // --- C. GENERATE ANNOTATIONS (Majors + Peak/Low) ---
+    const annotations: any = {
+        xaxis: [],
+        points: []
+    };
+
+    // 1. Major Events (Vertical Lines)
+    MAJOR_EVENTS.forEach(event => {
+        const eventTime = new Date(event.date).getTime();
+        if (eventTime >= rawData[0].x && eventTime <= rawData[rawData.length - 1].x) {
+            annotations.xaxis.push({
+                x: eventTime,
+                borderColor: '#525252',
+                strokeDashArray: 4,
+                label: {
+                    text: event.label,
+                    orientation: 'horizontal',
+                    style: {
+                        color: '#a3a3a3',
+                        background: '#171717',
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        padding: { left: 4, right: 4, top: 2, bottom: 2 }
+                    },
+                    offsetY: -10 // Push label up slightly
+                }
+            });
+        }
+    });
+
+    // 2. Peak & Low (Point Markers)
+    rawData.forEach((point: any) => {
+        if (point.y === maxVal) {
+            annotations.points.push({
+                x: point.x,
+                y: point.y,
+                marker: { size: 4, fillColor: '#f59e0b', strokeColor: '#fff', strokeWidth: 2 },
+                label: {
+                    text: 'PEAK',
+                    style: { color: '#fff', background: '#f59e0b', fontSize: '10px', fontWeight: 'bold' },
+                    offsetY: -6
+                }
+            });
+        } else if (point.y === minVal) {
+            annotations.points.push({
+                x: point.x,
+                y: point.y,
+                marker: { size: 4, fillColor: '#ef4444', strokeColor: '#fff', strokeWidth: 2 },
+                label: {
+                    text: 'LOW',
+                    style: { color: '#fff', background: '#ef4444', fontSize: '10px', fontWeight: 'bold' },
+                    offsetY: 6
+                }
+            });
+        }
+    });
+
+    // --- D. APEX OPTIONS ---
+    const options: ApexOptions = {
+        chart: {
+            type: 'area',
+            background: 'transparent',
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: 'inherit'
+        },
+        theme: { mode: 'dark' },
+        stroke: {
+            curve: 'smooth',
+            width: 3,
+            colors: ['#f59e0b'] // Amber-500
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.4,
+                opacityTo: 0.05,
+                stops: [0, 100],
+                colorStops: [
+                    { offset: 0, color: '#f59e0b', opacity: 0.4 },
+                    { offset: 100, color: '#f59e0b', opacity: 0 }
+                ]
+            }
+        },
+        dataLabels: { enabled: false },
+        grid: {
+            borderColor: '#262626',
+            strokeDashArray: 3,
+            xaxis: { lines: { show: false } },
+            yaxis: { lines: { show: true } },
+            padding: { top: 0, right: 10, bottom: 0, left: 10 }
+        },
+        xaxis: {
+            type: 'datetime',
+            tooltip: { enabled: false },
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            labels: {
+                style: { colors: '#737373', fontSize: '10px' },
+                format: 'dd MMM'
+            },
+            crosshairs: { show: false } // Cleaner look
+        },
+        yaxis: {
+            show: false, // Hide Y-axis numbers to match your previous design
+            min: minVal - 20,
+            max: maxVal + 20
+        },
+        annotations: annotations,
+        tooltip: {
+            theme: 'dark',
+            x: { format: 'dd MMM yyyy' },
+            y: {
+                formatter: (val) => `${val} ELO`,
+                title: { formatter: () => '' } // Hide series name
+            },
+            marker: { show: false },
+            fixed: {
+                enabled: false,
+                position: 'topRight'
+            }
+        }
+    };
+
+    const series = [{ name: 'ELO', data: rawData }];
+
+    return { options, series, maxVal, minVal };
+  }, [team]);
+
+  if (!isOpen || !team || !mounted || !chartConfig) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 font-sans">
+      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onClick={onClose}></div>
 
+      {/* Modal Card */}
       <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
           <div className="flex items-center gap-4">
-             {team.logo && <img src={team.logo} className="w-12 h-12 object-contain" />}
+             {team.logo && <img src={team.logo} className="w-12 h-12 object-contain" alt={team.name} />}
              <div>
-               <h2 className="text-3xl font-title text-white leading-none">{team.name}</h2>
+               <h2 className="text-3xl font-title text-white leading-none tracking-wide">{team.name}</h2>
                <p className="text-sm text-neutral-500 font-bold uppercase tracking-wider">{team.region}</p>
              </div>
           </div>
@@ -248,89 +211,35 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
           </button>
         </div>
 
+        {/* Content */}
         <div className="p-8">
-           <div className="mb-8">
-             <div className="flex justify-between items-end mb-4">
+           
+           {/* Chart Header Stats */}
+           <div className="flex justify-between items-end mb-6">
                 <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Performance History</h3>
                 <div className="flex gap-4">
                     <span className="text-[10px] text-amber-500 font-bold uppercase flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-amber-500"></span> Peak: {maxVal}
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span> Peak: {chartConfig.maxVal}
                     </span>
                     <span className="text-[10px] text-red-500 font-bold uppercase flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-red-500"></span> Low: {minVal}
+                        <span className="w-2 h-2 rounded-full bg-red-500"></span> Low: {chartConfig.minVal}
                     </span>
                 </div>
-             </div>
+           </div>
              
-             <div className="w-full h-72 bg-neutral-950/30 rounded-xl border border-neutral-800/50 p-2 pt-4 relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart 
-                    data={chartData}
-                    // Margins to prevent text clip
-                    margin={{ top: 20, right: 30, left: 30, bottom: 20 }} 
-                  >
-                    <defs>
-                      <linearGradient id="colorElo" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                    
-                    <XAxis 
-                        dataKey="displayDate" 
-                        stroke="#525252" 
-                        tick={{fontSize: 10}} 
-                        tickMargin={10} 
-                        axisLine={false} 
-                        tickLine={false} 
-                        interval="preserveStartEnd"
-                        minTickGap={30} 
-                    />
-                    
-                    <YAxis domain={[minElo, maxElo]} hide={true} />
-                    
-                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#f59e0b', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                    
-                    {chartData.filter((d: any) => d.isMajorEvent).map((d: any, i: number) => (
-                        <ReferenceLine 
-                            key={i} 
-                            x={d.displayDate} 
-                            stroke="#525252" 
-                            strokeOpacity={0.8}
-                            strokeDasharray="3 3"
-                        >
-                            <Label 
-                                value={d.majorLabel} 
-                                position="insideTopLeft" 
-                                angle={-90} 
-                                offset={15}
-                                fill="#737373"
-                                fontSize={10}
-                                fontWeight="bold"
-                                style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
-                            />
-                        </ReferenceLine>
-                    ))}
-
-                    <Area 
-                        type="monotone" 
-                        dataKey="elo" 
-                        stroke="#f59e0b" 
-                        strokeWidth={3} 
-                        fillOpacity={1} 
-                        fill="url(#colorElo)" 
-                        animationDuration={1500}
-                        dot={<CustomDot />} 
-                        activeDot={{ r: 6, fill: '#fff', stroke: '#f59e0b', strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-             </div>
+           {/* The Chart Container */}
+           <div className="w-full h-80 bg-neutral-950/30 rounded-xl border border-neutral-800/50 p-2 relative">
+                <Chart 
+                    options={chartConfig.options} 
+                    series={chartConfig.series} 
+                    type="area" 
+                    height="100%" 
+                    width="100%"
+                />
            </div>
 
-           {/* Stats Grid */}
-           <div className="grid grid-cols-3 gap-4">
+           {/* Bottom Stats Grid */}
+           <div className="grid grid-cols-3 gap-4 mt-8">
              <div className="bg-neutral-800/20 p-4 rounded-xl text-center border border-neutral-800">
                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-1">Current ELO</p>
                <p className="text-3xl font-mono font-bold text-white">{Math.round(team.rating)}</p>
@@ -349,7 +258,8 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
 
         </div>
 
-         <div className="p-4 bg-neutral-950 border-t border-neutral-800 text-center">
+        {/* Footer Link */}
+        <div className="p-4 bg-neutral-950 border-t border-neutral-800 text-center">
            {team.slug && (
              <a href={`/teams/${team.slug}/`} className="inline-flex items-center gap-2 text-amber-500 hover:text-amber-400 font-bold text-sm transition-colors">
                View Full Team Profile 
