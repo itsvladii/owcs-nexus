@@ -3,7 +3,8 @@
 import '../styles/global.css'; // <-- THIS IS THE CRITICAL LINE
 import { ClientRouter } from "astro:transitions";
 import GlobalSearch from '../components/homeComps/GlobalSearch';
-import SpeedInsights from "@vercel/speed-insights/astro"
+import SpeedInsights from "@vercel/speed-insights/astro";
+import LoginButton from '../components/homeComps/LoginComponent';
 export interface Props {
   title: string;
 }
@@ -30,7 +31,6 @@ const { title } = Astro.props;
     
     {/* Left: Empty div or Links (to balance the center logo if needed) */}
     <div class="w-32 hidden md:block">
-       {/* You could put nav links here later */}
     </div>
 
     {/* Center: Logo */}
@@ -39,9 +39,9 @@ const { title } = Astro.props;
     </a>
 
     {/* Right: Search Bar */}
-    <div class="w-auto md:w-32 flex justify-end">
-      <GlobalSearch client:load />
-    </div>
+    <div class="flex items-center justify-end w-auto min-w-[140px]">
+  <LoginButton client:load />
+</div>
 
   </div>
     </header>

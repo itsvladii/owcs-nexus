@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/react": "^4.4.2",
     "@astrojs/vercel": "^9.0.2",
+    "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.1.17",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -23,7 +24,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-zoom-pan-pinch": "^3.7.0",
-    "recharts": "^3.5.0",
+    "recharts": "^3.6.0",
     "tailwindcss": "^4.1.17",
     "topojson-client": "^3.1.0"
   },
