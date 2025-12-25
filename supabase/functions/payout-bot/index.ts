@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   );
 
-  const PANDA_TOKEN = Deno.env.get('gIhugkHg-CIornUgsayPPfdNi_THOozykEkfj6enEoBw7xiLhGk');
+  const PANDA_TOKEN = Deno.env.get('PANDA_API_KEY');
   if (!PANDA_TOKEN) return new Response("Missing PANDA_API_KEY", { status: 500 });
 
   try {
