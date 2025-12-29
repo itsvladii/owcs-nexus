@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdminRoute from '../components/adminComps/AdminRoute';
+import DividendPanel from '../components/adminComps/DividendPanel.tsx'
+---
+
+<BaseLayout title="Nexus Command">
+  <div class="min-h-screen bg-black text-white p-4 md:p-8">
+    
+    <AdminRoute client:only="react">
+      <div class="max-w-4xl mx-auto">
+        <header class="mb-10 text-center">
+          <h1 class="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500">
+            Nexus Command
+          </h1>
+          <p class="text-neutral-400">Manage the economy and reward the faithful.</p>
+        </header>
+
+        <div class="flex justify-center">
+          <DividendPanel client:only="react" />
+        </div>
+      </div>
+    </AdminRoute>
+
+  </div>
+</BaseLayout>

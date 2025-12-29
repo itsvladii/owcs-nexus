@@ -1,93 +1,96 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import PortfolioDashboard from "../components/portfolioComps/PorfolioDashboard";
-import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
-import { calculateRankings } from "../lib/elo/calcELO";
-import { supabase } from "../lib/contentScripts/supabase";
-import '.././styles/global.css'
-
-// 1. CONFIGURATION
-const API_KEY = import.meta.env.LIQUIPEDIA_API_KEY; 
-const USER_AGENT = "OWCS_Ranking_Site/1.0 (barcanvladi@gmail.com)";
-const IS_DEV = false; // true when running 'npm run dev'
-
-let rankings = [];
-
-// 2. DATA FETCHING STRATEGY
-if (IS_DEV) {
-  console.log("🔧 DEV MODE ACTIVE: Using Mock Prices (No API Calls)");
-  // Mock Data mimicking the output of calculateRankings
-  rankings = [
-    { name: "Team Falcons", rating: 1650 },
-    { name: "Crazy Raccoon", rating: 1620 },
-    { name: "Team Liquid", rating: 1480 },
-    { name: "Spacestation Gaming", rating: 1450 },
-    { name: "Toronto Defiant", rating: 1410 },
-    { name: "Twisted Minds", rating: 1380 },
-    { name: "ZETA DIVISION", rating: 1350 },
-    { name: "Fnatic", rating: 1320 },
-    { name: "NRG Shock", rating: 1300 },
-    { name: "Gaimin Gladiators", rating: 1280 },
-  ];
-} else {
-  // PRODUCTION: Real API Fetch
-  try {
-    const matches = await fetchAllSeasonMatches(API_KEY, USER_AGENT);
-    const result = calculateRankings(matches);
-    rankings = result.rankings;
-  } catch (e) {
-    console.error("Failed to fetch rankings:", e);
-    rankings = []; // Fallback empty array prevents crash
-  }
-}
-
-// 3. Create Price Map
-const currentPrices = {};
-rankings.forEach(team => {
-  currentPrices[team.name] = team.rating;
-});
-
-const allTeams = rankings.map(t => {
-  // Math: Divide by 10, then force to 2 decimals
-  // e.g. 1545.2391 -> 154.52
-  const price = parseFloat((t.rating / 10).toFixed(2));
-
-  return {
-    name: t.name,
-    rating: price, 
-    logo: t.logoDark,
-    region: t.region,
-    history: t.history || []
-  };
-});
-
-(async () => {
-    const upsertData = allTeams.map(t => ({ name: t.name, rating: t.rating }));
-    await supabase.from('teams').upsert(upsertData);
-})();
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DashboardTabs from '../components/portfolioComps/DashboardTabs';
+import '../styles/global.css'
 ---
 
+
 <BaseLayout title="Portfolio OWCS">
-  <div class="pt-24 pb-12 px-4 md:px-8">
+  
+  {/* --- 1. NEW: AMBIENT BACKGROUND GLOW --- */}
+  {/* This sits behind everything (-z-10) and creates a deep emerald fade */}
+  <div class="fixed inset-0 pointer-events-none -z-10">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full mix-blend-screen" />
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-950/80 to-neutral-950" />
+  </div>
+
+  <div class="pt-24 pb-12 px-4 md:px-8 min-h-screen relative">
     
-    <div class="max-w-7xl mx-auto mb-8">
-      <h1 class="text-7xl font-black text-white uppercase tracking-tighter font-title">
-        Market <span class="text-emerald-500">Overview</span>
+    <div class="max-w-7xl mx-auto mb-12 text-center">
+      <h1 class="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter font-title mb-4 drop-shadow-2xl">
+        Nexus <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Markets</span>
       </h1>
-      <p class="text-neutral-400 mt-2">
+      <p class="text-neutral-400 text-lg max-w-2xl mx-auto">
         Buy and sell team stocks based on live ELO ratings.
       </p>
     </div>
 
-    {/* client:only="react" is CRITICAL here. 
-      It prevents the "Hydration Mismatch" errors we saw earlier 
-      by rendering the dashboard entirely in the browser.
-    */}
-    <PortfolioDashboard 
-      client:only="react" 
-      currentPrices={currentPrices} 
-      allTeams={allTeams} 
-    />
-    
+   <DashboardTabs client:load />
+   <div class="max-w-7xl mx-auto mt-32 mb-16">
+      
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold text-white uppercase tracking-widest mb-2">Market Mechanics</h2>
+        <div class="w-20 h-1 bg-emerald-500 mx-auto rounded-full"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {/* CARD 1: PRICING */}
+        <div class="bg-neutral-900/40 backdrop-blur-md border border-white/5 p-8 rounded-2xl relative group hover:bg-neutral-900/60 transition-colors">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-2xl mb-6 text-emerald-400">
+            📈
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Live ELO Pricing</h3>
+          <p class="text-neutral-400 leading-relaxed text-sm">
+            Stock prices are mathematically tied to team performance. When a team wins a match, their ELO goes up, and so does your portfolio value.
+          </p>
+        </div>
+
+        {/* CARD 2: TRADING */}
+        <div class="bg-neutral-900/40 backdrop-blur-md border border-white/5 p-8 rounded-2xl relative group hover:bg-neutral-900/60 transition-colors">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-2xl mb-6 text-blue-400">
+            🤝
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Fractional Trading</h3>
+          <p class="text-neutral-400 leading-relaxed text-sm">
+            Invest exactly what you can afford. Buy $5.00 worth of Falcons or 0.5 shares of CR. Our liquid market allows for instant execution.
+          </p>
+        </div>
+
+        {/* CARD 3: DIVIDENDS */}
+        <div class="bg-neutral-900/40 backdrop-blur-md border border-white/5 p-8 rounded-2xl relative group hover:bg-neutral-900/60 transition-colors">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-2xl mb-6 text-purple-400">
+            💸
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Tournament Dividends</h3>
+          <p class="text-neutral-400 leading-relaxed text-sm">
+            Hold stocks during major tournaments to earn cash dividends. When teams win prize money, shareholders get a cut of the action.
+          </p>
+        </div>
+
+      </div>
+
+      {/* --- FOOTER DISCLAIMER --- */}
+      <div class="mt-24 border-t border-white/5 pt-12 text-center">
+        <p class="text-neutral-500 text-xs uppercase tracking-widest font-bold mb-2">
+          ⚠️ Market Disclaimer
+        </p>
+        <p class="text-neutral-600 text-sm max-w-lg mx-auto leading-relaxed">
+          Nexus Markets is a fantasy simulation. 
+          <span class="text-neutral-400 font-bold"> No real money is involved.</span> 
+          Do not attempt to pay your rent with ZETA Division stocks. 
+          If your portfolio crashes, <span class="text-neutral-400 font-bold">please do not harass anyone for your poor "financial" decisions.</span> Calm down.
+        </p>
+      </div>
+
+    </div>
   </div>
 </BaseLayout>
+
+
+
+
+

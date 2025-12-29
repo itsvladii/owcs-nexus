@@ -3,14 +3,14 @@ interface Props {
   title: string;
   subtitle: string;
   description: string;
-  // Add 'worldcup' and 'purple' to the allowed list
-  theme: 'amber' | 'blue' | 'emerald' | 'cyan' | 'purple' | 'worldcup'; 
+  // Added 'market' to the allowed list
+  theme: 'amber' | 'blue' | 'emerald' | 'cyan' | 'purple' | 'red' | 'market'; 
   align?: 'left' | 'right'; 
   primaryLink?: { text: string; href: string };
   secondaryLink?: { text: string; href: string };
 }
 
-// 1. DESTRUCTURE PROPS (This defines 'theme')
+// 1. DESTRUCTURE PROPS
 const { 
   title, 
   subtitle, 
@@ -23,6 +23,15 @@ const {
 
 // 2. DEFINE THEME MAP
 const themeMap = {
+  // NEW: Matches your Portfolio Page (Emerald/Cyan)
+  market: {
+    accent: 'text-emerald-400',
+    glow: 'bg-emerald-500/10',
+    button: 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20',
+    border: 'border-emerald-500/30',
+    subtle: 'text-emerald-100/60',
+    line: 'bg-gradient-to-r from-emerald-500 to-cyan-500' // Gradient line!
+  },
   red: {
     accent: 'text-red-500',
     glow: 'bg-red-500/5',
@@ -55,22 +64,33 @@ const themeMap = {
     subtle: 'text-emerald-100/60',
     line: 'bg-emerald-400'
   },
-  deadline: {
-    accent: 'text-yellow-500',
-    glow: 'bg-yellow-500/10',
-    button: 'bg-yellow-500 hover:bg-yellow-400 text-black font-black shadow-[0_0_20px_rgba(234,179,8,0.3)]', 
-    border: 'border-yellow-500/50',
-    subtle: 'text-yellow-200/50', 
-    line: 'bg-yellow-500'
-},
+  cyan: {
+    accent: 'text-cyan-400',
+    glow: 'bg-cyan-500/5',
+    button: 'bg-white hover:bg-cyan-50 text-cyan-950 shadow-cyan-500/20',
+    border: 'border-cyan-900/30',
+    subtle: 'text-cyan-100/60',
+    line: 'bg-cyan-400'
+  },
+  amber: {
+    accent: 'text-amber-500',
+    glow: 'bg-amber-500/10',
+    button: 'bg-amber-500 hover:bg-amber-400 text-black font-black shadow-[0_0_20px_rgba(245,158,11,0.3)]', 
+    border: 'border-amber-500/50',
+    subtle: 'text-amber-200/50', 
+    line: 'bg-amber-500'
+  },
 };
 
-// 3. GET COLORS (Now 'theme' is definitely defined)
-const colors = themeMap[theme] || themeMap['blue']; // Fallback
+// 3. GET COLORS (Safe access with fallback)
+// We cast theme as any to avoid TS index errors if you pass a string not in the specific map key types, 
+// though the interface above protects us mostly.
+const colors = (themeMap as any)[theme] || themeMap['blue'];
+
 const isRight = align === 'right';
 ---
 
-<section class="py-24 relative overflow-hidden border-b border-neutral-900 bg-neutral-950">
+<section class="py-32 relative overflow-hidden border-b border-neutral-900 bg-neutral-950">
   
   {/* Ambient Glow */}
   <div 
@@ -88,13 +108,15 @@ const isRight = align === 'right';
       
       {/* TEXT COLUMN */}
       <div class={`${isRight ? 'lg:col-start-2' : ''}`}>
-        <h2 class={`${colors.accent} font-bold tracking-widest uppercase mb-4 text-sm flex items-center gap-2`}>
-            <span class={`w-8 h-px ${colors.line}`}></span> {subtitle}
+        <h2 class={`${colors.accent} font-bold tracking-widest uppercase mb-6 text-sm flex items-center gap-3`}>
+            <span class={`w-12 h-1 rounded-full ${colors.line}`}></span> {subtitle}
         </h2>
-        <h3 class="text-5xl md:text-6xl font-title text-white mb-6 leading-none drop-shadow-lg">
-           {title}
+        
+        <h3 class="text-5xl md:text-7xl font-black text-white mb-8 leading-[0.9] drop-shadow-lg font-title uppercase tracking-tighter">
+           <Fragment set:html={title} />
         </h3>
-        <p class="text-neutral-400 text-lg mb-10 leading-relaxed max-w-xl">
+        
+        <p class="text-neutral-400 text-lg md:text-xl mb-10 leading-relaxed max-w-xl">
           {description}
         </p>
         
@@ -102,24 +124,25 @@ const isRight = align === 'right';
             {primaryLink && (
               <a 
                 href={primaryLink.href} 
-                class={`inline-flex items-center gap-3 px-8 py-4 font-black font-title text-xl rounded transition-transform hover:translate-x-1 shadow-lg ${colors.button}`}
+                class={`inline-flex items-center gap-3 px-8 py-4 font-black font-title text-xl uppercase tracking-wider rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg ${colors.button}`}
               >
-                {primaryLink.text} <span>→</span>
+                {primaryLink.text} 
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
               </a>
             )}
             {secondaryLink && (
                <a 
                  href={secondaryLink.href} 
-                 class={`inline-flex items-center gap-2 px-8 py-4 border-2 bg-transparent font-bold font-title text-xl rounded transition-colors ${colors.border} hover:border-white text-white`}
+                 class={`inline-flex items-center gap-2 px-8 py-4 border bg-transparent font-bold font-title text-xl uppercase tracking-wider rounded-xl transition-colors ${colors.border} hover:bg-white/5 text-white`}
                >
                   {secondaryLink.text}
                </a>
             )}
-        </div>
+         </div>
       </div>
 
       {/* VISUAL COLUMN (Slot for Image/Widget) */}
-      <div class={`${isRight ? 'lg:col-start-1' : ''}`}>
+      <div class={`relative ${isRight ? 'lg:col-start-1' : ''}`}>
          <slot />
       </div>
 

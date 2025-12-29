@@ -16,6 +16,21 @@ export interface RatedTeam {
   isPartner?:boolean
 }
 
+export interface ProcessedMatch {
+  id: string; // Ensure your input matches have an ID!
+  date: string;
+  tournament: string;
+  team_a: string;
+  team_b: string;
+  score_a: number;
+  score_b: number;
+  winner_id: string; // "1" or "2" or Team Name
+  elo_change_a: number;
+  elo_change_b: number;
+  team_a_elo_after: number;
+  team_b_elo_after: number;
+}
+
 // --- CONFIGURATION ---
 
 const MIN_GAMES_PLAYED = 10;
@@ -181,6 +196,7 @@ export function calculateRankings(matches: any[]) {
 
   const teams: Record<string, RatedTeam> = {};
   const upsets: any[] = [];
+  const processedMatches: ProcessedMatch[] = [];
   
   // Track ratings from ~30 days ago for "Movers" calculation
   const thirtyDaysAgo = new Date();
@@ -338,6 +354,21 @@ export function calculateRankings(matches: any[]) {
         teamA.form.push('L'); // Add Loss to A
     }
 
+    processedMatches.push({
+      id: match.id || `${matchDateStr}-${nameA}-${nameB}`, // Fallback ID if none exists
+      date: match.date,
+      tournament: tournament,
+      team_a: teamA.name,
+      team_b: teamB.name,
+      score_a: scoreA_val,
+      score_b: scoreB_val,
+      winner_id: winnerId, // "1" or "2"
+      elo_change_a: changeA,
+      elo_change_b: changeB,
+      team_a_elo_after: teamA.rating,
+      team_b_elo_after: teamB.rating
+    });
+
     const probability = scoreA ? expectedA : expectedB;
     if (probability < 0.35) {
       const winnerTeam = scoreA ? teamA : teamB;
@@ -473,6 +504,8 @@ export function calculateRankings(matches: any[]) {
 
   return {
     rankings: filteredRankings,
+    processedMatches: processedMatches,
+    allTeams: Object.values(teams),
     stats: {
       biggestMover,
       biggestLoser,
