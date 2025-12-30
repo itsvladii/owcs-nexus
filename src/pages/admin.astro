@@ -3,6 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import AdminRoute from '../components/adminComps/AdminRoute';
 import DividendPanel from '../components/adminComps/DividendPanel.tsx'
 import RaceControl from '../components/adminComps/RaceControl';
+import EconomyStats from '../components/adminComps/EconomyStats';
+import UserInspector from '../components/adminComps/UserInspector';
+import MarketOverride from '../components/adminComps/MarketOverride';
 ---
 
 <BaseLayout title="Nexus Command">
@@ -38,57 +41,32 @@ import RaceControl from '../components/adminComps/RaceControl';
       </p>
     </div>
 
-    {/* DASHBOARD GRID */}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-      
-      {/* CARD 1: DIVIDEND DISPATCHER (Financial Panel) */}
-      <div class="group relative">
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-        <div class="relative h-full bg-neutral-900/80 backdrop-blur-xl border border-white/10 p-1 rounded-2xl">
-          <div class="bg-black/40 rounded-xl p-6 h-full border border-white/5">
-            {/* Header */}
-            <div class="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
-              <div class="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center text-xl">💸</div>
-              <div>
-                <h2 class="text-white font-bold uppercase tracking-wide text-sm">Payout Systems</h2>
-                <div class="text-[10px] text-emerald-400 font-mono">Status: Ready</div>
-              </div>
-            </div>
+    <EconomyStats client:visible />
+
+        {/* 2. MAIN GRID */}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* Component Slot */}
-            <DividendPanel client:load />
-          </div>
-        </div>
-      </div>
-
-      {/* CARD 2: RACE CONTROL (Danger Panel) */}
-      <div class="group relative">
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-rose-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-        <div class="relative h-full bg-neutral-900/80 backdrop-blur-xl border border-red-500/20 p-1 rounded-2xl">
-          <div class="bg-black/40 rounded-xl p-6 h-full border border-white/5 relative overflow-hidden">
-             {/* Hazard Stripes Background */}
-             <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <div class="w-32 h-32 border-4 border-red-500 rounded-full flex items-center justify-center border-dashed">
-                    <span class="text-4xl">⚠️</span>
-                </div>
-             </div>
-
-            {/* Header */}
-            <div class="flex items-center gap-3 mb-6 border-b border-red-500/20 pb-4">
-              <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-xl">🏁</div>
-              <div>
-                <h2 class="text-red-500 font-bold uppercase tracking-wide text-sm">Race Control</h2>
-                <div class="text-[10px] text-red-400 font-mono">Auth: Required</div>
-              </div>
+            {/* COL 1: User Management (Panopticon) */}
+            <div class="lg:col-span-1">
+                <UserInspector client:visible />
             </div>
 
-            {/* Component Slot */}
-            <RaceControl client:load />
-          </div>
-        </div>
-      </div>
+            {/* COL 2: Market Tools */}
+            <div class="lg:col-span-1 space-y-8">
+                 <MarketOverride client:visible />
+                 
+            </div>
 
-    </div>
+            {/* COL 3: Danger Zone */}
+            <div class="lg:col-span-1">
+                 <RaceControl client:visible />
+            </div>
+
+            <div class="lg:col-span-1">
+            <DividendPanel client:visible />
+            </div>
+
+        </div>
 
     {/* FOOTER LOGS */}
     <div class="mt-12 border-t border-white/5 pt-6 font-mono text-xs text-neutral-600 text-center uppercase">

@@ -59,7 +59,6 @@ function getTeamLogo(name: string) {
 }
 
 const PLAYER_SECTION_IMG = "https://live.staticflickr.com/65535/54692530696_89bc1454e3_k.jpg";
-const TEAM_SECTION_IMG = "https://live.staticflickr.com/65535/54694984050_06f246087e_k.jpg";
 
 const allNews = await getCollection('news');
 
@@ -167,7 +166,7 @@ const latestArticles = allNews
     subtitle="The Talent"
     description="Explore the complete database of every professional player. Filter by role, team, or region to find the next superstar."
     theme="purple"
-    align="right" /* Flip layout for visual interest */
+    align="right" 
     primaryLink={{ text: "Browse Players", href: "/players" }}
     secondaryLink={{ text: "Compare Stats", href: "/compare" }}
   >
@@ -191,15 +190,16 @@ const latestArticles = allNews
   secondaryLink={{ text: "My Portfolio", href: "/portfolio" }}
   disclaimer="*Nexus Markets is a fantasy simulation. No real money is involved whatsoever."
 >
->
+
   {/* The Visual Slot: A Static Preview of the Market Card */}
+  
   <div class="relative group">
      <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
      <div class="relative bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden">
         {/* Fake Header */}
         <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center font-bold text-white">TM</div>
+              <img src={getTeamLogo("Twisted Minds")} class="w-8 h-8 object-contain" />
               <div>
                  <div class="font-bold text-white">Twisted Minds</div>
                  <div class="text-xs text-neutral-500">EMEA</div>
@@ -224,6 +224,7 @@ const latestArticles = allNews
         </div>
      </div>
   </div>
+  
 </FeatureSection>
 </BaseLayout>
 
