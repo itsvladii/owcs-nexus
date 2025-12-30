@@ -1,50 +1,46 @@
 ---
 const { agent } = Astro.props;
 
-// Role Logic
+// Role Logic & Colors
 const role = agent.role.toLowerCase();
-const isTank = role.includes("tank");
-const isSupp = role.includes("support");
-const isDps = role.includes("dps");
+let roleColor = "text-neutral-500 bg-neutral-500/10 border-neutral-500/20";
+let roleIcon = "♟";
 
-let theme = { border: "border-neutral-700", text: "text-neutral-500", bg: "bg-neutral-800" };
+if (role.includes("tank")) { roleColor = "text-blue-400 bg-blue-500/10 border-blue-500/20"; roleIcon = "🛡"; }
+if (role.includes("dps")) { roleColor = "text-red-400 bg-red-500/10 border-red-500/20"; roleIcon = "⚔"; }
+if (role.includes("support")) { roleColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"; roleIcon = "✚"; }
+if (role.includes("coach")) { roleColor = "text-amber-400 bg-amber-500/10 border-amber-500/20"; roleIcon = "🧠"; }
 
-if (isTank) theme = { border: "border-blue-500", text: "text-blue-500", bg: "bg-blue-500/10" };
-if (isDps) theme = { border: "border-red-500", text: "text-red-500", bg: "bg-red-500/10" };
-if (isSupp) theme = { border: "border-green-500", text: "text-green-500", bg: "bg-green-500/10" };
-
-// Clean Name (remove team tags if any)
 const playerName = agent.player;
 ---
 
-<div class="flex items-center justify-between p-3 bg-neutral-900/50 border border-white/5 rounded-lg hover:bg-neutral-800 transition-colors group cursor-pointer">
+<div class="group flex items-center justify-between p-3 bg-neutral-900 border border-white/5 hover:border-white/20 hover:bg-white/[0.02] transition-all cursor-pointer">
     
-    {/* PLAYER INFO */}
     <div class="flex items-center gap-3">
-        {/* Role Indicator */}
-        <div class={`w-1 h-8 rounded-full ${theme.bg} ${theme.border} border-l-2`}></div>
+        {/* Role Icon Box */}
+        <div class={`w-8 h-8 flex items-center justify-center rounded border ${roleColor} text-xs`}>
+            {roleIcon}
+        </div>
         
         <div class="flex flex-col">
-            <span class="text-sm font-black text-white italic uppercase leading-none group-hover:text-amber-500 transition-colors">
-                {playerName}
+            <span class="text-sm font-bold text-white uppercase leading-none group-hover:text-amber-400 transition-colors">
+                 {playerName}
             </span>
             <div class="flex items-center gap-2 mt-1">
-                <span class={`text-[9px] font-bold uppercase tracking-wider ${theme.text}`}>
-                    {agent.role}
-                </span>
-                <span class="text-[9px] text-neutral-600 font-mono">
+                 <span class="text-[9px] text-neutral-500 font-mono uppercase">
                     Ex-{agent.from}
                 </span>
             </div>
         </div>
     </div>
 
-    {/* STATUS ICON */}
-    <div class="flex flex-col items-end">
-        <span class="flex h-2 w-2 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
+    {/* Availability Status */}
+    <div class="flex items-center gap-2">
+         {/* Changed hover text to Amber to match page theme */}
+         <div class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+         </div>
     </div>
 
 </div>
