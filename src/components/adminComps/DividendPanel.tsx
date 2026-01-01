@@ -49,7 +49,7 @@ export default function DividendPanel() {
 
       if (error) throw error;
 
-      setLog(`✅ SUCCESS!\nPaid $${data.total_distributed.toFixed(2)} to ${data.users_paid} shareholders.\n(Based on stock price: $${data.price_used})`);
+      setLog(`✅ SUCCESS!\nPaid ₵${data.total_distributed.toFixed(2)} to ${data.users_paid} shareholders.\n(Based on stock price: ₵${data.price_used})`);
     } catch (err: any) {
       setLog(`❌ ERROR: ${err.message}`);
     } finally {
@@ -83,7 +83,7 @@ export default function DividendPanel() {
             >
               {teams.map((t) => (
                 <option key={t.name} value={t.name}>
-                  {t.name} — ${t.rating}
+                  {t.name} — ₵{t.rating}
                 </option>
               ))}
             </select>

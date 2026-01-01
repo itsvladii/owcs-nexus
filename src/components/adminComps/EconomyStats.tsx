@@ -28,7 +28,7 @@ export default function EconomyStats() {
         </div>
         <div className="bg-neutral-900 border border-white/10 p-4 rounded-xl">
             <div className="text-[10px] font-bold uppercase text-neutral-500">Global Liquidity</div>
-            <div className="text-2xl font-mono text-emerald-400">${(stats.totalCash / 1000).toFixed(1)}k</div>
+            <div className="text-2xl font-mono text-emerald-400">₵{(stats.totalCash / 1000).toFixed(1)}k</div>
         </div>
         <div className="bg-neutral-900 border border-white/10 p-4 rounded-xl">
             <div className="text-[10px] font-bold uppercase text-neutral-500">Top Whale</div>

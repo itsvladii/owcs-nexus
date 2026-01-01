@@ -65,7 +65,7 @@ export default function UserInspector() {
                 </div>
                 <div className="bg-white/5 p-3 rounded border border-white/5">
                     <div className="text-neutral-500 uppercase font-bold text-[10px]">Cash Balance</div>
-                    <div className="font-mono text-emerald-400 font-bold">${userData.cash.toFixed(2)}</div>
+                    <div className="font-mono text-emerald-400 font-bold">₵{userData.cash.toFixed(2)}</div>
                 </div>
             </div>
 
@@ -92,7 +92,7 @@ export default function UserInspector() {
             
             <div className="pt-2 border-t border-white/5">
                <button className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 rounded text-[10px] font-bold uppercase">
-                  ⚠️ Emergency: Reset Cash to $1000
+                  ⚠️ Emergency: Reset Cash to ₵1000
                </button>
             </div>
         </div>

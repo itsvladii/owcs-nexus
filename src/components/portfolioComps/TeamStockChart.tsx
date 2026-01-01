@@ -73,7 +73,7 @@ export default function TeamLineChart({ history }: Props) {
     yaxis: {
       labels: { 
           style: { colors: '#737373', fontFamily: 'monospace' },
-          formatter: (value) => `$${value.toFixed(0)}`
+          formatter: (value) => `₵${value.toFixed(0)}`
       }
     },
     grid: {
@@ -84,7 +84,7 @@ export default function TeamLineChart({ history }: Props) {
       theme: 'dark',
       x: { format: 'dd MMM yyyy' }, // e.g. "12 Dec 2024"
       y: { 
-          formatter: (val) => `$${val.toFixed(2)}`
+          formatter: (val) => `₵${val.toFixed(2)}`
       }
     }
   };

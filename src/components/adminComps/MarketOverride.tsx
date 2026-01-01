@@ -15,7 +15,7 @@ export default function MarketOverride() {
 
   const handleOverride = async () => {
     if(!selectedTeam || !newPrice) return;
-    if(!confirm(`⚠️ FORCE UPDATE: Set ${selectedTeam} to $${newPrice}?`)) return;
+    if(!confirm(`⚠️ FORCE UPDATE: Set ${selectedTeam} to ₵${newPrice}?`)) return;
 
     setLoading(true);
     const { error } = await supabase.from('teams').update({ rating: parseFloat(newPrice) }).eq('name', selectedTeam);
@@ -52,14 +52,14 @@ export default function MarketOverride() {
                 }}
              >
                 <option value="">-- Select Team --</option>
-                {teams.map(t => <option key={t.name} value={t.name}>{t.name} (${t.rating})</option>)}
+                {teams.map(t => <option key={t.name} value={t.name}>{t.name} (₵{t.rating})</option>)}
              </select>
           </div>
 
           <div>
              <label className="text-[10px] font-bold uppercase text-neutral-500 block mb-1">Force New Price</label>
              <div className="relative">
-                 <span className="absolute left-3 top-2 text-neutral-500">$</span>
+                 <span className="absolute left-3 top-2 text-neutral-500">₵</span>
                  <input 
                     type="number" 
                     value={newPrice}

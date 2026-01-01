@@ -69,7 +69,7 @@ function getTraderTags(assets: PortfolioItem[], netWorth: number, transactions: 
   }
 
   // 3. WEALTH
-  if (netWorth > 10000) tags.push({ label: 'Whale', icon: '🐋', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', desc: 'Net Worth > $10k' });
+  if (netWorth > 10000) tags.push({ label: 'Whale', icon: '🐋', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', desc: 'Net Worth > ₵10k' });
   
   // 4. STRATEGY
   if (assets.length === 1 && netWorth > 500) tags.push({ label: 'YOLO', icon: '🎰', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20', desc: 'All in on one team' });
@@ -199,7 +199,7 @@ export default function PortfolioDashboard() {
         <div className="relative z-10 mb-6 md:mb-0">
           <h2 className="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-1">Total Net Worth</h2>
           <div className="text-5xl md:text-6xl font-black text-white tracking-tight">
-            ${netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ₵{netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
             {traderTags.map((tag, i) => (
@@ -220,7 +220,7 @@ export default function PortfolioDashboard() {
             <div className="bg-neutral-950/80 backdrop-blur-sm p-4 rounded-xl border border-neutral-800 text-center min-w-[130px] ring-1 ring-white/5">
                 <div className="text-[10px] text-neutral-500 uppercase font-bold tracking-wider">Buying Power</div>
                 <div className="text-2xl font-bold text-white font-mono mt-1">
-                ${cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ₵{cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-[10px] text-neutral-600">Liquid Cash</div>
             </div>
@@ -229,7 +229,7 @@ export default function PortfolioDashboard() {
             <div className="bg-neutral-950/80 backdrop-blur-sm p-4 rounded-xl border border-neutral-800 text-center min-w-[130px]">
                 <div className="text-[10px] text-neutral-500 uppercase font-bold tracking-wider">Lifetime Divs</div>
                 <div className="text-2xl font-bold text-emerald-400 font-mono mt-1">
-                ${totalDividends.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                ₵{totalDividends.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </div>
                 <div className="text-[10px] text-neutral-600">Passive Income</div>
             </div>
@@ -240,7 +240,7 @@ export default function PortfolioDashboard() {
                 {topPayer ? (
                     <>
                         <div className="text-xl font-bold text-white truncate max-w-[120px] mt-1">{topPayer.name}</div>
-                        <div className="text-[10px] text-emerald-500 font-mono">+${topPayer.amount.toFixed(2)}</div>
+                        <div className="text-[10px] text-emerald-500 font-mono">+₵{topPayer.amount.toFixed(2)}</div>
                     </>
                 ) : (
                     <div className="text-xl font-bold text-neutral-700 mt-1">-</div>
@@ -295,7 +295,7 @@ export default function PortfolioDashboard() {
                                       </div>
                                   </div>
                                   <div className="text-emerald-400 font-mono font-bold text-sm whitespace-nowrap">
-                                    +${tx.price.toFixed(2)}
+                                    +₵{tx.price.toFixed(2)}
                                   </div>
                               </div>
                           ))
@@ -326,8 +326,8 @@ export default function PortfolioDashboard() {
                           {asset.team}
                         </td>
                         <td className="py-4 text-right text-neutral-400 font-mono">{asset.quantity.toFixed(2)}</td>
-                        <td className="py-4 text-right text-neutral-400 font-mono">${asset.currentPrice.toFixed(2)}</td>
-                        <td className="py-4 text-right text-emerald-400 font-mono font-bold">${asset.totalValue.toLocaleString()}</td>
+                        <td className="py-4 text-right text-neutral-400 font-mono">₵{asset.currentPrice.toFixed(2)}</td>
+                        <td className="py-4 text-right text-emerald-400 font-mono font-bold">₵{asset.totalValue.toLocaleString()}</td>
                         <td className="py-4 text-right pr-2">
                             <button onClick={() => setSelectedAsset(asset)} className="bg-white/5 hover:bg-white text-white hover:text-black border border-white/10 px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-all shadow-sm hover:shadow-emerald-500/20 active:scale-95">Trade</button>
                         </td>

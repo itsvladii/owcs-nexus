@@ -165,7 +165,7 @@ export default function TradersLeaderboard() {
                     // VIEW 1: LIVE NET WORTH
                     <>
                         <div className="font-mono font-bold text-white text-xs">
-                           ${trader.net_worth.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                           ₵{trader.net_worth.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </div>
                         <div className={`text-[9px] font-bold ${index % 2 === 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                             {index % 2 === 0 ? '▲ 2.4%' : '▼ 0.8%'}
@@ -194,7 +194,7 @@ export default function TradersLeaderboard() {
         <p className="text-[10px] text-neutral-500">
             {mode === 'sprint' 
              ? 'Weekly Sprint ends Sunday @ 23:59 UTC' 
-             : 'Season 1 Grand Prize: $0.00 (Bragging Rights)'}
+             : 'Season 1 Grand Prize: ₵0.00 (Bragging Rights)'}
         </p>
       </div>
     </div>
