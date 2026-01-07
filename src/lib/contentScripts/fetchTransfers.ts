@@ -1,4 +1,5 @@
-import { getCollection } from 'astro:content';
+// src/lib/contentScripts/fetchTransfers.ts
+import { supabase } from './supabase'; // Make sure this path points to your initialized client
 
 export interface Transfer {
   date: string;
@@ -10,25 +11,42 @@ export interface Transfer {
 }
 
 export async function getLatestTransfers(): Promise<Transfer[]> {
-  const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
+  const apiKey = import.meta.env.LIQUIPEDIA_API_KEY; // Ensure this is in your .env
   const userAgent = 'OWCS-Nexus-App/1.0';
 
-  if (!apiKey) return [];
+  if (!apiKey) {
+    console.warn("⚠️ No Liquipedia API Key found.");
+    return [];
+  }
 
-  // 1. Prepare Local Teams (for "Meaningful" filter)
-  const localTeams = await getCollection('teams');
-  const knownTeamNames = new Set(localTeams.flatMap(t => [
-      t.data.name.toLowerCase(), 
-      t.slug.toLowerCase().replace(/-/g, ' ')
-  ]));
+  // --- REWORK START: Fetch "Whitelist" from Supabase ---
+  
+  // 1. Fetch all team names from your Stock Market DB
+  const { data: dbTeams, error } = await supabase
+    .from('teams')
+    .select('name');
 
-  // 2. Build Endpoint
+  if (error) {
+    console.error("❌ Failed to fetch teams from DB:", error);
+    return [];
+  }
+
+  // 2. Create a Set of lowercase names for instant lookup
+  // We filter out any nulls just in case
+  const knownTeamNames = new Set(
+    (dbTeams || [])
+      .map(t => t.name.toLowerCase().trim())
+  );
+  
+  // --- REWORK END ---
+
+  // 3. Build Liquipedia Endpoint (Same as before)
   const endpoint = new URL('https://api.liquipedia.net/api/v3/transfer');
   endpoint.searchParams.set('wiki', 'overwatch');
   endpoint.searchParams.set('limit', '50');
   endpoint.searchParams.set('order', 'date DESC');
   
-  // Last 90 days
+  // Filter: Last 90 days
   const filterDate = new Date();
   filterDate.setDate(filterDate.getDate() - 90);
   endpoint.searchParams.set('conditions', `[[date::>${filterDate.toISOString().split('T')[0]}]]`);
@@ -43,26 +61,22 @@ export async function getLatestTransfers(): Promise<Transfer[]> {
       }
     });
 
-    if (!response.ok) throw new Error('API Error');
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
     const json = await response.json();
     const rawList = json.result || [];
 
-    // 3. Map Results
+    // 4. Map & Filter Results
     const transfers: Transfer[] = rawList.map((t: any) => {
       const fromTeam = t.fromteam || "Free Agent";
       const toTeam = t.toteam || "Free Agent";
 
-      // Check Importance
+      // 🚨 THE CRITICAL CHECK 🚨
+      // We check if EITHER the "From" team OR the "To" team exists in our Supabase Set
       const isImportant = knownTeamNames.has(fromTeam.toLowerCase()) || 
                           knownTeamNames.has(toTeam.toLowerCase());
 
-      // --- FIX: ROLE EXTRACTION ---
-      // 1. Try 'extradata.position' (e.g. "Support")
-      // 2. Try 'extradata.icon' (fallback)
-      // 3. Try 'role1' (often empty but check anyway)
-      // 4. Default to "Player"
+      // Role Extraction Logic (Kept mostly same)
       let role = "Player";
-      
       if (t.extradata) {
           role = t.extradata.position || t.extradata.icon || role;
       } else if (t.role1) {
@@ -75,10 +89,11 @@ export async function getLatestTransfers(): Promise<Transfer[]> {
         role: role, 
         from: fromTeam,
         to: toTeam,
-        isImportant
+        isImportant // This flag now relies on your DB, not local files
       };
     });
 
+    // Return newest first
     return transfers.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   } catch (error) {
