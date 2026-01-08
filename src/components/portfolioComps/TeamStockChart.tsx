@@ -37,57 +37,56 @@ export default function TeamLineChart({ history }: Props) {
 
   // 2. CONFIGURATION
   const options: ApexOptions = {
-    chart: {
-      type: 'area', // 'area' adds the nice gradient under the line
-      background: 'transparent',
-      toolbar: { show: false },
-      zoom: { enabled: false },
-      animations: { enabled: true }
+  chart: {
+    type: 'area', // 'area' looks better for price/networth
+    toolbar: { show: false }, // Hide the hamburger menu
+    zoom: { enabled: false }
+  },
+  // 1. THIS FIXES THE HOVER ISSUE
+  tooltip: {
+    enabled: true,
+    shared: true,      // Shows data for all series at this X-point
+    intersect: false,  // CRITICAL: Triggers tooltip even if you aren't touching the line
+    followCursor: true, // Tooltip follows mouse for immediate feedback
+    theme: 'dark',
+    x: { show: true, format: 'dd MMM' }, // Clean date format
+  },
+  // 2. The Crosshair (Visual Guide)
+  xaxis: {
+    type: 'datetime',
+    tooltip: { enabled: false }, // Hide the bottom axis label if it clutter
+    crosshairs: {
+      show: true,
+      position: 'back',
+      stroke: { 
+        color: '#10b981', // Emerald green line
+        width: 1, 
+        dashArray: 3 
+      },
     },
-    theme: { mode: 'dark' },
-    stroke: {
-      curve: 'smooth', // Makes the line wavy/smooth
-      width: 3
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.4, // Fade from 40% opacity
-        opacityTo: 0.0,   // To 0% opacity (transparent)
-        stops: [0, 100]
-      }
-    },
-    colors: [trendColor],
-    dataLabels: { enabled: false },
-    xaxis: {
-      type: 'datetime', // Automatically handles dates nicely
-      tooltip: { enabled: false },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { 
-          style: { colors: '#525252', fontSize: '10px', fontFamily: 'monospace' },
-          datetimeFormatter: { year: 'yyyy', month: "MMM 'yy", day: 'dd MMM' }
-      }
-    },
-    yaxis: {
-      labels: { 
-          style: { colors: '#737373', fontFamily: 'monospace' },
-          formatter: (value) => `₵${value.toFixed(0)}`
-      }
-    },
-    grid: {
-      borderColor: '#ffffff05',
-      strokeDashArray: 4,
-    },
-    tooltip: {
-      theme: 'dark',
-      x: { format: 'dd MMM yyyy' }, // e.g. "12 Dec 2024"
-      y: { 
-          formatter: (val) => `₵${val.toFixed(2)}`
-      }
+  },
+  // 3. Visual Styling to reduce "noise"
+  stroke: {
+    curve: 'stepline', // 'stepline' represents price changes more accurately than 'smooth'
+    width: 2,
+    colors: ['#10b981']
+  },
+  fill: {
+    type: 'gradient',
+    gradient: {
+      shadeIntensity: 1,
+      opacityFrom: 0.4,
+      opacityTo: 0.05, // Fades out at bottom
+      stops: [0, 100]
     }
-  };
+  },
+  dataLabels: { enabled: false }, // Hide numbers on the line itself
+  grid: {
+    show: true,
+    borderColor: '#333',
+    strokeDashArray: 4, // Subtle grid
+  }
+};
 
   if (!Chart || history.length < 2) {
       return <div className="h-full flex items-center justify-center text-neutral-600 font-mono text-xs">Loading Chart...</div>;
