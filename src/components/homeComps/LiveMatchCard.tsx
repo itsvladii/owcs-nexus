@@ -12,7 +12,7 @@ export default function LiveMatchCard() {
 
   useEffect(() => {
     // Dev Mock
-    /*if (import.meta.env.DEV && !match) {
+    if (import.meta.env.DEV && !match) {
        setMatch({
          tournament: "OWCS World Finals - Grand Finals",
          stream: "https://twitch.tv/overwatch_esports",
@@ -20,7 +20,7 @@ export default function LiveMatchCard() {
          teamB: { name: "Crazy Raccoon", logo: "https://wsrv.nl/?url=https%3A%2F%2Fliquipedia.net%2Fcommons%2Fimages%2Ff%2Ffc%2FCrazy_Raccoon_2021_allmode.png", score: 1 }
        });
        return;
-    }*/
+    }
 
     fetch('/api/live-now')
       .then(res => res.json())

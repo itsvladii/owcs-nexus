@@ -39,7 +39,7 @@ const MIN_GAMES_PLAYED = 10;
 const K_CALIBRATION = 50;  // First 10 games: Rocket Fuel
 const K_STABILITY = 20;    // Regular Season: Stability
 const K_MAJOR = 60;        // Majors/Internationals: The Truth
-const SEASONAL_RETENTION = 0.75; // Keep 75% rating on year reset
+const SEASONAL_RETENTION = 0.70; // Keep 70% rating on year reset
 const STARTING_ELO_BASELINE = 1200; // Baseline for soft resets
 
 //if a team didn't play an official OWCS match for 90 days, they'll be counted as disbanded untill they play a game again
@@ -182,6 +182,8 @@ function getMovMultiplier(scoreA: number, scoreB: number): number {
   return 0.8;
 }
 
+
+
 // --- MAIN ALGORITHM ---
 
 export function calculateRankings(matches: any[]) {
@@ -294,7 +296,7 @@ export function calculateRankings(matches: any[]) {
     if (logoB) {
       if(logoB.imageurl)
         teamB.logo = `https://wsrv.nl/?url=${encodeURIComponent(logoB.imageurl)}`;
-      if(logoA.imagedarkurl)
+      if(logoB.imagedarkurl)
         teamB.logoDark = `https://wsrv.nl/?url=${encodeURIComponent(logoB.imagedarkurl)}`;
     }
 
@@ -501,6 +503,7 @@ export function calculateRankings(matches: any[]) {
           t.form = t.form.slice(-5); 
       }
   });
+
 
   return {
     rankings: filteredRankings,

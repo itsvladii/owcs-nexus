@@ -7,252 +7,250 @@ import { getCollection } from "astro:content";
 import LiveMatchCard from "../components/homeComps/LiveMatchCard";
 import FeatureSection from "../components/homeComps/FeatureSection.astro";
 
-const top5=[
-  { name: "Team Falcons", rating: 1606, region: "Korea" },
-  { name: "Crazy Raccoon", rating: 1568, region: "Korea" },
-  { name: "Team Liquid", rating: 1492, region: "NA" }, // Example
-  { name: "Virtus.pro", rating: 1450, region: "NA" },
-  { name: "Twisted Minds", rating: 1420, region: "EMEA" }
-];
-
+// --- DATA SETUP ---
 const allTeams = await getCollection("teams");
-const teamsByRegion = allTeams.reduce((acc, team) => {
-  const region = team.data.region;
-  if (!acc[region]) {
-    acc[region] = [];
-  }
-  acc[region].push(team);
-  return acc;
-}, {});
-
-// 1. Get your Cloudinary cloud name from the logo URL.
-// e.g., "https://res.cloudinary.com/dm1bfprgq/image/upload/..."
 const cloudName = allTeams[0].data.logo.split("/")[3];
+
 const heroClipIDs = [
-  "crazy_raccoons_clip",
-  "wbg_clip",
-  "vl_clip",
-  "vp_clip",
-  "aq_clip",
-  "ntmp_clip",
-  "tm_clip",
-  "t1_clip",
-  "tl_clip",
-  "agg_clip",
-  "cc_clip",
-  "gk_clip",
-  "ssg_clip",
-  "tf_clip"
+  "crazy_raccoons_clip", "wbg_clip", "vl_clip", "vp_clip", "aq_clip",
+  "ntmp_clip", "tm_clip", "t1_clip", "tl_clip", "agg_clip",
+  "cc_clip", "gk_clip", "ssg_clip", "tf_clip"
 ];
 
-// 2. Build the *correct* video base URL
-const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_auto,q_auto:good,w_1280,br_1.5m/v1764453427`;
+// ⚡ OPTIMIZATION FIX ⚡
+// 1. w_1080: Cap resolution (1080p is plenty for background)
+// 2. q_auto:eco: Aggressive compression (saves bandwidth)
+// 3. br_2500k: Cap bitrate to 2.5Mbps to prevent network stutter
+// 4. vc_h264: Force H.264 codec (maximum hardware compatibility)
+const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_mp4,vc_h264,w_1080,q_auto:eco,br_2500k/v1764453427`;
 
-const heroClipUrls = heroClipIDs.map((id) => {
-  // We'll use the format that we know works!
-  return `${videoBaseUrl}/${id}.mp4`;
-});
+const heroClipUrls = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
+
+// ⚡ SERVER-SIDE PICK ⚡
+// Pick the first video NOW, on the server. Don't wait for the client.
+const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)];
 
 function getTeamLogo(name: string) {
   const local = allTeams.find(t => t.data.name === name);
   return local?.data.logo?.replace('/upload/', '/upload/w_64,h_64,c_pad,f_auto,q_auto/') || null;
 }
-
-const PLAYER_SECTION_IMG = "https://live.staticflickr.com/65535/54692530696_89bc1454e3_k.jpg";
-
-const allNews = await getCollection('news');
-
-// Sort by Date (Newest First) and take top 3
-const latestArticles = allNews
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-  .slice(0, 3);
 ---
 
-<BaseLayout title="Home">
-  <div class="max-w-7xl mx-auto px-4">
-    <div
-      class="relative h-[600px] w-full rounded-lg overflow-hidden
-             flex justify-center items-center text-center
-             bg-neutral-900 mb-24 shadow-xl"
-    >
-      <video
-        id="hero-video"
-        data-clips={JSON.stringify(heroClipUrls)}
-        class="absolute z-0 w-full h-full object-cover"
-        autoplay
-        loop
-        muted
-        playsinline
-      >
-        Your browser does not support the video tag.
-      </video>
+<BaseLayout title="Home" fullWidth={true}>
+  
+  {/* ==============================================
+      1. CINEMATIC VIDEO HERO
+      ============================================== */}
+  <div class="relative h-screen w-full overflow-hidden bg-neutral-950 flex items-center justify-center">
+      
+      {/* THE ENGINE */}
+      <div id="video-container" class="absolute inset-0 w-full h-full" data-clips={JSON.stringify(heroClipUrls)}>
+          
+          {/* PLAYER 1 (Starts Active with Server-Side Src) */}
+          <video
+            id="player-1"
+            class="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 transition-opacity duration-1000" 
+            src={startVideo}
+            autoplay
+            muted
+            playsinline
+          ></video>
 
-      <div class="absolute inset-0 bg-black/40 z-10"></div>
+          {/* PLAYER 2 (Standby - Empty for now) */}
+          <video
+            id="player-2"
+            class="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 transition-opacity duration-1000" 
+            muted
+            playsinline
+            preload="none"
+          ></video>
+      </div>
 
-      <div class="relative z-20 p-8">
+      {/* TECH OVERLAY (Grid) */}
+      <div 
+        class="absolute inset-0 z-10 opacity-20 pointer-events-none" 
+        style="background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px;"
+      ></div>
+
+      {/* VIGNETTE & GRADIENTS */}
+      <div class="absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] opacity-50"></div>
+      <div class="absolute inset-0 z-10 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/50"></div>
+
+      {/* HERO CONTENT */}
+      <div class="relative z-20 text-center px-4 animate-in fade-in zoom-in duration-1000">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-white/60 text-[10px] font-bold uppercase tracking-widest mb-6">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            System Online
+        </div>
         <h1
-          class="text-7xl md:text-8xl font-bold text-white font-title"
-          style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);"
+          class="text-7xl md:text-9xl font-black text-white font-title tracking-tighter uppercase"
+          style="text-shadow: 0 0 40px rgba(255,255,255,0.1);"
         >
           OWCS Nexus
         </h1>
-        <p
-          class="text-2xl md:text-3xl text-neutral-200 mt-2"
-          style="text-shadow: 1px 1px 4px rgba(0,0,0,0.5);"
-        >
-          All of OWCS, right at your fingertips.
+        <p class="text-xl md:text-2xl text-neutral-400 mt-4 max-w-xl mx-auto font-light tracking-wide">
+          All of OWCS, <span class="text-white font-bold">At your fingertips.</span>
         </p>
       </div>
-    </div>
+<div class="absolute bottom-0 left-0 w-full z-30 bg-gradient-to-t from-neutral-950 via-neutral-950/80 to-transparent pb-12 pt-24 px-4 flex flex-col items-center">
+          
+          {/* Optional: 'Live' Label to tie it to the system UI */}
+          <div class="mb-3 opacity-0 animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-500">
+             <span class="text-[10px] font-mono font-bold text-red-500 uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+                Active Uplink
+             </span>
+          </div>
 
-     <LiveMatchCard client:load />
-
-
-{/* ==============================================
-      ROW 1: GLOBAL RANKINGS (Amber)
-      ============================================== */}
-  <FeatureSection
-    title="Global Power Rankings"
-    subtitle="Live Leaderboard"
-    description="Data doesn't lie. Our algorithmic ELO system tracks every official match in real-time to determine the true hierarchy of the global scene."
-    theme="red"
-    primaryLink={{ text: "View Standings", href: "/rankings" }}
-  >
-     {/* The Widget Slot */}
-     <div class="bg-neutral-900/80 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
-        <div class="p-4 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
-            <span class="text-neutral-500 font-bold text-xs uppercase">Current Top 5</span>
-            <span class="text-red-500 text-xs">● Season Standings</span>
-        </div>
-        {top5.map((team, i) => (
-           <div class="flex items-center justify-between p-4 border-b border-neutral-800/50 last:border-0 hover:bg-neutral-800/30 transition-colors">
-               <div class="flex items-center gap-4">
-                 <span class={`font-title text-2xl w-8 text-center ${i === 0 ? 'text-red-500' : 'text-neutral-600'}`}>#{i + 1}</span>
-                 <img src={getTeamLogo(team.name)} class="w-8 h-8 object-contain" />
-                 <span class="font-bold text-lg text-white">{team.name}</span>
-               </div>
-               <span class="font-mono font-bold text-neutral-400">{Math.round(team.rating)}</span>
-           </div>
-        ))}
-     </div>
-  </FeatureSection>
-
-    {/* ==============================================
-      ROW 2: OWCS TRANSFER MARKET
-      ============================================== */}
-  <FeatureSection
-    title="TRANSFER HUB"
-    subtitle="THE MOVES"
-    description="Keep up with all the most recent transfers in the OWCS world, from players to coaches and analists."
-    theme="deadline"
-    align="left" // Text Left, Articles Right
-    primaryLink={{ text: "View Transfers", href: "/transfers" }}
-  >
-     
-     {/* THE SLOT: Vertical Article Stack */}
-     <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-blue-900/30 group">
-         <div class="absolute inset-0 bg-blue-500/10 mix-blend-overlay z-10"></div>
-         <img src={"https://live.staticflickr.com/65535/54692863385_f06c46e6e9_k.jpg"} class="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-[1.5s]" />
-         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-20 lg:hidden"></div>
-     </div>
-
-  </FeatureSection>
+          {/* The Match Card - Now firmly anchored */}
+          <div class="w-full max-w-5xl animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-300">
+             <LiveMatchCard client:load />
+          </div>
+      </div>
+  </div>
 
   {/* ==============================================
-      ROW 3: Stock Market
+      2. REST OF CONTENT (Unchanged)
       ============================================== */}
-<FeatureSection
-  title="Stop Watching.<br/><span class='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400'>Start Trading*.</span>"
-  subtitle="Nexus Markets"
-  description="Don't just cheer for your team's victory: own a piece of it. Prove yourself in the OWCS Stock Market Simulator."
-  theme="market"
-  align="left"
-  primaryLink={{ text: "Open Exchange", href: "/portfolio" }}
-  secondaryLink={{ text: "My Portfolio", href: "/portfolio" }}
-  disclaimer="*Nexus Markets is a fantasy simulation. No real money is involved whatsoever."
->
+  <div class="max-w-7xl mx-auto px-4 py-24 relative z-20">
 
-  {/* The Visual Slot: A Static Preview of the Market Card */}
-  
-  <div class="relative group">
-     <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-     <div class="relative bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden">
-        {/* Fake Header */}
-        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-           <div class="flex items-center gap-3">
-              <img src={getTeamLogo("Twisted Minds")} class="w-8 h-8 object-contain" />
-              <div>
-                 <div class="font-bold text-white">Twisted Minds</div>
-                 <div class="text-xs text-neutral-500">EMEA</div>
-              </div>
-           </div>
-           <div class="text-right">
-              <div class="text-xl font-mono font-bold text-emerald-400">$161.75</div>
-              <div class="text-xs text-emerald-500/80 bg-emerald-500/10 px-2 py-0.5 rounded">▲ TRENDING</div>
-           </div>
+    {/* ROW 1: RANKINGS */}
+    <FeatureSection
+        title="Global Power Rankings"
+        subtitle="Live Leaderboard"
+        description="Data doesn't lie. Our algorithmic ELO system tracks every official match in real-time."
+        theme="red"
+        primaryLink={{ text: "View Standings", href: "/rankings" }}
+    >
+        <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
+            <img src={"https://live.staticflickr.com/65535/54957178670_8abc8fb8eb_k.jpg"} class="w-full h-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-[1.5s]" />
         </div>
-        {/* Fake Chart Line */}
-        <div class="h-32 w-full bg-gradient-to-b from-emerald-500/10 to-transparent flex items-end mb-6 relative overflow-hidden rounded-lg border border-emerald-500/10">
-           <svg class="absolute bottom-0 w-full h-full text-emerald-500" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <path d="M0 80 Q 20 90 40 60 T 80 40 L 100 20 V 100 H 0 Z" fill="currentColor" opacity="0.2" />
-              <path d="M0 80 Q 20 90 40 60 T 80 40 L 100 20" fill="none" stroke="currentColor" stroke-width="2" />
-           </svg>
+    </FeatureSection>
+
+    {/* ROW 2: TRANSFERS */}
+    <FeatureSection
+        title="Transfer Wire"
+        subtitle="Roster Moves"
+        description="Track every signing, release, and rumor in the ecosystem."
+        theme="blue"
+        align="right"
+        primaryLink={{ text: "View Transfers", href: "/transfers" }}
+    >
+        <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
+            <img src={"https://live.staticflickr.com/65535/54692863385_f06c46e6e9_k.jpg"} class="w-full h-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-[1.5s]" />
         </div>
-        {/* Fake Buttons */}
-        <div class="grid grid-cols-2 gap-4 opacity-50 pointer-events-none">
-           <div class="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-center py-3 rounded-lg font-bold uppercase text-sm">Buy</div>
-           <div class="bg-neutral-800 border border-white/10 text-neutral-500 text-center py-3 rounded-lg font-bold uppercase text-sm">Sell</div>
+    </FeatureSection>
+
+    {/* ROW 3: STOCK MARKET */}
+    <FeatureSection
+        title="Watch Smarter.<br/><span class='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400'>Trade Better.*</span>"
+        subtitle="Nexus Markets"
+        description="Don't just cheer for your team's victory: own a piece of it."
+        theme="market"
+        align="left"
+        primaryLink={{ text: "Open Exchange", href: "/portfolio" }}
+        disclaimer="*Fantasy simulation. No real money involved."
+    >
+        <div class="relative group">
+            <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+            <div class="relative bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden">
+                <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                    <div class="flex items-center gap-3">
+                        <img src={getTeamLogo("Twisted Minds")} class="w-8 h-8 object-contain" />
+                        <div>
+                            <div class="font-bold text-white">Twisted Minds</div>
+                            <div class="text-xs text-neutral-500">EMEA</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-mono font-bold text-emerald-400">$161.75</div>
+                        <div class="text-xs text-emerald-500/80 bg-emerald-500/10 px-2 py-0.5 rounded">▲ TRENDING</div>
+                    </div>
+                </div>
+                <div class="h-32 w-full bg-gradient-to-b from-emerald-500/10 to-transparent flex items-end mb-6 relative overflow-hidden rounded-lg border border-emerald-500/10">
+                    <svg class="absolute bottom-0 w-full h-full text-emerald-500" preserveAspectRatio="none" viewBox="0 0 100 100">
+                        <path d="M0 80 Q 20 90 40 60 T 80 40 L 100 20 V 100 H 0 Z" fill="currentColor" opacity="0.2" />
+                        <path d="M0 80 Q 20 90 40 60 T 80 40 L 100 20" fill="none" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </div>
+                <div class="grid grid-cols-2 gap-4 opacity-50 pointer-events-none">
+                    <div class="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-center py-3 rounded-lg font-bold uppercase text-sm">Buy</div>
+                    <div class="bg-neutral-800 border border-white/10 text-neutral-500 text-center py-3 rounded-lg font-bold uppercase text-sm">Sell</div>
+                </div>
+            </div>
         </div>
-     </div>
+    </FeatureSection>
+
   </div>
-  
-</FeatureSection>
 </BaseLayout>
 
+{/* 3. OPTIMIZED ENGINE SCRIPT */}
 <script>
-  function startVideoRotation() {
-    const video = document.getElementById("hero-video");
-    if (!video || typeof (video as HTMLVideoElement).play !== "function") {
-      return;
+  function initVideoEngine() {
+    const container = document.getElementById("video-container");
+    const p1 = document.getElementById("player-1") as HTMLVideoElement;
+    const p2 = document.getElementById("player-2") as HTMLVideoElement;
+    
+    if (!container || !p1 || !p2) return;
+
+    // Load clips list
+    const clips = JSON.parse(container.dataset.clips || "[]");
+    if (clips.length === 0) return;
+
+    // Detect which video was pre-rendered on the server
+    // (This is the video src already in the DOM)
+    let activePlayer = p1;
+    let standbyPlayer = p2;
+    
+    // Find current index based on the src that Astro rendered
+    let currentClipIdx = clips.findIndex(c => c === p1.src || p1.src.endsWith(c));
+    if (currentClipIdx === -1) currentClipIdx = 0; // Fallback
+
+    // Wait a few seconds before loading the NEXT video to let the page settle
+    setTimeout(() => {
+        prepareNextClip();
+    }, 3000); 
+
+    function prepareNextClip() {
+        let nextIdx = currentClipIdx;
+        while (nextIdx === currentClipIdx && clips.length > 1) {
+            nextIdx = Math.floor(Math.random() * clips.length);
+        }
+        
+        // Load the standby player
+        standbyPlayer.src = clips[nextIdx];
+        standbyPlayer.load(); 
+        currentClipIdx = nextIdx;
     }
 
-    const videoPlayer = video as HTMLVideoElement;
+    function switchPlayer() {
+        standbyPlayer.play().then(() => {
+            // Swap Opacity (Use 0.6 to match your design)
+            standbyPlayer.style.opacity = "0.6";
+            activePlayer.style.opacity = "0";
 
-    // 1. Get the list of clips from the data attribute
-    const clips = JSON.parse(videoPlayer.dataset.clips || "[]");
+            // Swap roles
+            const temp = activePlayer;
+            activePlayer = standbyPlayer;
+            standbyPlayer = temp;
 
-    if (clips.length === 0) return; // Do nothing if no clips
+            // Prepare next clip after transition
+            setTimeout(() => {
+                standbyPlayer.pause();
+                prepareNextClip();
+            }, 1000); 
 
-    let currentClipIndex = -1; // Keep track of the last clip
-
-    function playRandomClip() {
-      let nextIndex = currentClipIndex;
-      // 2. Pick a new clip, but make sure it's not the same one as last time
-      while (nextIndex === currentClipIndex && clips.length > 1) {
-        nextIndex = Math.floor(Math.random() * clips.length);
-      }
-      currentClipIndex = nextIndex;
-
-      // 3. Set the new video source and load it
-      videoPlayer.src = clips[currentClipIndex];
-      videoPlayer.load();
-
-      // 4. Play the video
-      const playPromise = videoPlayer.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.warn("Browser blocked video autoplay:", error);
-        });
-      }
+        }).catch(e => console.log("Playback failed:", e));
     }
 
-    // 5. When the video ends, play a new random one
-    videoPlayer.addEventListener("ended", playRandomClip);
-
-    // 6. Play the *first* random clip on page load
-    playRandomClip();
+    p1.onended = () => { if (activePlayer === p1) switchPlayer(); };
+    p2.onended = () => { if (activePlayer === p2) switchPlayer(); };
   }
 
-  // 7. This still handles the "back button" issue
-  document.addEventListener("astro:page-load", startVideoRotation);
+  document.addEventListener("astro:page-load", initVideoEngine);
 </script>

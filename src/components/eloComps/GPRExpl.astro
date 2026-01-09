@@ -8,60 +8,57 @@ const STEPS = [
     heading: "Zero-Sum Combat",
     iconColor: "text-amber-500",
     borderColor: "border-amber-500/20",
-    desc: "We use a custom ELO system, similar to the ones used in Chess and sports like the FIFA World Rankings. Points are transferred directly from loser to winner, where pulling an upset yields massive rewards and crushing newcomers grants pennies.",
-    // The specific 'widget' for this card is the Math Formula
+    desc: "We use a custom ELO system where points are transferred directly from loser to winner. Variables like the 'margin of victory' (M) and the 'context' of the match (K) ensure that the points gained/calculated reflect the real outcome of the match.",
     widget: "math" ,
     iconPath: "M13 10V3L4 14h7v7l9-11h-7z"
   },
   {
     step: "02",
-    label: "IMPACT WEIGHT",
-    heading: "When the lights are at their brightest...",
+    label: "THE PULSE SYSTEM",
+    heading: "Dynamic K-Factor",
     iconColor: "text-blue-500",
     borderColor: "border-blue-500/20",
-    desc: "Not all matches are created equal. We dynamically adjust the K-Factor based on the tournament tier to prioritize high-pressure LAN environments.",
-    // The specific 'widget' for this card is the Bar Chart
+    desc: "To highlight the various phases of the season, we use a 'three-phase' heartbeat philosophy: Teams will get a 'boost' (K=50) for the first 10 games of the season to calibrate fast, and it will slowly stabilize during the regular season (down to K=20). During Majors, matches will have the highest of stakes as they're the most important events of the OWCS season (K=60).",
     widget: "graph",
     iconPath: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
   },
   {
     step: "03",
     label: "CALIBRATION",
-    heading: "Regional Bias",
+    heading: "Regional Seeding",
     iconColor: "text-emerald-500",
     borderColor: "border-emerald-500/20",
-    desc: "To emphasize the difference and shifts of regional powers across OWCS, we calibrate starting ELO based on historical region strength. A 5-0 record in Korea, for example, is worth more than 5-0 elsewhere.",
-    // The specific 'widget' for this card is the Region Table
+    desc: "Not all regions are equal. Based on regional historical performance teams will start with a 'regional baseline ELO', ensuring a realistic representation of the difference in power of all the regions accross OWCS. The regional baseline ELO will be updated at the start of every OWCS season.",
     widget: "table",
     iconPath:"M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z"
   }
 ];
 
+// UPDATED: Now reflects K-Factors from getThreePhaseKFactor
 const WEIGHTS = [
-  { label: "World Finals", val: "2.5x", width: "100%" },
-  { label: "Midseason", val: "2.0x", width: "80%" },
-  { label: "Major", val: "1.5x", width: "60%" },
-  { label: "Stage", val: "1.0x", width: "40%" },
+  { label: "Majors (S-Tier)", val: "K=60", width: "100%" }, // K_MAJOR
+  { label: "Calibration", val: "K=50", width: "85%" },      // K_CALIBRATION
+  { label: "Standard", val: "K=20", width: "35%" },         // K_STABILITY
 ];
 
 const PROTOCOLS = [
  {
     id: "P-04",
     name: "Ship of Theseus",
-    desc: "If a team replaces >50% of their roster (3+ players), their ELO is soft-reset to their region's baseline.",
+    desc: "If a team undergoes a massive roster rebuild (i.e can't keep more than 3 players of the original roster DURING the OWCS season), their ELO is soft-reset to their region's baseline to prevent inheriting an unearned rating.",
     icon: "M2 17h20c0 2.5-4.5 5-10 5S2 19.5 2 17zm10 0V4M7 6h10l-1 8H8L7 6z"
   },
   {
     id: "P-05",
-    name: "LAN Mercy Rule",
-    desc: "Losing at an S-Tier LAN applies a 0.5x dampener on point loss, as qualified teams shouldn't be punished too heavily for losing to the world's best on stage and non qualified teams shouldn't climb when they're not playing on international tournaments.",
+    // REPLACED: Mercy Rule -> Dominance Precision
+    name: "Dominance Precision",
+    desc: "Context matters. A 3-0 stomp applies a 1.2x multiplier to point transfer while a close 3-2 scraping win applies a 0.8x dampener. Close games move the needle less.",
     icon: "M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
   },
   {
     id: "P-06",
     name: "Inactivity Decay",
-    desc: "Teams that do not play an official OWCS match for 90 days are automatically hidden from the global rankings until they return.",
-    // Icon: Clock
+    desc: "Teams that do not play an official OWCS match for 90 days are automatically hidden from the global rankings until they return to active play.",
     icon: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
   }
 ];
@@ -97,11 +94,12 @@ const PROTOCOLS = [
           
           {/* DYNAMIC WIDGETS */}
           <div class="mt-auto">
-            
+             
             {/* WIDGET 1: MATH FORMULA */}
             {item.widget === 'math' && (
               <div class="bg-black/50 p-4 rounded border border-neutral-800 font-mono text-xs text-amber-500">
-                 ΔRating = K × (Score - Expected)
+                 {/* UPDATED FORMULA VISUAL */}
+                 ΔRating = K × M × (Score - Expected)
               </div>
             )}
 
@@ -120,20 +118,20 @@ const PROTOCOLS = [
                </div>
             )}
 
-            {/* WIDGET 3: REGION TABLE */}
+            {/* WIDGET 3: REGION TABLE (UPDATED VALUES) */}
             {item.widget === 'table' && (
                <div class="grid grid-cols-2 gap-2 text-xs font-mono">
                   <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500 text-white">
-                     KOREA <span class="float-right text-emerald-500">1350</span>
+                      KOREA <span class="float-right text-emerald-500">1304</span>
+                  </div>
+                  <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/80 text-neutral-200">
+                      NA <span class="float-right text-emerald-500/80">1264</span>
                   </div>
                   <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/60 text-neutral-300">
-                     EMEA <span class="float-right text-emerald-500/60">1320</span>
+                     EMEA <span class="float-right text-emerald-500/60">1255</span>
                   </div>
                   <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/40 text-neutral-400">
-                     CHINA <span class="float-right text-emerald-500/40">1275</span>
-                  </div>
-                  <div class="bg-black/40 p-2 rounded border-l-2 border-emerald-500/20 text-neutral-500">
-                     NA <span class="float-right text-emerald-500/20">1268</span>
+                      JAPAN <span class="float-right text-emerald-500/40">1211</span>
                   </div>
                </div>
             )}
@@ -141,7 +139,6 @@ const PROTOCOLS = [
           </div>
 
           <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
-             {/* THE FIX: Use item.iconPath here instead of hardcoded string */}
              <svg xmlns="http://www.w3.org/2000/svg" class={`w-16 h-16 ${item.iconColor}`} viewBox="0 0 24 24" fill="currentColor">
                 <path d={item.iconPath}/>
              </svg>
@@ -152,7 +149,8 @@ const PROTOCOLS = [
 
     </div>
 
-<div>
+    {/* --- PART 2: PROTOCOLS --- */}
+    <div>
        <div class="flex items-center gap-4 mb-8">
           <div class="h-px bg-neutral-800 flex-1"></div>
           <span class="text-neutral-500 font-mono text-xs uppercase tracking-widest">Other Rules</span>
