@@ -33,7 +33,7 @@ export interface ProcessedMatch {
 
 // --- CONFIGURATION ---
 
-const MIN_GAMES_PLAYED = 10;
+//const MIN_GAMES_PLAYED = 10;
 
 // 3-PHASE PULSE SYSTEM CONSTANTS
 const K_CALIBRATION = 50;  // First 10 games: Rocket Fuel
@@ -81,15 +81,6 @@ const STARTING_ELO: Record<string, number> = {
   "default":1200
 };
 
-// 3. TOURNAMENT WEIGHTS (Kept for reference or other uses, but K-factor now uses 3-Phase Logic)
-const TOURNAMENT_WEIGHTS: Record<string, number> = {
-  'World Finals': 2.5,
-  'Midseason': 2.0,
-  'Major': 1.5,
-  'Stage': 1.0,
-  'Qualifier': 0.5,
-  'default': 1.0
-};
 
 const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
    // NTMR Rebuild after Stage 1 (May 2025)
@@ -121,7 +112,7 @@ function getThreePhaseKFactor(gamesPlayed: number, isMajor: boolean): number {
   if (isMajor) return K_MAJOR;
 
   // 2. CALIBRATION SLIDE (Games 0-20)
-  // We want to slide from K=50 down to K=20 over the first 20 games.
+  // We want to slide from K=50 down to K=20 over the first 10 games.
   const CALIBRATION_GAMES = 10;
   
   if (gamesPlayed < CALIBRATION_GAMES) {
@@ -237,6 +228,7 @@ export function calculateRankings(matches: any[]) {
 
     const rawNameA = match.match2opponents[0].name;
     const rawNameB = match.match2opponents[1].name;
+    
 
     if (!rawNameA || !rawNameB) continue;
 
@@ -490,7 +482,6 @@ export function calculateRankings(matches: any[]) {
   cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
 
   const filteredRankings = currentRankings.filter((t: any) => {
-       if ((t.wins + t.losses) < MIN_GAMES_PLAYED) return false;
        if (t.rating < 1000 || t.wins === 0) return false;
        const lastPlayedEntry = t.history[t.history.length - 1];
        if (!lastPlayedEntry) return false;

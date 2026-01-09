@@ -33,7 +33,6 @@ const playerSchema=z.object({
       note: z.array(z.string()).optional(), // e.g., "Won OWCS World Finals"
     })
   ).optional(),
-
 })
 
 //schema che descrive il team
@@ -58,14 +57,14 @@ const teamSchema=z.object({
   ).optional(),
 })
 
-const newsSchema = z.object({
-  title: z.string(),
-  excerpt: z.string(),         // Short summary for the card
-  publishDate: z.date(),       // To sort by newest
-  author: z.string().default('Nexus Staff'),
-  image: z.string(),           // Hero image for the article
-  tag: z.enum(['Analysis', 'Recap', 'Player Focus', 'Meta Report', 'Breaking']),
-  isFeatured: z.boolean().default(false), // For the big slot on the news page
+const docsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    lastUpdated: z.date(),
+    version: z.string(),
+  }),
 });
 
 //rendo questi schema visibili
@@ -78,6 +77,5 @@ export const collections={
         type:'content', //content vuol dire che scrivo file MD
         schema:teamSchema //indico lo schema che devo seguire
     }),
-    'news': defineCollection({ type: 'content', schema: newsSchema }),
-
+    'docs': docsCollection
 }

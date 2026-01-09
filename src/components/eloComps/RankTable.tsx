@@ -133,6 +133,13 @@ export default function RankingsTable({ teams }: Props) {
                     {team.region}
                   </span>
                 </div>
+                <div className="flex flex-col min-w-0">
+                {(team.wins+team.losses) < 10 && (
+                        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wide">
+                            Calibrating
+                        </span>
+                    )}
+                 </div>
               </div>
 
               {/* Rating */}

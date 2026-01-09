@@ -8,8 +8,6 @@ import LiveMatchCard from "../components/homeComps/LiveMatchCard";
 import FeatureSection from "../components/homeComps/FeatureSection.astro";
 
 // --- DATA SETUP ---
-const allTeams = await getCollection("teams");
-const cloudName = allTeams[0].data.logo.split("/")[3];
 
 const heroClipIDs = [
   "crazy_raccoons_clip", "wbg_clip", "vl_clip", "vp_clip", "aq_clip",
@@ -22,7 +20,7 @@ const heroClipIDs = [
 // 2. q_auto:eco: Aggressive compression (saves bandwidth)
 // 3. br_2500k: Cap bitrate to 2.5Mbps to prevent network stutter
 // 4. vc_h264: Force H.264 codec (maximum hardware compatibility)
-const videoBaseUrl = `https://res.cloudinary.com/${cloudName}/video/upload/f_mp4,vc_h264,w_1080,q_auto:eco,br_2500k/v1764453427`;
+const videoBaseUrl = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_mp4,vc_h264,w_1080,q_auto:eco,br_2500k/v1764453427`;
 
 const heroClipUrls = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
 
@@ -30,10 +28,7 @@ const heroClipUrls = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
 // Pick the first video NOW, on the server. Don't wait for the client.
 const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)];
 
-function getTeamLogo(name: string) {
-  const local = allTeams.find(t => t.data.name === name);
-  return local?.data.logo?.replace('/upload/', '/upload/w_64,h_64,c_pad,f_auto,q_auto/') || null;
-}
+
 ---
 
 <BaseLayout title="Home" fullWidth={true}>
@@ -161,7 +156,7 @@ function getTeamLogo(name: string) {
             <div class="relative bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden">
                 <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                     <div class="flex items-center gap-3">
-                        <img src={getTeamLogo("Twisted Minds")} class="w-8 h-8 object-contain" />
+                        <img src="https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898092/tm_logo_xx1e3y.png" class="w-8 h-8 object-contain" />
                         <div>
                             <div class="font-bold text-white">Twisted Minds</div>
                             <div class="text-xs text-neutral-500">EMEA</div>

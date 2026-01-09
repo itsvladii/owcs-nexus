@@ -1,0 +1,78 @@
+---
+// src/pages/algorithm.astro
+import { getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// 1. Fetch the specific "algorithm" entry directly
+// (Instead of relying on getStaticPaths to pass it in)
+const doc = await getEntry('docs', 'algorithm');
+
+if (!doc) {
+  throw new Error('Could not find src/content/docs/algorithm.md');
+}
+
+// 2. Render content
+const { Content } = await doc.render();
+---
+
+<BaseLayout title={doc.data.title}>
+  
+  {/* Add the KaTeX CSS for the math formulas */}
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+      integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+      crossorigin="anonymous"
+  />
+
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    
+    {/* Header */}
+    <div class="mb-12 pb-8 border-b border-white/10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-6">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+          System Documentation v{doc.data.version}
+      </div>
+      <h1 class="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{doc.data.title}</h1>
+      <p class="text-xl text-neutral-400 font-light">{doc.data.description}</p>
+      
+      <div class="mt-6 flex gap-4 text-xs font-mono text-neutral-500 uppercase tracking-widest">
+        <span>Last updated: {doc.data.lastUpdated.toLocaleDateString()}</span>
+      </div>
+    </div>
+
+    {/* Content with Math Rendering */}
+    <article class="prose prose-invert prose-lg max-w-none
+      prose-headings:font-black prose-headings:uppercase prose-headings:text-white
+      prose-p:text-neutral-400 prose-p:font-light prose-p:leading-relaxed
+      prose-strong:text-white prose-strong:font-bold
+      prose-code:text-emerald-400 prose-code:bg-neutral-900/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
+      prose-ul:text-neutral-400 prose-li:marker:text-neutral-600
+      prose-table:border-collapse prose-table:w-full prose-table:my-8
+      prose-thead:bg-neutral-900/50
+      prose-th:text-white prose-th:font-bold prose-th:uppercase prose-th:text-xs prose-th:tracking-wider prose-th:p-4 prose-th:border prose-th:border-white/10
+      prose-td:p-4 prose-td:border prose-td:border-white/5 prose-td:text-sm prose-td:font-mono
+      prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:bg-emerald-500/5 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:text-emerald-100
+    ">
+      <Content />
+    </article>
+
+    {/* Footer */}
+    <div class="mt-16 pt-8 border-t border-white/10 text-center text-sm text-neutral-500">
+      <p>Questions or feedback? <a href="/contact" class="text-blue-400 hover:text-blue-300 transition-colors">Get in touch</a></p>
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* KaTeX Customization for Dark Mode */
+  .katex { font-size: 1.1em; }
+  .katex-display { margin: 2rem 0; overflow-x: auto; overflow-y: hidden; }
+  
+  /* Inline math color */
+  .katex-inline { color: #34d399; /* emerald-400 */ }
+  
+  /* Display math (centered equations) color */
+  .katex-display .katex { color: #fbbf24; /* amber-400 */ }
+</style>
