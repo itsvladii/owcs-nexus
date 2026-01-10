@@ -42,27 +42,21 @@ function getTeamProps(team: {
     logoDark?: string;
 }) {
     const localTeam = getLocalTeam(team.name);
-    const isPartner = localTeam?.data.isPartner ?? false;
     const hasPage = !!localTeam;
 
     const color = localTeam?.data.colour || "#525252"; // Fallback gray
 
     // LOGO LOGIC: Local File (Best) -> API Logo (Good) -> Fallback (None)
-    const logo = localTeam?.data.logo
-        ? localTeam.data.logo.replace(
-              "/upload/",
-              "/upload/w_200,h_200,c_pad,f_auto,q_auto/",
-          )
-        : team.logoDark || team.logo;
+    const logo = team.logoDark || team.logo;
 
-    return { localTeam, isPartner, hasPage, color, logo };
+    return { localTeam, hasPage, color, logo };
 }
 //#endregion
 
 const restOfThePack = rankings.slice(0, 30);
 
 const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
-    const { localTeam, isPartner, hasPage, color, logo } = getTeamProps(team);
+    const { localTeam, hasPage, color, logo } = getTeamProps(team);
     return {
         rank: index + 1,
         name: team.name,
@@ -73,7 +67,6 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
         region: team.region,
         logo: logo,
         color: color,
-        isPartner: isPartner,
         hasPage: hasPage,
         history: team.history, // Passing the ELO history for the graph!
         rankDelta: team.rankDelta,
