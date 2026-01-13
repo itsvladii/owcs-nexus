@@ -17,14 +17,14 @@ export interface RatedTeam {
 }
 
 export interface ProcessedMatch {
-  id: string; // Ensure your input matches have an ID!
+  id: string;
   date: string;
   tournament: string;
   team_a: string;
   team_b: string;
   score_a: number;
   score_b: number;
-  winner_id: string; // "1" or "2" or Team Name
+  winner_id: string;
   elo_change_a: number;
   elo_change_b: number;
   team_a_elo_after: number;
@@ -33,16 +33,15 @@ export interface ProcessedMatch {
 
 // --- CONFIGURATION ---
 
-//const MIN_GAMES_PLAYED = 10;
-
 // 3-PHASE PULSE SYSTEM CONSTANTS
 const K_CALIBRATION = 50;  // First 10 games: Rocket Fuel
 const K_STABILITY = 20;    // Regular Season: Stability
 const K_MAJOR = 60;        // Majors/Internationals: The Truth
+const K_REGIONAL_COMPRESSION = 0.65; // Regional matches worth 65% after calibration
 const SEASONAL_RETENTION = 0.70; // Keep 70% rating on year reset
 const STARTING_ELO_BASELINE = 1200; // Baseline for soft resets
+const K_BULLY_PENALTY = 0.5; // 50% reduction for farming weak teams
 
-//if a team didn't play an official OWCS match for 90 days, they'll be counted as disbanded untill they play a game again
 const INACTIVITY_DAYS = 90; 
 
 const PARTNER_TEAMS_2025 = new Set([
@@ -81,9 +80,7 @@ const STARTING_ELO: Record<string, number> = {
   "default":1200
 };
 
-
 const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
-   // NTMR Rebuild after Stage 1 (May 2025)
    { team: "NTMR", date: "2025-05-01", resetTo: 1264 },
 ];
 
@@ -100,45 +97,79 @@ function getExpectedScore(ratingA: number, ratingB: number): number {
 // Helper to determine if a tournament is an International Major
 function isMajorTournament(name: string): boolean {
   const n = name.toLowerCase();
-  return n.includes('major') || 
-         n.includes('world') || 
-         n.includes('midseason') || 
-         n.includes('clash') ||
-         n.includes('ewc'); 
+  
+  // 1. Explicit Major Keywords
+  if (n.includes('major') || n.includes('world') || n.includes('clash')) return true;
+  
+  // 2. Specific Big Events (Midseason, EWC)
+  if (n.includes('midseason') || n.includes('ewc') || n.includes('esports world cup')) return true;
+  
+  // 3. Stage Finals (Optional: If you want Inter-Regional finals to count more)
+  //if (n.includes('finals') && (n.includes('dreamhack') || n.includes('dallas') || n.includes('stockholm'))) return true;
+
+  return false;
 }
 
-function getThreePhaseKFactor(gamesPlayed: number, isMajor: boolean): number {
-  // 1. THE MAJOR (Always takes priority)
-  if (isMajor) return K_MAJOR;
+// NEW: Helper to check if match is regional (both teams same region)
+function isRegionalMatch(regionA: string | null, regionB: string | null): boolean {
+  // If either region is null/unknown, treat as potentially international
+  if (!regionA || !regionB) return false;
+  return regionA === regionB;
+}
 
-  // 2. CALIBRATION SLIDE (Games 0-20)
-  // We want to slide from K=50 down to K=20 over the first 10 games.
-  const CALIBRATION_GAMES = 10;
-  
-  if (gamesPlayed < CALIBRATION_GAMES) {
-    // Calculate how far along the slide we are (0.0 to 1.0)
-    const progress = gamesPlayed / CALIBRATION_GAMES;
-    
-    // Linearly interpolate between 50 and 20
-    // Formula: Start - (Difference * Progress)
-    const currentK = K_CALIBRATION - ((K_CALIBRATION - K_STABILITY) * progress);
-    
-    return currentK; 
-    // Example: 
-    // Game 0  -> 50
-    // Game 10 -> 35
-    // Game 20 -> 20
+function getThreePhaseKFactor(
+  gamesPlayed: number,
+  isMajor: boolean,
+  isRegional: boolean,
+  winnerRating: number,
+  loserRating: number
+): number {
+  // ---------------------------------------------------------
+  // PRIORITY 1: THE MAJOR OVERRIDE
+  // ---------------------------------------------------------
+  // Majors are the source of truth. High stakes, max volatility.
+  if (isMajor) return K_MAJOR; // 60
+
+  // ---------------------------------------------------------
+  // PRIORITY 2: CALIBRATION
+  // ---------------------------------------------------------
+  // New teams need to move fast to find their place.
+  if (gamesPlayed < 10) {
+    // Linear slide from 50 -> 20
+    return K_CALIBRATION - ((K_CALIBRATION - K_STABILITY) * (gamesPlayed / 10));
   }
 
-  // 3. STABILITY (Standard)
-  return K_STABILITY;
+  // ---------------------------------------------------------
+  // PRIORITY 3: ESTABLISHING THE BASELINE
+  // ---------------------------------------------------------
+  let k = K_STABILITY; // Start at Standard (20)
+
+  // Apply Regional Compression first
+  // (Regional games are less informative than international ones)
+  if (isRegional) {
+    k *= K_REGIONAL_COMPRESSION; // 20 * 0.65 = 13
+  }
+
+  // ---------------------------------------------------------
+  // PRIORITY 4: THE "BULLY PENALTY" (Directional)
+  // ---------------------------------------------------------
+  // Check if the Favorite won "too easily" (Punching down).
+  // This prevents high-rated teams from farming weak local teams for free points.
+  if (winnerRating > loserRating) {
+    const eloDiff = winnerRating - loserRating;
+
+    // If the gap is massive (>250 ELO), slash the reward.
+    if (eloDiff > 250) {
+      k *= K_BULLY_PENALTY; // 13 * 0.5 = 6.5 (or 20 * 0.5 = 10)
+    }
+  }
+
+  return k;
 }
 
 // SEASONAL SOFT RESET LOGIC
 function applySeasonalSquish(teams: Record<string, RatedTeam>) {
-  // console.log("❄️ Applying Seasonal Soft Reset...");
   for (const team of Object.values(teams)) {
-    // Pull everyone closer to the 1200 baseline by 25%
     const baseline = STARTING_ELO_BASELINE; 
     const newRating = baseline + (team.rating - baseline) * SEASONAL_RETENTION;
     team.rating = Math.round(newRating);
@@ -163,17 +194,10 @@ function getMovMultiplier(scoreA: number, scoreB: number): number {
   
   const diff = Math.abs(scoreA - scoreB);
 
-  // Map Difference Logic:
-  // 3+ Map Diff (3-0, 4-0, 4-1) -> Dominant Win -> 1.2x
-  // 2 Map Diff (3-1, 4-2)       -> Solid Win    -> 1.0x
-  // 1 Map Diff (3-2, 4-3)       -> Close Win    -> 0.8x
-  
   if (diff >= 3) return 1.2;
   if (diff === 2) return 1.0;
   return 0.8;
 }
-
-
 
 // --- MAIN ALGORITHM ---
 
@@ -191,7 +215,6 @@ export function calculateRankings(matches: any[]) {
   const upsets: any[] = [];
   const processedMatches: ProcessedMatch[] = [];
   
-  // Track ratings from ~30 days ago for "Movers" calculation
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const startRatings: Record<string, number> = {};
@@ -206,7 +229,7 @@ export function calculateRankings(matches: any[]) {
         rating: STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
         losses: 0,
-        history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }], // Start point
+        history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }],
         tournaments: [],
         form:[],
         isPartner: PARTNER_TEAMS_2025.has(name)
@@ -215,7 +238,7 @@ export function calculateRankings(matches: any[]) {
     return teams[name];
   };
 
-  // 2. Sort matches chronologically (Oldest -> Newest)
+  // 2. Sort matches chronologically
   const sortedMatches = [...matches].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -229,7 +252,6 @@ export function calculateRankings(matches: any[]) {
     const rawNameA = match.match2opponents[0].name;
     const rawNameB = match.match2opponents[1].name;
     
-
     if (!rawNameA || !rawNameB) continue;
 
     const nameA = getNormalizedTeamName(rawNameA);
@@ -249,17 +271,16 @@ export function calculateRankings(matches: any[]) {
         if (teamB.region !== currentRegion) teamB.region = currentRegion;
     }
 
-    const matchDateStr = match.date.split(' ')[0]; // Get YYYY-MM-DD
+    const matchDateStr = match.date.split(' ')[0];
 
-    // --- NEW: SEASONAL RESET CHECK ---
+    // Seasonal reset check
     const matchYear = new Date(match.date).getFullYear();
     if (currentYear !== null && matchYear > currentYear) {
        applySeasonalSquish(teams);
     }
     currentYear = matchYear;
-    // --------------------------------
 
-    
+    // Roster reset check
     [teamA, teamB].forEach(team => {
         const reset = ROSTER_RESETS.find(r => 
             r.team === team.name && 
@@ -310,20 +331,27 @@ export function calculateRankings(matches: any[]) {
     if (!teamA.tournaments.includes(tournament)) teamA.tournaments.push(tournament);
     if (!teamB.tournaments.includes(tournament)) teamB.tournaments.push(tournament);
 
-    // --- NEW: 3-PHASE K-FACTOR LOGIC ---
+    // NEW: Check if this is a regional match
     const isMajor = isMajorTournament(tournament);
+    const isRegional = isRegionalMatch(teamA.region, teamB.region);
+
+    const teamAWon = match.score_a > match.score_b;
+    const winnerRating = teamAWon ? teamA.rating : teamB.rating;
+    const loserRating = teamAWon ? teamB.rating : teamA.rating;
+    
     const gamesA = teamA.wins + teamA.losses;
     const gamesB = teamB.wins + teamB.losses;
 
-    let kA = getThreePhaseKFactor(gamesA, isMajor);
-    let kB = getThreePhaseKFactor(gamesB, isMajor);
+    // Pass isRegional to K-factor calculation
+    let kA = getThreePhaseKFactor(gamesA ,isMajor, isRegional, winnerRating, loserRating);
+    let kB = getThreePhaseKFactor(gamesB ,isMajor, isRegional, winnerRating, loserRating);
 
-    // Apply MoV Multiplier to both (Keeping your bonus logic)
+    // Apply MoV Multiplier
     const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
     kA *= movMultiplier;
     kB *= movMultiplier;
 
-    // Calculate Points Change (Using individual K values)
+    // Calculate Points Change
     const changeA = kA * (scoreA - expectedA);
     const changeB = kB * (scoreB - expectedB);
 
@@ -333,30 +361,27 @@ export function calculateRankings(matches: any[]) {
     teamA.history.push({ date: match.date, elo: teamA.rating });
     teamB.history.push({ date: match.date, elo: teamB.rating });
 
-
     if (scoreA) { 
-        // Team A Won
         teamA.wins++; 
         teamB.losses++; 
-        teamA.form.push('W'); // Add Win to A
-        teamB.form.push('L'); // Add Loss to B
+        teamA.form.push('W');
+        teamB.form.push('L');
     } else { 
-        // Team B Won
         teamB.wins++; 
         teamA.losses++; 
-        teamB.form.push('W'); // Add Win to B
-        teamA.form.push('L'); // Add Loss to A
+        teamB.form.push('W');
+        teamA.form.push('L');
     }
 
     processedMatches.push({
-      id: match.id || `${matchDateStr}-${nameA}-${nameB}`, // Fallback ID if none exists
+      id: match.id || `${matchDateStr}-${nameA}-${nameB}`,
       date: match.date,
       tournament: tournament,
       team_a: teamA.name,
       team_b: teamB.name,
       score_a: scoreA_val,
       score_b: scoreB_val,
-      winner_id: winnerId, // "1" or "2"
+      winner_id: winnerId,
       elo_change_a: changeA,
       elo_change_b: changeB,
       team_a_elo_after: teamA.rating,
@@ -383,7 +408,7 @@ export function calculateRankings(matches: any[]) {
     }
   }
 
-  // --- REST OF STATS CALCULATION (UNCHANGED) ---
+  // --- STATS CALCULATION ---
 
   const daysAtOne: Record<string, number> = {};
   const allDates = new Set<string>();
@@ -494,7 +519,6 @@ export function calculateRankings(matches: any[]) {
           t.form = t.form.slice(-5); 
       }
   });
-
 
   return {
     rankings: filteredRankings,

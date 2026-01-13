@@ -137,6 +137,36 @@ $$
 
 This can swing rankings dramatically, reflecting the outsized importance of international performance.
 
+## Regional Match Compression
+
+One of the key issues in a global ELO systems with regional leagues is the "regional farming", where teams can inflate their ratings by dominating weaker regional competition without proving themselves internationally. To address this, we apply a "directional penalty" based on ELO difference between two teams in the Regional Stage matches: 
+
+#### Stage 1: Standard Compression (K=13)
+After the calibration period (10+ games), any match between two teams from the **same region** occurring on regional Stages receives a reduced K-factor (35% reduction):
+
+$$
+K_{\text{regional}} = K_{\text{base}} \times 0.65 = 13
+$$
+
+#### Stage 2: The "Glass Ceiling"
+To prevent teams from climbing indefinitely purely on regional dominance, we enforce a "bully penalty" where if in a regional Stage match the difference in ELO between the two teams is greater than **250**, one of the two scenarios will happen:
+- If the higher rated team won the match, the K-Factor is getting slashed by 50%.
+- If the lower rated team won the matchm the K-Factor won't be modified further.
+
+$$
+K_{\text{ceiling}} = K_{\text{regional}} \times 0.5
+$$
+
+**Rationale:** Beating a local 1200-rated team is "expected behavior" for a global powerhouse and yields almost no new information. This forces elite regional teams to get good international results in Major LAN events in order to climb further.
+
+**Mathematical Impact:**
+| Scenario | Matchup | K-Factor | Outcome |
+| :--- | :--- | :--- | :--- |
+| **Normal Regional** | 1250 vs 1250 | $K=13$ | Standard regional gains. |
+| **Farming** | 1450 vs 1200 | $K=6.5$ | The 1450 team gains almost less points for winning. |
+| **Upset** | 1450 vs 1200 | $K=13$ | The 1200 team gains full points for the upset. |
+| **Major** | 1450 vs 1450 | $K=60$ | High stakes. Winner takes all. |
+
 ---
 
 ## Regional Seeding
@@ -396,16 +426,6 @@ Where:
 - Map-specific strength (aggregate across all maps)
 - Meta adaptation speed (Elo lags behind rapid shifts)
 - Roster synergy (chemistry vs. raw talent)
-
-### Comparison to Alternatives
-
-| System               | Pros                          | Cons                              |
-|----------------------|-------------------------------|-----------------------------------|
-| **Pure Win Rate**    | Simple, intuitive             | Ignores opponent strength         |
-| **Glicko-2**         | Models uncertainty (RD)       | Complex, requires tuning          |
-| **TrueSkill**        | Handles teams natively        | Proprietary (Microsoft patent)    |
-| **Our Modified Elo** | Transparent, esports-tuned    | Asymmetric inflation requires management |
-
 ---
 
 ## Future Enhancements Under Consideration
@@ -504,25 +524,9 @@ const MOV_MULTIPLIERS = {
 **Update Frequency:** Automated rebuild every 6 hours via Vercel Cron
 
 **Reproducibility:** Full match history and algorithm available in [documentation repository](#).
-
----
-
-## Feedback & Contact
-
-This system is continuously evolving based on community feedback and competitive landscape changes. 
-
-**Report Issues:**
-- Incorrect match data
-- Rating anomalies
-- Suggested algorithm improvements
-
-**Contact:** [Your contact method]
-
-**Open Source:** Algorithm implementation available at [GitHub link if applicable]
-
 ---
 
 *Last Updated: January 2025*  
 *Algorithm Version: 1.0*  
-*Total Matches Processed: 500+*  
-*Active Teams Tracked: 50+*
+*Total Matches Processed: 918*  
+*Active Teams Tracked: 30+*
