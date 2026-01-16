@@ -54,7 +54,7 @@ If you want to test it on multiple devices, just add the "-- --host" flags on th
 * **Blizzard:** This site is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment, Inc. or the Overwatch Champions Series (OWCS). Overwatch and all related assets are trademarks or registered trademarks of Blizzard Entertainment, Inc.
 * **Teams & Players:** All team logos, player names, and player likenesses are the property of their respective organizations and owners.
 * **Multimedia Content:** All images and videos that appear on the site are the property of their respective owners. This site does not host or claim ownership of any video content.
-* **Match Data:** This website uses data pulled from Liquipedia by the official Liquipedia API, a community-driven wiki for esports competitions. Tournament names, team names, tournament logos, team logos, tournament bracket details and images are sourced from Liquipedia and are used under their own license.
+* **Match Data:** This website uses data pulled from Liquipedia by the official Liquipedia API, a community-driven wiki for esports competitions. Tournament names, team names, tournament logos, team logos, tournament bracket details and images are sourced from [Liquipedia](https://liquipedia.net) and are used under the [CC-BY-SA 3.0 license](https://creativecommons.org/licenses/by-sa/3.0/).
 
 This project is built for educational and community purposes under [Fair Use](https://www.copyright.gov/fair-use/) principles.
 
