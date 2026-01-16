@@ -7,23 +7,15 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 ![OWCS Wiki Homepage](<PASTE_A_LINK_TO_YOUR_HOMEPAGE_SCREENSHOT_HERE.jpg>)
 
 ## ✨ Features
-* **Detailed player profiles**, with:
-    * Career timelines and acomplishments.
-    * Signature heroes.
-    * Most recent Player POV's so you can catch all the most recent best maps of your favourite players. (huge thanks to [ObsSojourn's Youtube channel](https://www.youtube.com/@ObsSojourn) for the Player POV's, make sure to subscribe to the GOAT!)
-* **Detailed Team Rosters**, with:
-    * The most recent 3 matches, pulled from Liquipedia using the Liquipedia API.
-    * Advanced FACEIT Stats like historical map win rate, recent 5 map results and map win streaks (EMEA/NA only, no Asia :( )
-* **Interactive Player List:** A React "island" that lets users instantly search and filter all players by name, role, and team.
-* **Global Team Power Rankings:** An (un)official global leaderboard of the Top 30 teams across all official OWCS regions based on their performances.
-* **Content-Driven:** All player, team, and career data is managed in easy-to-edit Markdown files using Astro's Content Collections.
+* **Global Team Power Rankings:** An (un)official global leaderboard of the Top 30 teams across all official OWCS regions based on their performances in international stages and in their respective regions.
+* **OWCS Transfer Hub:** Be updated with all the transfer moves that happen across all of OWCS!
+* **OWCS Stock Market Simulator:** Show that you're ahead of the curve in a stock market simulator where you can buy/sell stocks of your favourite OWCS teams! (no real money involved whatsoever.)
+
 
 ## 📔 TODO list
-* [x] Coaching staff for all the teams
-* [ ] Updated Player and Team Info
-* [x] Player and Team Comparison
 * [x] Team Power Rankings (a la LoL Esports)
-* [x] Global Searching
+* [x] OWCS Transfer Hub
+* [x] OWCS "Stock Market" Simulator
 
 ## 🛠️ Tech Stack
 
@@ -38,7 +30,7 @@ A dynamic and comprehensive fan-made showcase of the major teams of the Overwatc
 If you want to make your own fork of the project, or you're just curious about the structure of it, follow these steps to run the project locally:
 
 ### 0. Premise
-This project uses a Google Cloud API key for the YouTube Player POV implementation in the .env file in the root. The site will still run without it, but the "Player POV" sections will not load data so if you plan on implementing the feature, remember to get a "YouTube Data API v3" API key from Google Cloud!
+This project uses the Liquipedia API for all the necessary data fetching for the Transfer Hub and especially for the Team Power Rankings. Make sure you have a Liquipedia API Key in order to replicate this project at home!
 
 ### 1. Clone the Repository
 
@@ -61,8 +53,8 @@ If you want to test it on multiple devices, just add the "-- --host" flags on th
 
 * **Blizzard:** This site is not affiliated with, endorsed by, or sponsored by Blizzard Entertainment, Inc. or the Overwatch Champions Series (OWCS). Overwatch and all related assets are trademarks or registered trademarks of Blizzard Entertainment, Inc.
 * **Teams & Players:** All team logos, player names, and player likenesses are the property of their respective organizations and owners.
-* **Video Content:** Player Point-of-View (POV) videos are embedded from YouTube and remain the intellectual property of their original creators and broadcasters (including the official [Overwatch Esports](https://www.youtube.com/@ow_esports) and [ObsSojourn](https://www.youtube.com/@ObsSojourn) channels). This site does not host or claim ownership of any video content.
-* **Match Data:** This website uses data from Liquipedia, a community-driven wiki for esports competitions. Tournament names, team names, tournament logos, team logos, tournament bracket details and images are sourced from Liquipedia and are used under their own license.
+* **Multimedia Content:** All images and videos that appear on the site are the property of their respective owners. This site does not host or claim ownership of any video content.
+* **Match Data:** This website uses data pulled from Liquipedia by the official Liquipedia API, a community-driven wiki for esports competitions. Tournament names, team names, tournament logos, team logos, tournament bracket details and images are sourced from Liquipedia and are used under their own license.
 
 This project is built for educational and community purposes under [Fair Use](https://www.copyright.gov/fair-use/) principles.
 
