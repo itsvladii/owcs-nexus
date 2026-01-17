@@ -6,7 +6,7 @@ import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
 import { calculateRankings } from "../lib/elo/calcELO";
 import { getCollection } from "astro:content";
 
-//#region
+
 // 1. Fetch Data & Run Algo
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
@@ -18,21 +18,35 @@ Astro.response.headers.set(
 );
 // 2. Get Local Data (Partner info & Logos)
 const allTeams = await getCollection("teams");
+const teamMap = new Map();
+allTeams.forEach((t) => {
+    teamMap.set(t.data.name.toLowerCase(), t);
+    if (t.data.liquipediaName) {
+        teamMap.set(t.data.liquipediaName.toLowerCase(), t);
+    }
+});
+
+// 2. Instant Lookup Helper
+function getLocalTeam(apiName: string) {
+    if (!apiName) return undefined;
+    return teamMap.get(apiName.toLowerCase());
+}
 
 const lastUpdated = new Date().toLocaleDateString("en-US", {
+    timeZone: "UTC", // Lock to UTC so it's consistent across Vercel regions
     month: "long",
     day: "numeric",
     year: "numeric",
 });
 
 // Helper to find the local team entry
-function getLocalTeam(apiName: string) {
+/*function getLocalTeam(apiName: string) {
     return allTeams.find(
         (t) =>
             t.data.name.toLowerCase() === apiName.toLowerCase() ||
             t.data.liquipediaName?.toLowerCase() === apiName.toLowerCase(),
     );
-}
+}*/
 
 // Helper to get display properties for a team
 // Now accepts the full 'team' object from the ranking list to access the API logo
