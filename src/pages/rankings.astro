@@ -11,7 +11,7 @@ import { getCollection } from "astro:content";
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
-const { rankings, stats } = calculateRankings(matches);
+const { rankings, stats,processedMatches } = calculateRankings(matches);
 Astro.response.headers.set(
     "Cache-Control",
     "public, max-age=0, s-maxage=3600, stale-while-revalidate",
@@ -38,16 +38,6 @@ const lastUpdated = new Date().toLocaleDateString("en-US", {
     day: "numeric",
     year: "numeric",
 });
-
-// Helper to find the local team entry
-/*function getLocalTeam(apiName: string) {
-    return allTeams.find(
-        (t) =>
-            t.data.name.toLowerCase() === apiName.toLowerCase() ||
-            t.data.liquipediaName?.toLowerCase() === apiName.toLowerCase(),
-    );
-}*/
-
 // Helper to get display properties for a team
 // Now accepts the full 'team' object from the ranking list to access the API logo
 function getTeamProps(team: {
@@ -325,7 +315,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
             class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm"
         >
             {/* Rows */}
-            <RankingsTable teams={tableData} client:only="react" />
+            <RankingsTable teams={tableData} matches={processedMatches} client:only="react" />
             <p class="text-center text-neutral-600 text-sm mt-8">
                 * Click on any team to see detailed stats and history.
             </p>

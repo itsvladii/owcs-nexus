@@ -21,11 +21,12 @@ export interface RankingTeam {
 
 interface Props {
   teams: RankingTeam[];
+  matches:any[];
 }
 
 const REGION_FILTERS = ['All Regions', 'Korea', 'North America', 'EMEA', 'China', 'Pacific', 'Japan'];
 
-export default function RankingsTable({ teams }: Props) {
+export default function RankingsTable({ teams, matches }: Props) {
   const [selectedTeam, setSelectedTeam] = useState<RankingTeam | null>(null);
   const [regionFilter, setRegionFilter] = useState('All Regions');
 
@@ -189,7 +190,8 @@ export default function RankingsTable({ teams }: Props) {
         <RankingModal 
           team={selectedTeam} 
           isOpen={!!selectedTeam} 
-          onClose={() => setSelectedTeam(null)} 
+          onClose={() => setSelectedTeam(null)}
+          matches={matches}
         />
       )}
     </>

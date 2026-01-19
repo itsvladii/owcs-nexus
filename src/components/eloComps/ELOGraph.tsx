@@ -7,17 +7,53 @@ interface Props {
   team: any;
   isOpen: boolean;
   onClose: () => void;
+  matches: any[];
 }
 
-// 1. CONFIGURATION
-const SEASON_START_DATE = '2025-01-24'; 
-const MAJOR_EVENTS = [
-  { label: 'Dallas Major', date: '2024-06-02' },
-  { label: 'EWC', date: '2024-07-28' },
-  { label: 'Stockholm', date: '2024-11-24' },
-];
+/**
+ * SMART ABBREVIATOR
+ * Turns "Overwatch Champions Series 2026 - North America Stage 1" 
+ * into "OWCS NA Stage 1"
+ */
+function getSmartAbbreviation(name: string): string {
+  if (!name) return "";
 
-export default function RankingModal({ team, isOpen, onClose }: Props) {
+  let abbr = name
+    // 1. Remove redundancy
+    .replace(/Overwatch Champions Series/g, 'OWCS')
+    .replace(/Overwatch World Cup/g, 'OWWC')
+    .replace(/2026/g, '')
+    .replace(/2025/g, '')
+    
+    // 2. Regions
+    .replace(/North America/g, 'NA')
+    .replace(/Europe, Middle East & North Africa/g, 'EMEA')
+    .replace(/Europe/g, 'EU')
+    .replace(/Asia/g, 'ASIA')
+    .replace(/Korea/g, 'KR')
+    .replace(/Japan/g, 'JP')
+    .replace(/Pacific/g, 'PAC')
+    
+    // 3. Stages & Formats
+    .replace(/Stage/g, 'Stg')
+    .replace(/Season/g, 'S')
+    .replace(/Group Stage/g, 'Groups')
+    .replace(/Playoffs/g, 'Playoffs')
+    .replace(/Midseason/g, 'Midseason')
+    .replace(/Championship/g, 'Champ')
+    .replace(/Last Chance Qualifier/g, 'LCQ')
+    .replace(/Qualifier/g, 'Qual')
+    .replace(/Faceit League/g, 'Faceit')
+    
+    // 4. Cleanup
+    .replace(/ - /g, ' ')  // Remove separators
+    .replace(/\s+/g, ' ')  // Remove double spaces
+    .trim();
+
+  return abbr;
+}
+
+export default function RankingModal({ team, isOpen, onClose, matches }: Props) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,240 +62,181 @@ export default function RankingModal({ team, isOpen, onClose }: Props) {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
+  // --- 1. FILTER & SORT ---
+  const teamHistory = useMemo(() => {
+    if (!team || !matches) return [];
+    return matches
+      .filter(m => m.team_a === team.name || m.team_b === team.name)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [team, matches]);
+
+  // --- 2. GRAPH CONFIG ---
   const chartConfig = useMemo(() => {
     if (!team || !team.history) return null;
-
-    // --- A. PROCESS DATA ---
-    const startTimestamp = new Date(SEASON_START_DATE).getTime();
     
-    // Filter & Sort
-    let rawData = team.history
-        .filter((h: any) => new Date(h.date).getTime() >= startTimestamp)
-        .map((h: any) => ({
-            x: new Date(h.date).getTime(),
-            y: Math.round(h.elo),
-            dateStr: new Date(h.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        }))
-        .sort((a: any, b: any) => a.x - b.x);
+    const sortedHistory = [...team.history].sort((a: any, b: any) => 
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
 
-    // Fallback if empty
-    if (rawData.length === 0 && team.history.length > 0) {
-        const last = team.history[team.history.length - 1];
-        rawData = [{
-            x: new Date().getTime(),
-            y: Math.round(last.elo),
-            dateStr: "Season Start"
-        }];
+    const dataPoints = sortedHistory.map((h: any) => ({
+        x: new Date(h.date).getTime(),
+        y: Math.round(h.elo)
+    }));
+
+    // Add current live rating if needed
+    if (dataPoints.length > 0) {
+        const lastDate = new Date(dataPoints[dataPoints.length - 1].x);
+        const today = new Date();
+        if (lastDate.toDateString() !== today.toDateString()) {
+             dataPoints.push({ x: Date.now(), y: Math.round(team.rating) });
+        }
+    } else {
+        dataPoints.push({ x: Date.now(), y: Math.round(team.rating) });
     }
 
-    // --- B. CALCULATE STATS ---
-    const values = rawData.map((d: any) => d.y);
-    const maxVal = Math.max(...values);
-    const minVal = Math.min(...values);
-
-    // --- C. GENERATE ANNOTATIONS (Majors + Peak/Low) ---
-    const annotations: any = {
-        xaxis: [],
-        points: []
-    };
-
-    // 1. Major Events (Vertical Lines)
-    MAJOR_EVENTS.forEach(event => {
-        const eventTime = new Date(event.date).getTime();
-        if (eventTime >= rawData[0].x && eventTime <= rawData[rawData.length - 1].x) {
-            annotations.xaxis.push({
-                x: eventTime,
-                borderColor: '#525252',
-                strokeDashArray: 4,
-                label: {
-                    text: event.label,
-                    orientation: 'horizontal',
-                    style: {
-                        color: '#a3a3a3',
-                        background: '#171717',
-                        fontSize: '10px',
-                        fontWeight: 'bold',
-                        padding: { left: 4, right: 4, top: 2, bottom: 2 }
-                    },
-                    offsetY: -10 // Push label up slightly
-                }
-            });
-        }
-    });
-
-    // 2. Peak & Low (Point Markers)
-    rawData.forEach((point: any) => {
-        if (point.y === maxVal) {
-            annotations.points.push({
-                x: point.x,
-                y: point.y,
-                marker: { size: 4, fillColor: '#f59e0b', strokeColor: '#fff', strokeWidth: 2 },
-                label: {
-                    text: 'PEAK',
-                    style: { color: '#fff', background: '#f59e0b', fontSize: '10px', fontWeight: 'bold' },
-                    offsetY: -6
-                }
-            });
-        } else if (point.y === minVal) {
-            annotations.points.push({
-                x: point.x,
-                y: point.y,
-                marker: { size: 4, fillColor: '#ef4444', strokeColor: '#fff', strokeWidth: 2 },
-                label: {
-                    text: 'LOW',
-                    style: { color: '#fff', background: '#ef4444', fontSize: '10px', fontWeight: 'bold' },
-                    offsetY: 6
-                }
-            });
-        }
-    });
-
-    // --- D. APEX OPTIONS ---
-    const options: ApexOptions = {
+    return {
+      series: [{ name: "Rating", data: dataPoints }],
+      options: {
         chart: {
-            type: 'area',
-            background: 'transparent',
-            toolbar: { show: false },
-            zoom: { enabled: false },
-            fontFamily: 'inherit'
+          type: 'area',
+          background: 'transparent',
+          toolbar: { show: false },
+          zoom: { enabled: false }
         },
         theme: { mode: 'dark' },
-        stroke: {
-            curve: 'smooth',
-            width: 3,
-            colors: ['#f59e0b'] // Amber-500
-        },
+        stroke: { curve: 'smooth', width: 2, colors: ['rgb(238, 135, 26)'] },
         fill: {
-            type: 'gradient',
-            gradient: {
-                shadeIntensity: 1,
-                opacityFrom: 0.4,
-                opacityTo: 0.05,
-                stops: [0, 100],
-                colorStops: [
-                    { offset: 0, color: '#f59e0b', opacity: 0.4 },
-                    { offset: 100, color: '#f59e0b', opacity: 0 }
-                ]
-            }
+           type: 'gradient',
+           gradient: {
+             shadeIntensity: 1,
+             opacityFrom: 0.4,
+             opacityTo: 0.05,
+             stops: [0, 100],
+             colorStops: [{ offset: 0, color: 'rgb(238, 135, 26)', opacity: 0.4 }, { offset: 100, color: 'rgb(238, 135, 26)', opacity: 0 }]
+           }
         },
         dataLabels: { enabled: false },
-        grid: {
-            borderColor: '#262626',
-            strokeDashArray: 3,
-            xaxis: { lines: { show: false } },
-            yaxis: { lines: { show: true } },
-            padding: { top: 0, right: 10, bottom: 0, left: 10 }
-        },
+        grid: { show: true, borderColor: '#404040', strokeDashArray: 3 },
         xaxis: {
-            type: 'datetime',
-            tooltip: { enabled: false },
-            axisBorder: { show: false },
-            axisTicks: { show: false },
-            labels: {
-                style: { colors: '#737373', fontSize: '10px' },
-                format: 'dd MMM'
-            },
-            crosshairs: { show: false } // Cleaner look
+          type: 'datetime',
+          tooltip: { enabled: false },
+          axisBorder: { show: false },
+          axisTicks: { show: false },
+          labels: { style: { colors: '#a3a3a3', fontFamily: 'monospace' } }
         },
         yaxis: {
-            show: false, // Hide Y-axis numbers to match your previous design
-            min: minVal - 20,
-            max: maxVal + 20
+          labels: { style: { colors: '#a3a3a3', fontFamily: 'monospace' } },
+          forceNiceScale: true
         },
-        annotations: annotations,
-        tooltip: {
-            theme: 'dark',
-            x: { format: 'dd MMM yyyy' },
-            y: {
-                formatter: (val) => `${val} ELO`,
-                title: { formatter: () => '' } // Hide series name
-            },
-            marker: { show: false },
-            fixed: {
-                enabled: false,
-                position: 'topRight'
-            }
-        }
+        tooltip: { theme: 'dark', x: { format: 'dd MMM' } }
+      } as ApexOptions
     };
-
-    const series = [{ name: 'ELO', data: rawData }];
-
-    return { options, series, maxVal, minVal };
   }, [team]);
 
-  if (!isOpen || !team || !mounted || !chartConfig) return null;
+  if (!mounted || !isOpen || !team) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 font-sans">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onClick={onClose}></div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" role="dialog">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal Card */}
-      <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-4xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
-        {/* Header */}
-        <div className="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
-          <div className="flex items-center gap-4">
-             {team.logo && <img src={team.logo} className="w-12 h-12 object-contain" alt={team.name} />}
+        {/* HEADER */}
+        <div className="p-6 border-b border-neutral-800 bg-neutral-900 shrink-0 flex justify-between items-center z-10">
+          <div className="flex items-center gap-5">
+             {team.logo && (
+                 <img src={team.logo} alt={team.name} className="w-16 h-16 object-contain drop-shadow-lg" />
+             )}
              <div>
-               <h2 className="text-3xl font-title text-white leading-none tracking-wide">{team.name}</h2>
-               <p className="text-sm text-neutral-500 font-bold uppercase tracking-wider">{team.region}</p>
+                 <h2 className="text-3xl font-bold font-title text-white font-tungsten uppercase tracking-wide leading-none">{team.name}</h2>
+                 <div className="flex gap-4 text-sm font-mono mt-2">
+                     <span className="text-neutral-400">Rating: <b className="text-white">{Math.round(team.rating)}</b></span>
+                     <span className="text-neutral-400">Record: <b className="text-white">{team.wins}W - {team.losses}L</b></span>
+                 </div>
              </div>
           </div>
-          <button onClick={onClose} className="text-neutral-500 hover:text-white p-2 rounded-full hover:bg-neutral-800 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          <button onClick={onClose} className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-8">
+        {/* SCROLLABLE CONTENT */}
+        <div className="overflow-y-auto custom-scrollbar flex-1 bg-neutral-950/50">
            
-           {/* Chart Header Stats */}
-           <div className="flex justify-between items-end mb-6">
-                <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Performance History</h3>
-                <div className="flex gap-4">
-                    <span className="text-[10px] text-amber-500 font-bold uppercase flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-amber-500"></span> Peak: {chartConfig.maxVal}
-                    </span>
-                    <span className="text-[10px] text-red-500 font-bold uppercase flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-red-500"></span> Low: {chartConfig.minVal}
-                    </span>
-                </div>
-           </div>
-             
-           {/* The Chart Container */}
-           <div className="w-full h-80 bg-neutral-950/30 rounded-xl border border-neutral-800/50 p-2 relative">
-                <Chart 
-                    options={chartConfig.options} 
-                    series={chartConfig.series} 
-                    type="area" 
-                    height="100%" 
-                    width="100%"
-                />
+           {/* Graph */}
+           <div className="h-72 w-full p-4 border-b border-neutral-800 bg-neutral-900/30">
+                {chartConfig && (
+                    <Chart options={chartConfig.options} series={chartConfig.series} type="area" height="100%" width="100%" />
+                )}
            </div>
 
-           {/* Bottom Stats Grid */}
-           <div className="grid grid-cols-3 gap-4 mt-8">
-             <div className="bg-neutral-800/20 p-4 rounded-xl text-center border border-neutral-800">
-               <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-1">Current ELO</p>
-               <p className="text-3xl font-mono font-bold text-white">{Math.round(team.rating)}</p>
-             </div>
-             <div className="bg-neutral-800/20 p-4 rounded-xl text-center border border-neutral-800">
-               <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-1">Win Rate</p>
-               <p className="text-3xl font-mono font-bold text-green-500">
-                 {Math.round((team.wins / (team.wins + team.losses)) * 100)}%
-               </p>
-             </div>
-             <div className="bg-neutral-800/20 p-4 rounded-xl text-center border border-neutral-800">
-               <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-1">Matches</p>
-               <p className="text-3xl font-mono font-bold text-white">{team.wins + team.losses}</p>
-             </div>
-           </div>
+           {/* Match Log */}
+           <div className="p-6">
+              <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2 sticky top-0 bg-neutral-950/95 py-2 z-10 backdrop-blur">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  Season Match Log
+              </h3>
+              
+              {teamHistory.length === 0 ? (
+                  <div className="text-center py-12 text-neutral-600 italic border border-dashed border-neutral-800 rounded-xl">
+                      No matches recorded yet.
+                  </div>
+              ) : (
+                  <div className="space-y-2">
+                      {teamHistory.map((m) => {
+                          const isTeamA = m.team_a === team.name;
+                          const opponent = isTeamA ? m.team_b : m.team_a;
+                          const myScore = isTeamA ? m.score_a : m.score_b;
+                          const opScore = isTeamA ? m.score_b : m.score_a;
+                          const rawChange = isTeamA ? m.elo_change_a : m.elo_change_b;
+                          const change = Math.round(rawChange);
+                          const isWin = (m.winner_id === '1' && isTeamA) || (m.winner_id === '2' && !isTeamA) || (myScore > opScore);
 
+                          // ✅ ABBREVIATION CALL
+                          const tourneyAbbr = getSmartAbbreviation(m.tournament);
+
+                          return (
+                              <div key={m.id} className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors">
+                                  
+                                  {/* Date & Tournament (Now Visible on Mobile) */}
+                                  <div className="col-span-3 sm:col-span-3 flex flex-col justify-center">
+                                      <span className="text-xs font-bold text-neutral-300 font-mono">
+                                          {new Date(m.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
+                                      </span>
+                                      <span className="text-[10px] text-neutral-500 font-medium truncate uppercase tracking-tight mt-0.5">
+                                          {tourneyAbbr}
+                                      </span>
+                                  </div>
+
+                                  {/* W/L Badge */}
+                                  <div className="col-span-1">
+                                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isWin ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                                          {isWin ? 'W' : 'L'}
+                                      </span>
+                                  </div>
+
+                                  {/* Opponent */}
+                                  <div className="col-span-5 sm:col-span-4 font-bold text-white text-sm truncate flex items-center gap-2">
+                                      <span className="text-neutral-600 text-[10px] uppercase font-normal hidden sm:inline">vs</span>
+                                      {opponent}
+                                  </div>
+
+                                  {/* Score */}
+                                  <div className="col-span-3 sm:col-span-2 text-center text-sm font-mono text-neutral-300 bg-neutral-950 rounded border border-neutral-800 py-0.5">
+                                      {myScore}-{opScore}
+                                  </div>
+
+                                  {/* Elo Change */}
+                                  <div className={`col-span-12 sm:col-span-2 text-right font-mono font-bold text-sm ${change >= 0 ? 'text-green-400' : 'text-red-400'} border-t border-neutral-800 mt-2 pt-2 sm:border-0 sm:mt-0 sm:pt-0`}>
+                                      {change > 0 ? '+' : ''}{change}
+                                  </div>
+                              </div>
+                          );
+                      })}
+                  </div>
+              )}
+           </div>
         </div>
-
-        
-
       </div>
     </div>,
     document.body
