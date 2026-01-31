@@ -129,46 +129,49 @@ function getThreePhaseKFactor(
   gamesPlayed: number,
   isMajor: boolean,
   isRegional: boolean,
-  winnerRating: number,
-  loserRating: number
+  winnerElo: number,
+  loserElo: number,
+  scoreA: number,    // ✅ Added score inputs
+  scoreB: number
 ): number {
-  // ---------------------------------------------------------
-  // PRIORITY 1: THE MAJOR OVERRIDE
-  // ---------------------------------------------------------
-  // Check if the match is a major. If true, set the maximum K-factor value of 60.
-  if (isMajor) return K_MAJOR;
+  
+  // 1. DETERMINE BASELINE
+  // Majors start at 50. Regionals start at 20.
+  let k = isMajor ? 50 : 20;
 
-  // ---------------------------------------------------------
-  // PRIORITY 2: CALIBRATION (for new teams)
-  // ---------------------------------------------------------
-  if (gamesPlayed < 10) {
-    // Linear slide from 50 -> 20
-    return K_CALIBRATION - ((K_CALIBRATION - K_STABILITY) * (gamesPlayed / 10));
+  // 2. REGIONAL COMPRESSION
+  // If it's a standard regional game, we dampen it slightly (20 -> 15).
+  // We skip this if it's a Major or the team is in calibration.
+  if (!isMajor && gamesPlayed >= 6 && isRegional) {
+    k = 15; 
   }
 
-  // ---------------------------------------------------------
-  // PRIORITY 3: ESTABLISHING THE REGIONAL BASELINE
-  // ---------------------------------------------------------
-  // Apply Regional Compression first (Regional games are less informative than international ones)
-
-  let k = K_STABILITY; // Start at Standard (20)
-  if (isRegional) {
-    k *= K_REGIONAL_COMPRESSION; // 20 * 0.65 = 13
+  // 3. CALIBRATION (The Rocket Fuel)
+  // If new team (<6 games), ignore the above and give them high volatility.
+  if (gamesPlayed < 6) {
+    k = 50 - ((50 - 20) * (gamesPlayed / 6)); // Linear drop 50 -> 20
   }
 
-  // ---------------------------------------------------------
-  // PRIORITY 4: THE "BULLY PENALTY" (Directional)
-  // ---------------------------------------------------------
-  // If the favorite wins against a much weaker team, reduce reward. Otherwise if the underdog won, no changes on the rewards.
-  if (winnerRating > loserRating) {
-    const eloDiff = winnerRating - loserRating;
-
-    // If the gap is massive (>250 ELO), slash the reward.
-    if (eloDiff > 250) {
-      k *= K_BULLY_PENALTY; // 13 * 0.5 = 6.5 (or 20 * 0.5 = 10)
-    }
+  // 4. THE BULLY PENALTY (Anti-Farming)
+  // If a giant beats a baby, slash the reward.
+  if (winnerElo > loserElo + 250) {
+    k *= 0.5; 
   }
-  return k;
+
+  // 5. THE "STATEMENT WIN" (Stomp Bonus) 💥
+  // We apply a gentle 1.2x multiplier for decisive wins.
+  // Major 3-0:  50 * 1.2 = 60 (Perfectly balanced high stakes)
+  // Regional 3-0: 15 * 1.2 = 18 (Nice little boost)
+  const diff = Math.abs(scoreA - scoreB);
+  if (diff >= 3) { // 3-0, 4-0, 4-1
+    k *= 1.2; 
+  } else if (diff === 2) { // 3-1, 4-2
+    k *= 1.1; // Tiny nudge for winning convincingly
+  }
+
+  // 6. SAFETY FLOOR
+  // Ensure a match is always worth at least 5 points.
+  return Math.max(k, 5);
 }
 
 //Seasonal Soft Reset Helper
@@ -378,8 +381,8 @@ export function calculateRankings(matches: any[]) {
     const gamesB = teamB.wins + teamB.losses;
 
     //Get the K-Factor for the match
-    let kA = getThreePhaseKFactor(gamesA ,isMajor, isRegional, winnerRating, loserRating);
-    let kB = getThreePhaseKFactor(gamesB ,isMajor, isRegional, winnerRating, loserRating);
+    let kA = getThreePhaseKFactor(gamesA ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
+    let kB = getThreePhaseKFactor(gamesB ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
 
     //Apply MoV (margin-of-victory) Multiplier
     const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);

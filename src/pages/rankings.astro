@@ -11,7 +11,7 @@ import { getCollection } from "astro:content";
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
-const { rankings, stats,processedMatches } = calculateRankings(matches);
+const { rankings, stats, processedMatches } = calculateRankings(matches);
 Astro.response.headers.set(
     "Cache-Control",
     "public, max-age=0, s-maxage=3600, stale-while-revalidate",
