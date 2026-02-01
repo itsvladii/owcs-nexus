@@ -137,7 +137,7 @@ function getThreePhaseKFactor(
   
   // 1. DETERMINE BASELINE
   // Majors start at 50. Regionals start at 20.
-  let k = isMajor ? 50 : 20;
+  let k = isMajor ? 60 : 20;
 
   // 2. REGIONAL COMPRESSION
   // If it's a standard regional game, we dampen it slightly (20 -> 15).
@@ -162,12 +162,7 @@ function getThreePhaseKFactor(
   // We apply a gentle 1.2x multiplier for decisive wins.
   // Major 3-0:  50 * 1.2 = 60 (Perfectly balanced high stakes)
   // Regional 3-0: 15 * 1.2 = 18 (Nice little boost)
-  const diff = Math.abs(scoreA - scoreB);
-  if (diff >= 3) { // 3-0, 4-0, 4-1
-    k *= 1.2; 
-  } else if (diff === 2) { // 3-1, 4-2
-    k *= 1.1; // Tiny nudge for winning convincingly
-  }
+  k*=getMovMultiplier(scoreA,scoreB)
 
   // 6. SAFETY FLOOR
   // Ensure a match is always worth at least 5 points.
@@ -383,11 +378,6 @@ export function calculateRankings(matches: any[]) {
     //Get the K-Factor for the match
     let kA = getThreePhaseKFactor(gamesA ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
     let kB = getThreePhaseKFactor(gamesB ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
-
-    //Apply MoV (margin-of-victory) Multiplier
-    const movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
-    kA *= movMultiplier;
-    kB *= movMultiplier;
 
     //Calculate Points Change
     const changeA = kA * (scoreA - expectedA);
