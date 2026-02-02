@@ -366,7 +366,7 @@ $$
 Both teams are past calibration ($n \geq 6$), it's a Major, not regional:
 
 $$
-K_A = K_B = 50 \quad \text{(Major baseline)}
+K_A = K_B = 60 \quad \text{(Major baseline)}
 $$
 
 Rating difference: $1450 - 1420 = 30 < 250$, so no bully penalty.
@@ -374,7 +374,7 @@ Rating difference: $1450 - 1420 = 30 < 250$, so no bully penalty.
 Score differential: $|3 - 1| = 2$, so statement win bonus:
 
 $$
-K_A = K_B = 50 \times 1.1 = 55
+K_A = K_B = 60 \times 1.1 = 66
 $$
 
 **Step 4: Apply MoV**
@@ -388,17 +388,17 @@ M = 1.0
 $$
 
 $$
-K_A^* = K_B^* = 55 \times 1.0 = 55
+K_A^* = K_B^* = 66 \times 1.0 = 66
 $$
 
 **Step 5: Rating Changes**
 
 $$
-\Delta R_A = 55 \times (1 - 0.543) = 55 \times 0.457 = 25.1
+\Delta R_A = 66 \times (1 - 0.543) = 66 \times 0.457 = 25.1
 $$
 
 $$
-\Delta R_B = 55 \times (0 - 0.457) = 55 \times (-0.457) = -25.1
+\Delta R_B = 66 \times (0 - 0.457) = 66 \times (-0.457) = -25.1
 $$
 
 **Step 6: New Ratings**

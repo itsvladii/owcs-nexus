@@ -55,6 +55,7 @@ function getSmartAbbreviation(name: string): string {
 
 export default function RankingModal({ team, isOpen, onClose, matches }: Props) {
   const [mounted, setMounted] = useState(false);
+  const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -84,13 +85,7 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
     }));
 
     // Add current live rating if needed
-    if (dataPoints.length > 0) {
-        const lastDate = new Date(dataPoints[dataPoints.length - 1].x);
-        const today = new Date();
-        if (lastDate.toDateString() !== today.toDateString()) {
-             dataPoints.push({ x: Date.now(), y: Math.round(team.rating) });
-        }
-    } else {
+    if (dataPoints.length === 0) {
         dataPoints.push({ x: Date.now(), y: Math.round(team.rating) });
     }
 
@@ -101,10 +96,13 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
           type: 'area',
           background: 'transparent',
           toolbar: { show: false },
-          zoom: { enabled: false }
+          zoom: { enabled: false },
+          animations: { enabled: true, easing: 'easeinout', speed: 800 }
         },
         theme: { mode: 'dark' },
-        stroke: { curve: 'smooth', width: 2, colors: ['rgb(238, 135, 26)'] },
+        stroke: { curve: 'smooth', width: 2, colors: ['#22c55e'] },
+        markers: { size: 0, hover: { size: 5 } },
+        dataLabels: { enabled: false },
         fill: {
            type: 'gradient',
            gradient: {
@@ -112,23 +110,29 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
              opacityFrom: 0.4,
              opacityTo: 0.05,
              stops: [0, 100],
-             colorStops: [{ offset: 0, color: 'rgb(238, 135, 26)', opacity: 0.4 }, { offset: 100, color: 'rgb(238, 135, 26)', opacity: 0 }]
+             colorStops: [{ offset: 0, color: '#22c55e', opacity: 0.4 }, { offset: 100, color: '#22c55e', opacity: 0 }]
            }
         },
-        dataLabels: { enabled: false },
-        grid: { show: true, borderColor: '#404040', strokeDashArray: 3 },
+        grid: { show: true, borderColor: '#262626', strokeDashArray: 0, position: 'back' },
         xaxis: {
           type: 'datetime',
           tooltip: { enabled: false },
           axisBorder: { show: false },
           axisTicks: { show: false },
-          labels: { style: { colors: '#a3a3a3', fontFamily: 'monospace' } }
+          labels: { style: { colors: '#525252', fontFamily: 'monospace', fontSize: '10px' }, format: 'dd MMM' }
         },
         yaxis: {
-          labels: { style: { colors: '#a3a3a3', fontFamily: 'monospace' } },
-          forceNiceScale: true
+          labels: { style: { colors: '#525252', fontFamily: 'monospace', fontSize: '10px' }, formatter: (val) => val.toFixed(0) },
+          forceNiceScale: true,
+          opposite: true
         },
-        tooltip: { theme: 'dark', x: { format: 'dd MMM' } }
+        tooltip: { 
+          theme: 'dark', 
+          x: { format: 'dd MMM yyyy' },
+          y: { formatter: (val) => `${val} PTS` },
+          style: { fontFamily: 'monospace' },
+          marker: { show: false }
+        }
       } as ApexOptions
     };
   }, [team]);
@@ -174,7 +178,7 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
            <div className="p-6">
               <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2 sticky top-0 bg-neutral-950/95 py-2 z-10 backdrop-blur">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  Season Match Log
+                  Match Log
               </h3>
               
               {teamHistory.length === 0 ? (
@@ -182,7 +186,7 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                       No matches recorded yet.
                   </div>
               ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-0">
                       {teamHistory.map((m) => {
                           const isTeamA = m.team_a === team.name;
                           const opponent = isTeamA ? m.team_b : m.team_a;
@@ -191,45 +195,108 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                           const rawChange = isTeamA ? m.elo_change_a : m.elo_change_b;
                           const change = Math.round(rawChange);
                           const isWin = (m.winner_id === '1' && isTeamA) || (m.winner_id === '2' && !isTeamA) || (myScore > opScore);
-
-                          // ✅ ABBREVIATION CALL
                           const tourneyAbbr = getSmartAbbreviation(m.tournament);
+                          const isExpanded = expandedMatchId === m.id;
 
                           return (
-                              <div key={m.id} className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors">
+                              <div key={m.id} className="border-b border-neutral-800/50 last:border-0">
                                   
-                                  {/* Date & Tournament (Now Visible on Mobile) */}
-                                  <div className="col-span-3 sm:col-span-3 flex flex-col justify-center">
-                                      <span className="text-xs font-bold text-neutral-300 font-mono">
-                                          {new Date(m.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
-                                      </span>
-                                      <span className="text-[10px] text-neutral-500 font-medium truncate uppercase tracking-tight mt-0.5">
-                                          {tourneyAbbr}
-                                      </span>
+                                  {/* --- MAIN ROW (Clickable) --- */}
+                                  <div 
+                                    onClick={() => m.details ? setExpandedMatchId(isExpanded ? null : m.id) : null}
+                                    className={`grid grid-cols-12 gap-2 items-center py-3 px-2 transition-colors group ${m.details ? 'cursor-pointer hover:bg-white/5' : ''}`}
+                                  >
+                                      
+                                      {/* Date & Tournament */}
+                                      <div className="col-span-3 sm:col-span-3 flex flex-col justify-center pl-2">
+                                          <span className="text-xs text-neutral-400 font-mono group-hover:text-neutral-300 transition-colors">
+                                              {new Date(m.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
+                                          </span>
+                                          <span className="text-[10px] text-neutral-600 font-medium truncate uppercase tracking-tight mt-0.5 group-hover:text-neutral-500">
+                                              {tourneyAbbr}
+                                          </span>
+                                      </div>
+
+                                      {/* Result */}
+                                      <div className="col-span-1 text-center">
+                                          <span className={`text-xs font-bold font-mono ${isWin ? 'text-green-500' : 'text-red-500'}`}>
+                                              {isWin ? 'W' : 'L'}
+                                          </span>
+                                      </div>
+
+                                      {/* Opponent */}
+                                      <div className="col-span-5 sm:col-span-4 font-bold text-white text-sm truncate flex items-center gap-2">
+                                          <span className="text-neutral-700 text-[10px] uppercase font-normal hidden sm:inline">vs</span>
+                                          <span className="group-hover:text-white text-neutral-200 transition-colors">{opponent}</span>
+                                      </div>
+
+                                      {/* Score */}
+                                      <div className="col-span-3 sm:col-span-2 text-center text-sm font-mono text-neutral-400 group-hover:text-white transition-colors">
+                                          {myScore} - {opScore}
+                                      </div>
+
+                                      {/* Elo Change */}
+                                      <div className={`col-span-12 sm:col-span-2 text-right font-mono font-bold text-sm ${change >= 0 ? 'text-green-400' : 'text-red-400'} sm:border-0 flex justify-end items-center gap-2`}>
+                                          <span>{change > 0 ? '+' : ''}{change}</span>
+                                          {/* Expansion Chevron */}
+                                          {m.details && (
+                                              <span className={`text-[10px] text-neutral-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+                                          )}
+                                      </div>
                                   </div>
 
-                                  {/* W/L Badge */}
-                                  <div className="col-span-1">
-                                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isWin ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                                          {isWin ? 'W' : 'L'}
-                                      </span>
-                                  </div>
+                                  {/* --- EXPANDED DETAILS (The "Alpha") --- */}
+                                  {isExpanded && m.details && (
+                                      <div className="bg-neutral-950/40 border-t border-neutral-800/50 p-4 animate-in slide-in-from-top-1 duration-200">
+                                          
+                                          {/* MVP Badge */}
+                                          {m.details.mvp && (
+                                              <div className="mb-3 flex items-center gap-2">
+                                                  <span className="text-[10px] font-bold bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-1.5 py-0.5 rounded uppercase tracking-wider">MVP</span>
+                                                  <span className="text-xs font-mono text-neutral-300">{m.details.mvp}</span>
+                                              </div>
+                                          )}
 
-                                  {/* Opponent */}
-                                  <div className="col-span-5 sm:col-span-4 font-bold text-white text-sm truncate flex items-center gap-2">
-                                      <span className="text-neutral-600 text-[10px] uppercase font-normal hidden sm:inline">vs</span>
-                                      {opponent}
-                                  </div>
+                                          {/* Map Breakdown Grid */}
+                                          <div className="space-y-1">
+                                              {m.details.maps.map((map: any, idx: number) => {
+                                                  const isMapWin = (map.winner === '1' && isTeamA) || (map.winner === '2' && !isTeamA);
+                                                  
+                                                  return (
+                                                      <div key={idx} className="flex items-center justify-between text-xs font-mono p-2 rounded hover:bg-white/5 transition-colors border border-transparent hover:border-neutral-800">
+                                                          <div className="flex items-center gap-3">
+                                                              {/* Status Bar */}
+                                                              <div className={`w-1 h-8 rounded-full ${isMapWin ? 'bg-green-500/80' : 'bg-red-500/80'}`}></div>
+                                                              
+                                                              <div className="flex flex-col">
+                                                                  <span className="text-neutral-200 font-bold">{map.name}</span>
+                                                                  <span className="text-[9px] text-neutral-600 uppercase tracking-wide">{map.mode}</span>
+                                                              </div>
+                                                          </div>
 
-                                  {/* Score */}
-                                  <div className="col-span-3 sm:col-span-2 text-center text-sm font-mono text-neutral-300 bg-neutral-950 rounded border border-neutral-800 py-0.5">
-                                      {myScore}-{opScore}
-                                  </div>
-
-                                  {/* Elo Change */}
-                                  <div className={`col-span-12 sm:col-span-2 text-right font-mono font-bold text-sm ${change >= 0 ? 'text-green-400' : 'text-red-400'} border-t border-neutral-800 mt-2 pt-2 sm:border-0 sm:mt-0 sm:pt-0`}>
-                                      {change > 0 ? '+' : ''}{change}
-                                  </div>
+                                                          <div className="flex items-center gap-3">
+                                                              {/* Bans */}
+                                                              {map.bans && map.bans.length > 0 && (
+                                                                  <div className="flex gap-1">
+                                                                      {map.bans.map((ban: string) => (
+                                                                          <span key={ban} className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-[9px] text-neutral-500 line-through decoration-red-500/40" title="Banned Hero">
+                                                                              {ban}
+                                                                          </span>
+                                                                      ))}
+                                                                  </div>
+                                                              )}
+                                                              
+                                                              {/* Score */}
+                                                              <span className={`w-14 text-right font-bold ${isMapWin ? 'text-green-400' : 'text-red-400'}`}>
+                                                                  {map.score}
+                                                              </span>
+                                                          </div>
+                                                      </div>
+                                                  )
+                                              })}
+                                          </div>
+                                      </div>
+                                  )}
                               </div>
                           );
                       })}

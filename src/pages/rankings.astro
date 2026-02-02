@@ -183,9 +183,7 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
                 stats.longestReign &&
                     (() => {
                         // 1. Get the team logo/color using your existing helper
-                        const { logo } = getTeamProps({
-                            name: stats.longestReign.name,
-                        });
+                        const { logo } = getTeamProps(stats.longestReign);
 
                         return (
                             <div class="bg-neutral-900/90 border border-purple-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-purple-500/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">

@@ -29,6 +29,16 @@ export interface ProcessedMatch {
   elo_change_b: number;
   team_a_elo_after: number;
   team_b_elo_after: number;
+  details?: {
+    mvp?: string;
+    maps: {
+      name: string;
+      mode: string;
+      score: string; // "2-0" or "124.18m"
+      winner: string; // "1" or "2"
+      bans: string[]; // ["Ana", "Echo"]
+    }[];
+  };
 }
 
 // --- 1. CONFIGURATION & CONSTANTS ---
@@ -404,6 +414,36 @@ export function calculateRankings(matches: any[]) {
         teamA.form.push('L');
     }
 
+    // EXTRACTION LOGIC
+    const mapDetails = match.match2games?.map((game: any) => {
+    // Extract Bans (Safety check because not all matches have bans)
+    const bans = [];
+    if (game.extradata?.team1ban1) bans.push(game.extradata.team1ban1);
+    if (game.extradata?.team2ban1) bans.push(game.extradata.team2ban1);
+
+    // Format Scores (Handle Push vs Control)
+    // Push returns floats like 124.18, Control returns [2, 0]
+    let scoreDisplay = "";
+    if (game.scores && game.scores.length === 2) {
+        if (game.mode === "Push") {
+            scoreDisplay = `${Math.round(game.scores[0])}m - ${Math.round(game.scores[1])}m`;
+        } else {
+            scoreDisplay = `${game.scores[0]} - ${game.scores[1]}`;
+        }
+    }
+
+    return {
+        name: game.map,
+        mode: game.mode,
+        score: scoreDisplay,
+        winner: game.winner,
+        bans: bans
+    };
+}) || [];
+
+// Extract MVP
+const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
+
     //Add the processed match
     processedMatches.push({
       id: match.id || `${matchDateStr}-${nameA}-${nameB}`,
@@ -417,7 +457,11 @@ export function calculateRankings(matches: any[]) {
       elo_change_a: changeA,
       elo_change_b: changeB,
       team_a_elo_after: teamA.rating,
-      team_b_elo_after: teamB.rating
+      team_b_elo_after: teamB.rating,
+      details:{
+        mvp:mvpData,
+        maps:mapDetails
+      }
     });
 
     //If the match was an upset, add it also into a separate "upsets" structure
