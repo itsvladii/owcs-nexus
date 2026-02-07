@@ -80,7 +80,7 @@ const TEAM_ALIASES: Record<string, string> = {
   "VortexWolf":"REJECT"
 };
 
-//Regional starting ELO scores
+//Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
   "Korea": 1304,
   "North America": 1264,
@@ -163,19 +163,17 @@ function getThreePhaseKFactor(
   }
 
   // 4. THE BULLY PENALTY (Anti-Farming)
-  // If a giant beats a baby, slash the reward.
+  // If the overwhelming favourite wins, slash the reward.
   if (winnerElo > loserElo + 250) {
     k *= 0.5; 
   }
 
   // 5. THE "STATEMENT WIN" (Stomp Bonus) 💥
-  // We apply a gentle 1.2x multiplier for decisive wins.
-  // Major 3-0:  50 * 1.2 = 60 (Perfectly balanced high stakes)
-  // Regional 3-0: 15 * 1.2 = 18 (Nice little boost)
+  // We apply a multiplier based on the Margin of Victory of the winner, rewarding dominant victories
   k*=getMovMultiplier(scoreA,scoreB)
 
   // 6. SAFETY FLOOR
-  // Ensure a match is always worth at least 5 points.
+  // Ensure a match is always worth something
   return Math.max(k, 5);
 }
 
@@ -525,7 +523,7 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
   }
   
   const kingName = Object.keys(daysAtOne).reduce((a, b) => daysAtOne[a] > daysAtOne[b] ? a : b, null as string | null);
-  const longestReign = kingName ? { name: kingName, days: daysAtOne[kingName] } : null;
+  const longestReign = kingName ? { name: kingName, days: daysAtOne[kingName]} : null;
 
   //BIGGEST MOVERS CALCULATOR
   const oneWeekAgo = new Date();

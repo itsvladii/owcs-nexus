@@ -15,7 +15,7 @@ This rating system ranks Overwatch Champions Series (OWCS) teams using a modifie
 **Primary Data Source:** Matches are pulled thanks to the [Liquipedia Overwatch API.](https://liquipedia.net/overwatch/api.php) The matches that are "eligble" for calculation are:
 
 - ✅ Matches from official OWCS tournaments (Stages, Majors, Regional Playoffs, Promotion/Relegation, Open Qualifiers)
-- ❌ Showmatches, FACEIT League matches, matches from other non-OWCS tournaments (Collegiate, Calling All Heros, Overwatch World Cup ect.) do NOT count.
+- ❌ Showmatches, FACEIT League matches, matches from other non-OWCS tournaments (Collegiate, Calling All Hereos, Overwatch World Cup ect.), OWCS Pre-Season Bootcamp ect.
 
 ---
 
@@ -87,7 +87,7 @@ Where:
 
 Since OWCS regions do not have the same strength, teams are initialized at region-specific ELO baselines that reflect the historical competitive strength of the various regions. 
 
-For example, the 2025 OWCS season's ELO leaderboard it would have these region-specific ELO baselines:
+For example, at the start of the 2025 OWCS season's ELO leaderboard teams would start with their respective regional ELO baselines that are as follows:
 
 | Region         | Starting Elo ($R_0$) | Basis                                           |
 |----------------|----------------------|-------------------------------------------------|
@@ -99,8 +99,8 @@ For example, the 2025 OWCS season's ELO leaderboard it would have these region-s
 | Pacific        | 1189                 | Developing region                               |
 | Default        | 1200                 | Fallback for unclassified teams                 |
 
-**Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous season to objectively measure regional strength:
-1. First off, we re-calculate every official match of the previous season assuming zero prior regional bias (every team starts at a baseline of 1200 ELO).
+**Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous seasons to objectively measure regional strength:
+1. First off, we re-calculate every official match of the previous seasons assuming zero prior regional bias (every team starts at a baseline of 1200 ELO).
 2. Then, we assessed regional strength by calculating the average ELO of the Top 3 Teams in each region.
 
 *Why only Top 3?* In international competition, a region's ability to win championships is defined by its strongest representatives, not its median team. Including the bottom 50% of a region (who rarely compete internationally) dilutes the data with uncalibrated "local" ELO noise.
@@ -112,7 +112,7 @@ For example, the 2025 OWCS season's ELO leaderboard it would have these region-s
 The K-factor ($K$) is the most critical parameter in the ELO system, determining how much ratings change after each match. It essentially shows the "context" of the match, taking into account *where* the match was played and *how* the match went.
 
 ### Base K-Factor Values
-
+The K-Factor calculation will start from these base values that will change depending on the context of the match:
 $$
 K_{\text{major}} = 60 \quad \text{(Major tournaments)}
 $$
@@ -153,7 +153,7 @@ K_{\text{base}} & \text{otherwise}
 \end{cases}
 $$
 
-**Rationale:** Intra-regional matches provide less information about global strength than international competition.
+**Rationale:** Intra-regional matches provide less information about global strength than international competition, therefore the K-Factor will be slightly reduced from 20 to 15.
 
 #### 3. Calibration Override
 
@@ -177,7 +177,7 @@ n \geq 6 &: K = K_{\text{base}} \quad \text{(stable)}
 \end{align}
 $$
 
-**Purpose:** Since new teams are harder to read because they do not have prior match data, they need rapid rating adjustments to find their true skill level quickly. Think of it as "placement matches" for teams (like in Competitive in Overwatch) before getting their "rank".
+**Purpose:** New teams are "harder to read" because they do not have prior data to work with, therefore they need rapid rating adjustments to find their true skill level quickly. Think of it as "placement matches" for teams (like in Competitive in Overwatch) before getting their "rank".
 
 #### 4. "Bully Penalty" (Anti-Farming Mechanism)
 
@@ -339,7 +339,7 @@ $$
 ### Example 1: Major Tournament, Evenly Matched Teams
 
 **Setup:**
-- Tournament: OWCS World Championship (Major)
+- Tournament: OWCS World Finals (Major)
 - Team A: Rating 1450, 25 games played, Korea
 - Team B: Rating 1420, 30 games played, EMEA
 - Score: 3-1 (Team A wins)
@@ -416,7 +416,7 @@ $$
 ### Example 2: Regional Match, Strong Team vs Weak Team
 
 **Setup:**
-- Tournament: EMEA Regional League (not Major)
+- Tournament: EMEA Regional Stage (not Major)
 - Team A: Rating 1550, 40 games, EMEA
 - Team B: Rating 1250, 35 games, EMEA  
 - Score: 3-0 (Team A wins)
@@ -502,7 +502,7 @@ $$
 ### Example 3: New Team Upset
 
 **Setup:**
-- Tournament: Pacific Qualifiers (not Major)
+- Tournament: OWCS Asia Qualifiers (not Major)
 - Team A (New): Rating 1200, 2 games, Pacific
 - Team B (Veteran): Rating 1450, 50 games, Korea
 - Score: 3-2 (Team A wins - upset!)
@@ -696,50 +696,11 @@ Where:
 - $W$ = Total wins
 - $\Delta t_{\text{inactive}}$ = Days since last match
 
-**Mathematical formulation:**
+**Logical formulation:**
 
 $$
 \text{Ranked} \iff (R \geq 1000) \land (W \geq 1) \land (\Delta t_{\text{inactive}} < 90)
 $$
-
----
-
-## Statistics Calculations
-
-### 1. Days at Rank #1
-
-For each time interval $[t_i, t_{i+1}]$ between match dates, determine which team had the highest rating:
-
-$$
-\text{Leader}(t) = \arg\max_{j} R_j(t)
-$$
-
-Total days at #1 for team $k$:
-
-$$
-D_k = \sum_{i : \text{Leader}(t_i) = k} (t_{i+1} - t_i)
-$$
-
-### 2. Rank Delta (Week-over-Week)
-
-$$
-\Delta_{\text{rank}} = \text{rank}_{\text{old}} - \text{rank}_{\text{current}}
-$$
-
-Where:
-- $\Delta_{\text{rank}} > 0$: Team moved up in rankings
-- $\Delta_{\text{rank}} < 0$: Team moved down in rankings  
-- $\Delta_{\text{rank}} = 0$: Team maintained rank
-
-### 3. Rating Change (30-Day Window)
-
-$$
-\Delta R_{30} = R_{\text{current}} - R_{30\text{ days ago}}
-$$
-
-Biggest gainer: $\max_k \Delta R_{30}^{(k)}$
-
-Biggest loser: $\min_k \Delta R_{30}^{(k)}$
 
 ---
 
@@ -757,6 +718,8 @@ f_{\text{alias}}(\text{name}) =
 \end{cases}
 $$
 
+**Purpose:** This is implemented mainly to stadardize team names across the leaderbord, since Liquipedia tends to add extra data in order to differentiate teams that have the same name.
+
 ### Roster Resets
 
 When a team changes $\geq 60\%$ of its roster, its ELO score is reset to the regional baseline:
@@ -770,7 +733,6 @@ Example: `NTMR` reset to $1264$ on `2025-05-01` after the OWCS Champions Clash.
 **Purpose:** This is to avoid teams that completely changed their roster in the middle of the season to "inherit" the ELO points scored by said team, but with a different roster.
 
 ### Region Inference
-
 Teams can change regions during a season. Therefore, a team's region is inferred from the tournament name of their last played match using keyword matching:
 
 $$
@@ -836,42 +798,13 @@ Before any matches are played, the system assumes Korean teams have 62% win prob
 
 ---
 
-## Computational Complexity
-
-### Time Complexity
-
-Processing $n$ matches with $m$ teams:
-
-$$
-\mathcal{O}(n \cdot \log m)
-$$
-
-- Each match: $\mathcal{O}(\log m)$ for team lookup in hash table
-- $n$ matches processed sequentially
-
-### Space Complexity
-
-$$
-\mathcal{O}(m \cdot h)
-$$
-
-Where:
-- $m$ = number of teams
-- $h$ = average history length per team
-
-Typical values: $m \approx 100$ teams, $h \approx 800$ matches → ~80,000 history entries
-
----
-
 ## Design Philosophy
 
 ### Core Principles
-
-1. **Predictive Accuracy**: $\arg\min E[(S - E)^2]$ (minimize Brier score)
-2. **Rapid Convergence**: New teams reach true rating in $< 10$ matches
-3. **Stability**: Established teams resist volatility
-4. **Context Sensitivity**: Majors $>$ Internationals $>$ Regionals
-5. **Anti-Exploitation**: Prevent farming weak opponents
+1. **Rapid Convergence**: New teams reach true rating in $< 10$ matches
+2. **Stability**: Established teams resist volatility
+3. **Context Sensitivity**: Different type of matches describe different results
+4. **Anti-Exploitation**: Prevent farming weak opponents
 
 ### Trade-offs
 
@@ -914,15 +847,6 @@ Typical values: $m \approx 100$ teams, $h \approx 800$ matches → ~80,000 histo
 **Upset**: Match where underdog ($E < 0.35$) defeats favorite
 
 ---
-
-### Implementation Notes
-
-- Chronological processing is **required** for accurate rating progression
-- Floating-point precision: Standard IEEE 754 double (53-bit mantissa)
-- Rounding: Final ratings rounded to 1 decimal place for display
-
----
-
 **Document Version**: 1.0  
 **Last Updated**: February 2026  
-**Algorithm Version**: OWCS-Nexus ELO v1.0  
+**Algorithm Version**: v1.0  
