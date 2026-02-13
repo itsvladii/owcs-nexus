@@ -41,12 +41,6 @@ export interface ProcessedMatch {
   };
 }
 
-// --- 1. CONFIGURATION & CONSTANTS ---
-const K_CALIBRATION = 50;  // First 10 games: Rocket Fuel
-const K_STABILITY = 20;    // Regular Season: Stability
-const K_MAJOR = 60;        // Majors/Internationals: The Truth
-const K_REGIONAL_COMPRESSION = 0.65; // Regional matches worth 65% after calibration
-const K_BULLY_PENALTY = 0.5; // 50% reduction for farming weak teams
 
 const SEASONAL_RETENTION = 0.70; // Keep 70% rating on year reset
 const STARTING_ELO_BASELINE = 1200; // Baseline for soft resets
@@ -69,31 +63,21 @@ const PARTNER_TEAMS_2025 = new Set([
 
 //Alias Map for eventual team rebrandings happening during the season
 const TEAM_ALIASES: Record<string, string> = {
-  "All Gamers Global": "WAE",
-  "WAY": "WAE",
-  "Once Again": "Weibo Gaming",
-  "Sign Esports": "NTMR",
-  "1DIPVS100GORILLAS": "Vanir Quick",
-  "Team CC (Chinese orgless team)": "Team CC",
-  "Cheeseburger (Korean team)": "Cheeseburger",
-  "Quick Esports": "Vanir Quick",
-  "VortexWolf":"REJECT"
 };
 
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
-  "Korea": 1304,
-  "North America": 1264,
-  "EMEA": 1255,
-  "China": 1200,
-  "Japan": 1211,
-  "Pacific": 1189,
-  "default":1200
+  "Korea": 1454,
+  "North America": 1312,
+  "EMEA": 1398,
+  "China": 1282,
+  "Japan": 1304,
+  "Pacific": 1240,
+  "default": 1200
 };
 
 //Record of all the roster resets (i.e the team doesn't keep more than 2 players of the original roster)
 const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
-   { team: "NTMR", date: "2025-05-01", resetTo: 1264 },
 ];
 
 //--- 2. HELPER FUNCTIONS---
@@ -189,11 +173,11 @@ function applySeasonalSquish(teams: Record<string, RatedTeam>) {
 //Function that infers a team's region based on the last game that they've played
 //Usefull for treating teams that change region during the OWCS season.
 function inferRegion(tournamentName: string): string|null {
-  if (tournamentName.includes("Asia")) return null;
   if (tournamentName.includes("Japan") && tournamentName.includes("Pacific")) return null; 
   if (tournamentName.includes("Pacific")) return "Pacific";
   if (tournamentName.includes("Japan")) return "Japan";
   if (tournamentName.includes("China")) return "China";
+  if (tournamentName.includes("Asia")) return null;
   
   if (tournamentName.includes("Korea") || tournamentName.includes("Asia")) return "Korea";
   if (tournamentName.includes("North America") || tournamentName.includes("NA")) return "North America";
@@ -254,7 +238,7 @@ export function calculateRankings(matches: any[]) {
         rating: STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
         losses: 0,
-        history: [{ date: '2025-01-01', elo: STARTING_ELO[region] || 1200 }],
+        history: [{ date: '2026-01-01', elo: STARTING_ELO[region] || 1200 }],
         tournaments: [],
         form:[],
         isPartner: PARTNER_TEAMS_2025.has(name)
