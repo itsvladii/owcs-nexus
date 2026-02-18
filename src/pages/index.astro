@@ -101,87 +101,78 @@ const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)]
           </div>
 
           {/* The Match Card - Now firmly anchored */}
-          <div class="w-full max-w-5xl animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-300">
-             <LiveMatchCard client:load />
-          </div>
+          
       </div>
   </div>
+
+  <div class="w-full animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-300">
+             <LiveMatchCard client:load />
+    </div>
 
   {/* ==============================================
       2. REST OF CONTENT (Unchanged)
       ============================================== */}
   <div class="max-w-7xl mx-auto px-4 py-24 relative z-20">
-
-    {/* ROW 1: RANKINGS */}
-    <FeatureSection
-        title="Global Power Rankings"
-        subtitle="Live Leaderboard"
-        description="Data doesn't lie. Our algorithmic ELO system tracks every official match in real-time."
-        theme="red"
-        primaryLink={{ text: "View Standings", href: "/rankings" }}
-    >
-        <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
-            <img src={"https://live.staticflickr.com/65535/54957178670_8abc8fb8eb_k.jpg"} class="w-full h-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-[1.5s]" />
-        </div>
-    </FeatureSection>
-
-    {/* ROW 2: TRANSFERS */}
-    <FeatureSection
-        title="Transfer Wire"
-        subtitle="Roster Moves"
-        description="Track every signing, release, and rumor in the ecosystem."
-        theme="blue"
-        align="right"
-        primaryLink={{ text: "View Transfers", href: "/transfers" }}
-    >
-        <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
-            <img src={"https://live.staticflickr.com/65535/54692863385_f06c46e6e9_k.jpg"} class="w-full h-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-[1.5s]" />
-        </div>
-    </FeatureSection>
-
-    {/* ROW 3: STOCK MARKET */}
-    <FeatureSection
-        title="Watch Smarter.<br/><span class='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400'>Trade Better.*</span>"
-        subtitle="Nexus Markets"
-        description="Don't just cheer for your team's victory: own a piece of it."
-        theme="market"
-        align="left"
-        primaryLink={{ text: "Open Exchange", href: "/portfolio" }}
-        disclaimer="*Fantasy simulation. No real money involved."
-    >
-        <div class="relative group">
-            <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-            <div class="relative bg-neutral-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden">
-                <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-                    <div class="flex items-center gap-3">
-                        <img src="https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898092/tm_logo_xx1e3y.png" class="w-8 h-8 object-contain" />
-                        <div>
-                            <div class="font-bold text-white">Twisted Minds</div>
-                            <div class="text-xs text-neutral-500">EMEA</div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xl font-mono font-bold text-emerald-400">$161.75</div>
-                        <div class="text-xs text-emerald-500/80 bg-emerald-500/10 px-2 py-0.5 rounded">▲ TRENDING</div>
-                    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <div class="lg:col-span-8 group">
+            <div class="relative h-full min-h-[600px] rounded-3xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl transition-all hover:border-red-500/30">
+                <div class="absolute inset-0 z-0">
+                    <img 
+                        src="https://live.staticflickr.com/65535/54697746377_41483eadef_k.jpg" 
+                        class="w-full h-full object-cover opacity-50" 
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent"></div>
                 </div>
-                <div class="h-32 w-full bg-gradient-to-b from-emerald-500/10 to-transparent flex items-end mb-6 relative overflow-hidden rounded-lg border border-emerald-500/10">
-                    <svg class="absolute bottom-0 w-full h-full text-emerald-500" preserveAspectRatio="none" viewBox="0 0 100 100">
-                        <path d="M0 80 Q 20 90 40 60 T 80 40 L 100 20 V 100 H 0 Z" fill="currentColor" opacity="0.2" />
-                        <path d="M0 80 Q 20 90 40 60 T 80 40 L 100 20" fill="none" stroke="currentColor" stroke-width="2" />
-                    </svg>
-                </div>
-                <div class="grid grid-cols-2 gap-4 opacity-50 pointer-events-none">
-                    <div class="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-center py-3 rounded-lg font-bold uppercase text-sm">Buy</div>
-                    <div class="bg-neutral-800 border border-white/10 text-neutral-500 text-center py-3 rounded-lg font-bold uppercase text-sm">Sell</div>
+                
+                <div class="relative z-10 p-8 h-full flex flex-col justify-end">
+                    <span class="text-red-500 font-mono text-xs font-bold tracking-widest uppercase mb-2">Live Leaderboard</span>
+                    <h2 class="text-5xl font-title text-white uppercase mb-4">Team Global Standings</h2>
+                    <p class="text-neutral-400 max-w-md mb-6">Want to know who's the apex predator in OWCS? Our customized ELO algorithm calculates ELO scores for all the teams that play in the OWCS. Data doesn't lie.</p>
+                    <a href="/rankings" class="w-fit px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-colors">View Standings</a>
                 </div>
             </div>
         </div>
-    </FeatureSection>
 
-  </div>
+        <div class="lg:col-span-4 space-y-6 flex flex-col">
+            <div class="flex-1 bg-neutral-900 border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <svg class="w-24 h-24 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 3v18h18M7 12l5-5 5 5 3-3"/></svg>
+                </div>
+                
+                <h3 class="text-emerald-400 font-mono text-xs font-bold tracking-widest uppercase mb-4">Nexus Markets</h3>
+                <div class="mb-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <img src="https://res.cloudinary.com/dm1bfprgq/image/upload/v1762898092/tm_logo_xx1e3y.png" class="w-10 h-10 object-contain" />
+                        <div>
+                            <div class="font-bold text-white text-lg">Twisted Minds</div>
+                            <div class="text-xs text-neutral-500">Trending Up</div>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-mono font-bold text-emerald-400">$161.75</div>
+                </div>
+                
+                <p class="text-neutral-500 text-sm mb-6">Trade team stocks based on performance. Watch Smarter, Trade Better.</p>
+                <button disabled class="w-full py-3 bg-neutral-800 text-neutral-500 font-bold rounded-xl border border-white/5 cursor-not-allowed flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Coming Soon
+        </button>
+            </div>
+
+            <div class="h-1/3 bg-neutral-900 border border-white/10 rounded-3xl p-6 group transition-all">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-blue-400 font-mono text-xs font-bold tracking-widest uppercase">Transfer Wire</h3>
+            <span class="text-[10px] text-neutral-600 bg-neutral-950 px-2 py-0.5 rounded border border-white/5 uppercase">Coming Soon</span>
+        </div>
+        <p class="text-white font-bold mb-4 opacity-50">Track every signing and release in the ecosystem.</p>
+        <button disabled class="w-full py-3 bg-neutral-800 text-neutral-500 font-bold rounded-xl border border-white/5 cursor-not-allowed flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Coming Soon
+        </button>
+    </div>
+        </div>
+    </div>
+</div>
 </BaseLayout>
 
 {/* 3. OPTIMIZED ENGINE SCRIPT */}

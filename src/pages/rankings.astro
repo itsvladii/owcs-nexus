@@ -1,22 +1,25 @@
 ---
+// src/pages/rankings.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable, { type RankingTeam } from "../components/eloComps/RankTable";
+// 1. Swap the old GPRExpl for the new Sidebar version
 import GPRExpl from "../components/eloComps/GPRExpl.astro";
 import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
 import { calculateRankings } from "../lib/elo/calcELO";
 import { getCollection } from "astro:content";
 
-
-// 1. Fetch Data & Run Algo
+// --- DATA FETCHING ---
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
 const { rankings, stats, processedMatches } = calculateRankings(matches);
+
 Astro.response.headers.set(
     "Cache-Control",
     "public, max-age=0, s-maxage=3600, stale-while-revalidate",
 );
-// 2. Get Local Data (Partner info & Logos)
+
+// --- LOCAL DATA MAPPING ---
 const allTeams = await getCollection("teams");
 const teamMap = new Map();
 allTeams.forEach((t) => {
@@ -26,20 +29,17 @@ allTeams.forEach((t) => {
     }
 });
 
-// 2. Instant Lookup Helper
 function getLocalTeam(apiName: string) {
     if (!apiName) return undefined;
     return teamMap.get(apiName.toLowerCase());
 }
 
 const lastUpdated = new Date().toLocaleDateString("en-US", {
-    timeZone: "UTC", // Lock to UTC so it's consistent across Vercel regions
     month: "long",
     day: "numeric",
     year: "numeric",
 });
-// Helper to get display properties for a team
-// Now accepts the full 'team' object from the ranking list to access the API logo
+
 function getTeamProps(team: {
     name: string;
     logo?: string;
@@ -55,76 +55,67 @@ function getTeamProps(team: {
 
     return { localTeam, hasPage, color, logo };
 }
-//#endregion
 
-const restOfThePack = rankings.slice(0, 30);
-
-const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
-    const { localTeam, hasPage, color, logo } = getTeamProps(team);
+// --- DATA PREP FOR TABLE ---
+const tableData: RankingTeam[] = rankings.map((team, index) => {
+    const localData = getLocalTeam(team.name);
     return {
         rank: index + 1,
         name: team.name,
-        slug: localTeam?.slug || "",
-        rating: team.rating,
+        slug: localData?.id || team.name.toLowerCase().replace(/\s+/g, "-"),
+        rating: Math.round(team.rating),
         wins: team.wins,
         losses: team.losses,
-        region: team.region,
-        logo: logo,
-        color: color,
-        hasPage: hasPage,
-        history: team.history, // Passing the ELO history for the graph!
-        rankDelta: team.rankDelta,
+        region: team.region || "Unknown",
+        logo: team.logo,
+        isPartner: team.isPartner || false,
+        hasPage: !!localData,
+        history: team.history,
         tournaments: team.tournaments,
+        rankDelta: team.rankDelta,
         form: team.form
     };
 });
 ---
 
-<BaseLayout title="Global Power Rankings" fullWidth={true}>
-    {
-        /* ==============================================
-  HERO BACKGROUND WALLPAPER
-  ============================================== */
-    }
-    <div class="relative w-full h-[60vh] overflow-hidden rounded-xl">
-        {/* Replace src with your preferred background */}
-        <img
-            src="https://live.staticflickr.com/65535/54957111419_8fbc5e3e0f_k.jpg"
-            alt="OWCS Stage Background"
-            class="w-full h-200 object-cover object-center scale-105 filter brightness-[0.6]"
+<BaseLayout title="Global Power Rankings | OWCS Nexus">
+    
+            <div class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end">
+    <div class="absolute inset-0 z-0">
+        <img 
+            src="https://live.staticflickr.com/65535/54956871956_239e2d7ec1_k.jpg" 
+            alt="Header Background" 
+            class="w-full h-full object-cover opacity-50 grayscale"
         />
-        {/* Gradient Overlay */}
-        <div
-            class="absolute inset-0 bg-gradient-to-b from-neutral-950/30 via-neutral-950/80 to-neutral-950"
-        >
-        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/60 via-transparent to-neutral-950/60"></div>
     </div>
 
-    {/* MAIN CONTENT CONTAINER (Overlapping the banner) */}
-    <div class="max-w-6xl mx-auto px-4 relative z-10 -mt-64 md:-mt-80 pb-24">
-        <div class="text-center mb-16 drop-shadow-2xl">
-            <h1
-                class="text-6xl md:text-8xl font-title text-white mb-4 tracking-tight"
-            >
-                GLOBAL RANKINGS
-            </h1>
-            <p
-                class="text-neutral-300 text-lg md:text-xl max-w-2xl mx-auto font-medium"
-            >
-                Algorithmic power rankings based on {matches.length} matches.
-                <br />
-                <span class="text-neutral-500 text-sm font-normal">
-                    Last updated: {lastUpdated}
-                </span>
+    <div class="max-w-7xl mx-auto px-4 w-full relative z-10">
+        <div class="mb-4">
+            <p class="text-red-500 font-mono text-xs uppercase tracking-[0.3em] mb-3 drop-shadow-md">
+                (Un)Official OWCS ELO Ratings 
             </p>
+            <h1 class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.8] mb-8 drop-shadow-2xl">
+                Team Global <br/> Standings
+            </h1>
         </div>
 
+        <div class="flex flex-col md:flex-row items-center gap-6 text-neutral-400 font-mono text-xs uppercase tracking-widest">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span class="px-3 py-1 border border-neutral-800 rounded-full bg-neutral-900/80 backdrop-blur-sm text-white">
+                    OWCS Season 3 
+                </span>
+            </div>
+            <span class="hidden md:inline text-neutral-800">•</span>
+            <span class="opacity-80">Last Updated: {lastUpdated} </span>
+        </div>
+    </div>
+</div>
 
-        {
-            /* ==============================================
-    1. SEASON HIGHLIGHTS (Movers & Upsets)
-    ============================================== */
-        }
+    <div class="max-w-7xl mx-auto px-4 py-12">
+  
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
             {/* CARD 1: BIGGEST MOVER */}
             {
@@ -301,26 +292,50 @@ const tableData: RankingTeam[] = restOfThePack.map((team, index) => {
             }
         </div>
 
-    
 
-        {
-            /* ==============================================
-    2. THE TABLE
-    ============================================== */
-        }
+        {/* --- MAIN LAYOUT (Split View) --- */}
+        <div class="flex flex-col lg:flex-row gap-8 relative items-start">
+            
+            {/* LEFT: THE RANKINGS TABLE (Flex Grow) */}
+            <div class="flex-1 min-w-0 w-full">
+                
+                {/* UPSET ALERT (Optional - kept from your old file) */}
+                {stats.biggestUpsets.length > 0 && (
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                         {stats.biggestUpsets.map((upset: any) => (
+                            <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-lg flex items-center gap-4">
+                                <div class="p-2 bg-red-500/20 rounded-full text-red-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-red-400 font-bold uppercase text-xs tracking-wider">Major Upset Alert</h4>
+                                    <p class="text-white font-bold text-sm">
+                                        {upset.winner} def. {upset.loser}
+                                        <span class="text-neutral-500 ml-2 font-mono text-xs">{(upset.prob * 100).toFixed(1)}% prob</span>
+                                    </p>
+                                </div>
+                            </div>
+                         ))}
+                    </div>
+                )}
 
-        <div
-            class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm"
-        >
-            {/* Rows */}
-            <RankingsTable teams={tableData} matches={processedMatches} client:only="react" />
-            <p class="text-center text-neutral-600 text-sm mt-8">
-                * Click on any team to see detailed stats and history.
-            </p>
+                {/* THE TABLE */}
+                <div class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm">
+                    <RankingsTable teams={tableData} matches={processedMatches} client:only="react" />
+                </div>
+                
+                <p class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0">
+                    * Click on any team to see detailed stats and match history.
+                </p>
+            </div>
+
+            {/* RIGHT: THE ALGORITHM SIDEBAR (Fixed Width) */}
+            {/* This will stick to the screen on Desktop */}
+            <div class="w-full lg:w-80 shrink-0">
+                <GPRExpl />
+            </div>
+
         </div>
 
-        <div class="mt-24 border-t border-neutral-800 pt-12">
-            <GPRExpl />
-        </div>
     </div>
 </BaseLayout>

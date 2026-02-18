@@ -507,7 +507,15 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
   }
   
   const kingName = Object.keys(daysAtOne).reduce((a, b) => daysAtOne[a] > daysAtOne[b] ? a : b, null as string | null);
-  const longestReign = kingName ? { name: kingName, days: daysAtOne[kingName]} : null;
+  const longestReign = kingName 
+    ? { 
+        name: kingName, 
+        days: daysAtOne[kingName],
+        // ✅ ADD THESE LINES:
+        logo: teams[kingName]?.logo, 
+        logoDark: teams[kingName]?.logoDark
+      } 
+    : null;
 
   //BIGGEST MOVERS CALCULATOR
   const oneWeekAgo = new Date();

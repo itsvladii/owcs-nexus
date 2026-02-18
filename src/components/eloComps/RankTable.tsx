@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import RankingModal from './ELOGraph';
+import '../../styles/global.css'
 
 export interface RankingTeam {
   rank: number;
@@ -81,7 +82,7 @@ export default function RankingsTable({ teams, matches }: Props) {
           let rowBg = "";
           let rankIcon = null;
 
-          if (team.rank === 1) { rankColor = "text-amber-400"; rowBg = "bg-amber-950/10"; rankIcon = "🏆"; }
+          if (team.rank === 1) { rankColor = "text-amber-400"; rowBg = "bg-amber-950/10"; }
           else if (team.rank === 2) { rankColor = "text-gray-300"; rowBg = "bg-neutral-800/20"; }
           else if (team.rank === 3) { rankColor = "text-orange-700"; rowBg = "bg-orange-950/10"; }
 
@@ -127,7 +128,7 @@ export default function RankingsTable({ teams, matches }: Props) {
                   )}
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className={`text-lg font-bold truncate leading-tight ${team.isPartner ? 'text-white' : 'text-neutral-300'}`}>
+                  <span className={`text-xl font-bold font-title truncate leading-tight ${team.isPartner ? 'text-white' : 'text-neutral-300'}`}>
                     {team.name}
                   </span>
                   <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-0.5">
