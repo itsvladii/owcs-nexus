@@ -7,6 +7,7 @@ import GPRExpl from "../components/eloComps/GPRExpl.astro";
 import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
 import { calculateRankings } from "../lib/elo/calcELO";
 import { getCollection } from "astro:content";
+import Image from "astro/components/Image.astro";
 
 // --- DATA FETCHING ---
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
@@ -67,7 +68,7 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         wins: team.wins,
         losses: team.losses,
         region: team.region || "Unknown",
-        logo: team.logo,
+        logo: team.logoDark,
         isPartner: team.isPartner || false,
         hasPage: !!localData,
         history: team.history,
@@ -82,11 +83,15 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
     
             <div class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end">
     <div class="absolute inset-0 z-0">
-        <img 
-            src="https://live.staticflickr.com/65535/54956871956_239e2d7ec1_k.jpg" 
-            alt="Header Background" 
-            class="w-full h-full object-cover opacity-50 grayscale"
-        />
+       <Image 
+        src="https://live.staticflickr.com/65535/54956871956_239e2d7ec1_k.jpg" 
+        alt="Header Background" 
+        width={1920} 
+        height={1080}
+        format="webp"
+        quality="mid"
+        class="w-full h-full object-cover opacity-50 grayscale"
+    />
         <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent"></div>
         <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/60 via-transparent to-neutral-950/60"></div>
     </div>
@@ -115,182 +120,91 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
 </div>
 
     <div class="max-w-7xl mx-auto px-4 py-12">
-  
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
-            {/* CARD 1: BIGGEST MOVER */}
-            {
-                stats.biggestMover &&
-                    (() => {
-                        const { logo } = getTeamProps(stats.biggestMover);
-                        return (
-                            <div class="bg-neutral-900/90 border border-green-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-green-500/50 transition-all hover:-translate-y-1 shadow-lg">
-                                <div class="absolute -top-4 -right-4 opacity-10 group-hover:opacity-20 transition-opacity rotate-12">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="w-32 h-32 text-green-500"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                                        />
-                                    </svg>
-                                </div>
-
-                                <p class="text-green-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse" />{" "}
-                                    Biggest Mover (30d)
-                                </p>
-
-                                <div class="flex flex-col items-start">
-                                    {logo && (
-                                        <img
-                                            src={logo}
-                                            alt={stats.biggestMover.name}
-                                            class="w-16 h-16 object-contain mb-3 drop-shadow-md"
-                                        />
-                                    )}
-                                    <h3 class="text-3xl font-title text-white mb-1 leading-none line-clamp-1">
-                                        {stats.biggestMover.name}
-                                    </h3>
-                                    <p class="text-4xl font-mono font-bold text-green-500 tracking-tight">
-                                        +{Math.round(stats.biggestMover.diff)}{" "}
-                                        <span class="text-base text-neutral-400 font-sans font-normal">
-                                            pts
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })()
-            }
-
-            {/* CARD 2: LONGEST REIGN */}
-            {
-                stats.longestReign &&
-                    (() => {
-                        // 1. Get the team logo/color using your existing helper
-                        const { logo } = getTeamProps(stats.longestReign);
-
-                        return (
-                            <div class="bg-neutral-900/90 border border-purple-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-purple-500/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">
-                                <div class="absolute -top-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
-                                    {/* Crown Icon */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-40 h-40 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M11.7 2.805a.75.75 0 0 1 .6 0A16.035 16.035 0 0 1 16.75 5.75l.875 2.625 3.257-1.63a.75.75 0 0 1 1.034.906l-2.125 8.5a.75.75 0 0 1-.728.568h-14.126a.75.75 0 0 1-.728-.568l-2.125-8.5a.75.75 0 0 1 1.034-.906l3.257 1.629.875-2.625A16.035 16.035 0 0 1 11.7 2.805Z" />
-                                    </svg>
-                                </div>
-                                <p class="text-purple-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2 z-10">
-                                    <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />{" "}
-                                    Longest Reign
-                                </p>
-                                {logo && (
-                                    <img
-                                        src={logo}
-                                        alt={stats.longestReign.name}
-                                        class="w-16 h-16 object-contain mb-4 drop-shadow-md relative z-10"
-                                    />
-                                )}
-                                <h3 class="text-2xl font-title text-white mb-2 leading-none line-clamp-1 relative z-10">
-                                    {stats.longestReign.name}
-                                </h3>
-                                <p class="text-4xl font-mono font-bold text-purple-500 tracking-tight relative z-10">
-                                    {stats.longestReign.days}{" "}
-                                    <span class="text-base text-neutral-400 font-sans font-normal">
-                                        Days
-                                    </span>
-                                </p>
-                            </div>
-                        );
-                    })()
-            }
-
-            {/* CARDS 3 & 4: BIGGEST UPSETS */}
-            {
-                stats.biggestUpsets.map((upset) => {
-                    // We create temporary team objects just to look up the props
-                    const winnerProps = getTeamProps({
-                        name: upset.winner,
-                        logo: upset.winnerLogo,
-                        logoDark: upset.winnerLogoDark,
-                    });
-                    const loserProps = getTeamProps({
-                        name: upset.loser,
-                        logo: upset.loserLogo,
-                        logoDark: upset.loserLogoDark,
-                    });
-                    return (
-                        <div class="bg-neutral-900/90 border border-red-900/50 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-red-500/30 transition-all hover:-translate-y-1 shadow-lg flex flex-col items-center text-center">
-                            <div class="absolute -top-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity rotate-12">
-                                {/* Lightning Icon */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="w-40 h-40 text-red-500"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z"
-                                        clip-rule="evenodd"
-                                    />
-                                </svg>
-                            </div>
-                            <p class="text-red-500 text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2 z-10">
-                                <span class="text-lg">⚡</span> Biggest Upset
-                            </p>
-                            <div class="flex items-center gap-4 mb-4 relative z-10">
-                                {upset.winnerLogo ? (
-                                    <img
-                                        src={upset.winnerLogo}
-                                        class="w-12 h-12 object-contain"
-                                    />
-                                ) : (
-                                    <span class="text-white font-bold">
-                                        {upset.winner}
-                                    </span>
-                                )}
-                                <span class="text-neutral-500 text-xs font-bold uppercase">
-                                    DEF.
-                                </span>
-                                {upset.loserLogo ? (
-                                    <img
-                                        src={upset.loserLogo}
-                                        class="w-8 h-8 object-contain opacity-50 grayscale"
-                                    />
-                                ) : (
-                                    <span class="text-neutral-500 text-xs">
-                                        {upset.loser}
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Tournament Name (With Wrap Fix) */}
-                            <div class="mt-2 pt-4 border-t border-white/5">
-                                <div class="flex justify-between items-end">
-                                    <span class="text-xs text-neutral-500 leading-tight pr-4 block">
-                                        {upset.tournament}
-                                    </span>
-                                    <span class="text-red-500 font-bold font-mono text-xl shrink-0">
-                                        {(upset.prob * 100).toFixed(1)}%
-                                    </span>
-                                </div>
-                                <div class="w-full bg-neutral-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                    <div
-                                        class="bg-red-500 h-full"
-                                        style={`width: ${upset.prob * 100}%`}
-                                    />
-                                </div>
-                            </div>
+    {/* CARD 1: BIGGEST MOVER (VELOCITY MODULE) */}
+    {stats.biggestMover && (() => {
+        const { logo } = getTeamProps(stats.biggestMover);
+        return (
+            <div class="bg-neutral-950/80 border-t-2 border-green-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
+                <p class="text-green-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
+                    Biggest Mover
+                </p>
+                <div class="flex items-center gap-5">
+                    <div class="relative shrink-0">
+                        <div class="absolute inset-0 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition-all" />
+                        <img src={logo} class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all" />
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">{stats.biggestMover.name}</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl font-mono font-black text-green-500">+{Math.round(stats.biggestMover.diff)}</span>
+                            <span class="text-[9px] font-mono text-neutral-500 uppercase">Pts</span>
                         </div>
-                    );
-                })
-            }
+                    </div>
+                </div>
+            </div>
+        );
+    })()}
+
+    {/* CARD 2: LONGEST REIGN (CHRONO MODULE) */}
+    {stats.longestReign && (() => {
+        const { logo } = getTeamProps(stats.longestReign);
+        return (
+            <div class="bg-neutral-950/80 border-t-2 border-purple-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
+                <p class="text-purple-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                    Longest Reign
+                </p>
+                <div class="flex items-center gap-5">
+                    <div class="relative shrink-0">
+                        <div class="absolute inset-0 border-2 border-dashed border-purple-500/20 rounded-full animate-[spin_10s_linear_infinite]" />
+                        <img src={logo} class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all" />
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">{stats.longestReign.name}</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl font-mono font-black text-purple-500">{stats.longestReign.days}</span>
+                            <span class="text-[9px] font-mono text-neutral-500 uppercase">Days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    })()}
+
+    {/* CARD 3 & 4: BIGGEST UPSETS (IMPACT MODULES) */}
+    {stats.biggestUpsets.slice(0, 2).map((upset) => (
+        <div class="bg-neutral-950/80 border-t-2 border-red-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
+            <div class="absolute top-4 right-4 text-[9px] font-mono text-red-500/40 uppercase tracking-tighter">
+                Variance: High
+            </div>
+            <p class="text-red-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" />
+                System Shock
+            </p>
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <img src={upset.winnerLogo} class="w-8 h-8 object-contain" />
+                        <span class="text-lg font-title text-white uppercase">{upset.winner}</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-neutral-600 font-bold italic">DEF.</span>
+                    <img src={upset.loserLogo} class="w-8 h-8 object-contain opacity-40 grayscale" />
+                </div>
+                <div class="pt-3 border-t border-white/5 flex justify-between items-end">
+                    <span class="text-[9px] font-mono text-neutral-500 uppercase max-w-[120px] truncate">
+                        {upset.tournament}
+                    </span>
+                    <div class="text-right">
+                        <span class="block text-[8px] font-mono text-neutral-600 uppercase">Win_Prob</span>
+                        <span class="text-xl font-mono font-black text-red-500">{(upset.prob * 100).toFixed(1)}%</span>
+                    </div>
+                </div>
+            </div>
         </div>
+    ))}
+</div>
 
 
         {/* --- MAIN LAYOUT (Split View) --- */}
@@ -298,27 +212,6 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
             
             {/* LEFT: THE RANKINGS TABLE (Flex Grow) */}
             <div class="flex-1 min-w-0 w-full">
-                
-                {/* UPSET ALERT (Optional - kept from your old file) */}
-                {stats.biggestUpsets.length > 0 && (
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                         {stats.biggestUpsets.map((upset: any) => (
-                            <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-lg flex items-center gap-4">
-                                <div class="p-2 bg-red-500/20 rounded-full text-red-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-                                </div>
-                                <div>
-                                    <h4 class="text-red-400 font-bold uppercase text-xs tracking-wider">Major Upset Alert</h4>
-                                    <p class="text-white font-bold text-sm">
-                                        {upset.winner} def. {upset.loser}
-                                        <span class="text-neutral-500 ml-2 font-mono text-xs">{(upset.prob * 100).toFixed(1)}% prob</span>
-                                    </p>
-                                </div>
-                            </div>
-                         ))}
-                    </div>
-                )}
-
                 {/* THE TABLE */}
                 <div class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm">
                     <RankingsTable teams={tableData} matches={processedMatches} client:only="react" />

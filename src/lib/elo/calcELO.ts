@@ -238,7 +238,7 @@ export function calculateRankings(matches: any[]) {
         rating: STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
         losses: 0,
-        history: [{ date: '2026-01-01', elo: STARTING_ELO[region] || 1200 }],
+        history: [],
         tournaments: [],
         form:[],
         isPartner: PARTNER_TEAMS_2025.has(name)
@@ -323,15 +323,15 @@ export function calculateRankings(matches: any[]) {
     
     if (logoA) {
       if(logoA.imageurl)
-        teamA.logo = `https://wsrv.nl/?url=${encodeURIComponent(logoA.imageurl)}`;
+        teamA.logo = `https://wsrv.nl/?url=${encodeURIComponent(logoA.imageurl)}&w=200&we`;
       if(logoA.imagedarkurl)
-        teamA.logoDark = `https://wsrv.nl/?url=${encodeURIComponent(logoA.imagedarkurl)}`;
+        teamA.logoDark = `https://wsrv.nl/?url=${encodeURIComponent(logoA.imagedarkurl)}&w=200&we`;
     }
     if (logoB) {
       if(logoB.imageurl)
-        teamB.logo = `https://wsrv.nl/?url=${encodeURIComponent(logoB.imageurl)}`;
+        teamB.logo = `https://wsrv.nl/?url=${encodeURIComponent(logoB.imageurl)}&w=200&we`;
       if(logoB.imagedarkurl)
-        teamB.logoDark = `https://wsrv.nl/?url=${encodeURIComponent(logoB.imagedarkurl)}`;
+        teamB.logoDark = `https://wsrv.nl/?url=${encodeURIComponent(logoB.imagedarkurl)}&w=200&we`;
     }
 
     const matchDate = new Date(match.date);
@@ -467,14 +467,21 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
     }
   }
 
-  // --- STATS CALCULATION ---
-  // DAYS AT THE TOP CALCULATOR
+// --- UPDATED STATS CALCULATION ---
+  // DAYS AT THE TOP CALCULATOR (Only counts after first match played)
   const daysAtOne: Record<string, number> = {};
   const allDates = new Set<string>();
   
-  Object.values(teams).forEach(t => t.history.forEach(h => allDates.add(h.date.split(' ')[0])));
+  // Get all dates where matches actually occurred
+  Object.values(teams).forEach(t => {
+      // Skip the initial January 1st baseline entry
+      t.history.slice(1).forEach(h => allDates.add(h.date.split(' ')[0]));
+  });
+
   const sortedDates = Array.from(allDates).sort();
-  
+  if (sortedDates.length === 0) return { /* handle empty case */ };
+
+  // Add today to calculate the current ongoing reign
   const today = new Date().toISOString().split('T')[0];
   if (sortedDates[sortedDates.length - 1] < today) sortedDates.push(today);
 
@@ -488,7 +495,11 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
       let maxElo = -1;
 
       Object.values(teams).forEach(t => {
-          let elo = STARTING_ELO[t.region] || 1200;
+          // Check if the team has actually played a match BEFORE or ON this date
+          const hasStarted = t.history.some(h => h.date !== '2026-01-01' && h.date.split(' ')[0] <= startDate);
+          if (!hasStarted) return;
+
+          let elo = 1200;
           for (let h = t.history.length - 1; h >= 0; h--) {
               if (t.history[h].date.split(' ')[0] <= startDate) {
                   elo = t.history[h].elo;
@@ -505,7 +516,6 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
           daysAtOne[topTeam] = (daysAtOne[topTeam] || 0) + diffDays;
       }
   }
-  
   const kingName = Object.keys(daysAtOne).reduce((a, b) => daysAtOne[a] > daysAtOne[b] ? a : b, null as string | null);
   const longestReign = kingName 
     ? { 

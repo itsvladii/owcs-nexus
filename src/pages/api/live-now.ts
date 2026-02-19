@@ -1,3 +1,4 @@
+// src/pages/api/live-now.ts
 export const prerender = false; // Dynamic Route
 
 import type { APIRoute } from 'astro';
@@ -6,39 +7,32 @@ export const GET: APIRoute = async () => {
   const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
   const userAgent = 'OWCS-Nexus (barcanvladi@gmail.com)';
   
-  const getLogo = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}` : null;
+  // --- THE OPTIMIZATION FIX ---
+  // 1. &w=100: Cap width at 100px (ticker logos are tiny)
+  // 2. &we: Output as WebP for superior compression
+  // 3. &il: Interlaced/Progressive loading
+  const getLogo = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=100&we&il` : null;
+  // -----------------------------
 
-  // --- THE FIX: Proper Date Formatting ---
   const dateObj = new Date();
-  
-  // Format: YYYY-MM-DD HH:MM:SS
   const now = dateObj.toISOString().slice(0, 19).replace('T', ' ');
-  
-  // Filter out matches older than 24 hours (Zombies)
   const yesterdayObj = new Date(dateObj.getTime() - 24 * 60 * 60 * 1000);
   const yesterday = yesterdayObj.toISOString().slice(0, 19).replace('T', ' ');
 
   function shortenTournamentName(name: string): string {
-  if (!name) return "";
-  let shortName = name;
-  
-  shortName = shortName.replace(/Overwatch Champions Series/g, "OWCS");
-  shortName = shortName.replace(/Overwatch League/g, "OWL");
-  shortName = shortName.replace(/Overwatch Contenders/g, "Contenders");
-  
-  // Turn "2025" into "'25"
-  shortName = shortName.replace(/ 20(\d\d)/g, " '$1"); 
-  
-  // Shorten Regions & Stages
-  shortName = shortName.replace(/Stage (\d)/g, "S$1");
-  shortName = shortName.replace(/Season (\d)/g, "S$1");
-  shortName = shortName.replace(/North America/g, "NA");
-  shortName = shortName.replace(/Europe, Middle East & Africa/g, "EMEA");
-  shortName = shortName.replace(/South Korea/g, "Korea");
-  
-  return shortName.trim();
-}
-  // --------------------------------------
+    if (!name) return "";
+    let shortName = name;
+    shortName = shortName.replace(/Overwatch Champions Series/g, "OWCS");
+    shortName = shortName.replace(/Overwatch League/g, "OWL");
+    shortName = shortName.replace(/Overwatch Contenders/g, "Contenders");
+    shortName = shortName.replace(/ 20(\d\d)/g, " '$1"); 
+    shortName = shortName.replace(/Stage (\d)/g, "S$1");
+    shortName = shortName.replace(/Season (\d)/g, "S$1");
+    shortName = shortName.replace(/North America/g, "NA");
+    shortName = shortName.replace(/Europe, Middle East & Africa/g, "EMEA");
+    shortName = shortName.replace(/South Korea/g, "Korea");
+    return shortName.trim();
+  }
 
   try {
     const endpoint = new URL('https://api.liquipedia.net/api/v3/match');
@@ -46,11 +40,6 @@ export const GET: APIRoute = async () => {
     endpoint.searchParams.set('limit', '1');
     endpoint.searchParams.set('order', 'date DESC');
     
-    // QUERY:
-    // 1. Not finished (0)
-    // 2. Started in the past (date < now)
-    // 3. Started RECENTLY (date > yesterday)
-    // 4. Tier 1 or 2
     endpoint.searchParams.set(
       'conditions', 
       `[[finished::0]] AND [[date::<${now}]] AND [[date::>${yesterday}]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]])`
@@ -63,7 +52,10 @@ export const GET: APIRoute = async () => {
     const data = await response.json();
 
     if (!data.result || data.result.length === 0) {
-      return new Response(JSON.stringify(null), { status: 200 });
+      return new Response(JSON.stringify(null), { 
+        status: 200,
+        headers: { 'Cache-Control': 'public, s-maxage=30' } // Cache empty state for 30s
+      });
     }
 
     const match = data.result[0];
@@ -85,7 +77,14 @@ export const GET: APIRoute = async () => {
       stream: match.stream?.twitch_en_1 ? `https://twitch.tv/${match.stream.twitch_en_1}` : 'https://twitch.tv/overwatch_esports'
     };
 
-    return new Response(JSON.stringify(payload), { status: 200 });
+    return new Response(JSON.stringify(payload), { 
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        // --- PROXY CACHE: Protect your API Key ---
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
+      }
+    });
 
   } catch (e) {
     return new Response(JSON.stringify(null), { status: 500 });

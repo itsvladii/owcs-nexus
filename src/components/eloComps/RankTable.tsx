@@ -17,12 +17,12 @@ export interface RankingTeam {
   history: { date: string; elo: number }[];
   tournaments: string[];
   rankDelta?: number;
-  form?: string[]; 
+  form?: string[];
 }
 
 interface Props {
   teams: RankingTeam[];
-  matches:any[];
+  matches: any[];
 }
 
 const REGION_FILTERS = ['All Regions', 'Korea', 'North America', 'EMEA', 'China', 'Pacific', 'Japan'];
@@ -44,26 +44,26 @@ export default function RankingsTable({ teams, matches }: Props) {
   return (
     <>
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm relative z-10">
-        
+
         {/* --- FILTER BAR --- */}
         <div className="p-4 border-b border-neutral-800 bg-neutral-950/50 flex flex-wrap gap-4 items-center justify-between">
-           <div className="flex items-center gap-4">
-             <div className="relative">
-                <select 
-                  value={regionFilter}
-                  onChange={(e) => setRegionFilter(e.target.value)}
-                  className="appearance-none bg-neutral-900 border border-neutral-700 hover:border-neutral-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg pl-4 pr-8 py-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
-                >
-                  {REGION_FILTERS.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neutral-500">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                </div>
-             </div>
-           </div>
-           <span className="text-xs text-neutral-500 font-mono">
-              Showing {filteredTeams.length} Teams
-           </span>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <select
+                value={regionFilter}
+                onChange={(e) => setRegionFilter(e.target.value)}
+                className="appearance-none bg-neutral-900 border border-neutral-700 hover:border-neutral-500 text-white text-xs font-bold uppercase tracking-wider rounded-lg pl-4 pr-8 py-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
+              >
+                {REGION_FILTERS.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neutral-500">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+              </div>
+            </div>
+          </div>
+          <span className="text-xs text-neutral-500 font-mono">
+            Showing {filteredTeams.length} Teams
+          </span>
         </div>
 
         {/* --- TABLE HEADER --- */}
@@ -77,7 +77,7 @@ export default function RankingsTable({ teams, matches }: Props) {
 
         {/* --- ROWS --- */}
         {filteredTeams.length > 0 ? filteredTeams.map((team) => {
-          
+
           let rankColor = "text-neutral-500";
           let rowBg = "";
           let rankIcon = null;
@@ -89,15 +89,15 @@ export default function RankingsTable({ teams, matches }: Props) {
           let TrendIcon = null;
           let trendClass = "text-neutral-600";
           if (team.rankDelta && team.rankDelta > 0) {
-             TrendIcon = <span className="flex items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" /></svg>{team.rankDelta}</span>;
-             trendClass = "text-green-500";
+            TrendIcon = <span className="flex items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" /></svg>{team.rankDelta}</span>;
+            trendClass = "text-green-500";
           } else if (team.rankDelta && team.rankDelta < 0) {
-             TrendIcon = <span className="flex items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" /></svg>{Math.abs(team.rankDelta)}</span>;
-             trendClass = "text-red-500";
+            TrendIcon = <span className="flex items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" /></svg>{Math.abs(team.rankDelta)}</span>;
+            trendClass = "text-red-500";
           }
 
           return (
-            <div 
+            <div
               key={team.name}
               onClick={() => setSelectedTeam(team)}
               className={`
@@ -108,7 +108,7 @@ export default function RankingsTable({ teams, matches }: Props) {
               `}
               style={{ borderLeft: team.isPartner ? `4px solid ${team.color}` : `4px solid transparent` }}
             >
-              
+
               {/* Rank */}
               <div className="col-span-2 sm:col-span-1 text-center flex flex-col items-center justify-center">
                 {rankIcon && <span className="text-xs mb-1 animate-pulse">{rankIcon}</span>}
@@ -135,13 +135,15 @@ export default function RankingsTable({ teams, matches }: Props) {
                     {team.region}
                   </span>
                 </div>
-                <div className="flex flex-col min-w-0">
-                {(team.wins+team.losses) < 10 && (
-                        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wide">
-                            Calibrating
-                        </span>
-                    )}
-                 </div>
+                <div className="flex flex-col min-w-0 justify-center">
+    {(team.wins + team.losses) < 10 && (
+        <div className="mt-1">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wide w-fit">
+                Calibrating
+            </span>
+        </div>
+    )}
+</div>
               </div>
 
               {/* Rating */}
@@ -157,16 +159,16 @@ export default function RankingsTable({ teams, matches }: Props) {
               {/* FORM GUIDE (SQUARES) */}
               <div className="col-span-2 hidden sm:flex items-center justify-center gap-1.5">
                 {team.form && team.form.length > 0 ? (
-                  team.form.slice(-5).map((result, idx) => ( 
-                    <div 
-                        key={idx}
-                        className={`
+                  team.form.slice(-5).map((result, idx) => (
+                    <div
+                      key={idx}
+                      className={`
                           w-6 h-6 rounded-md flex items-center justify-center
                           text-[10px] font-mono font-bold border transition-transform group-hover:scale-110
-                          ${result === 'W' 
-                            ? 'bg-green-500/10 border-green-500/30 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]' 
-                            : 'bg-red-500/10 border-red-500/30 text-red-500'
-                          }
+                          ${result === 'W'
+                          ? 'bg-green-500/10 border-green-500/30 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
+                          : 'bg-red-500/10 border-red-500/30 text-red-500'
+                        }
                         `}
                     >
                       {result}
@@ -180,17 +182,17 @@ export default function RankingsTable({ teams, matches }: Props) {
             </div>
           );
         }) : (
-           <div className="p-12 text-center text-neutral-500">
-             No teams found matching these filters.
-           </div>
+          <div className="p-12 text-center text-neutral-500">
+            No teams found matching these filters.
+          </div>
         )}
 
       </div>
 
       {selectedTeam && (
-        <RankingModal 
-          team={selectedTeam} 
-          isOpen={!!selectedTeam} 
+        <RankingModal
+          team={selectedTeam}
+          isOpen={!!selectedTeam}
           onClose={() => setSelectedTeam(null)}
           matches={matches}
         />
