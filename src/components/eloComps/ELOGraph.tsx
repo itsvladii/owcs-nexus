@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Chart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
+import { Image } from "astro:assets";
 
 interface Props {
     team: any;

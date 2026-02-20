@@ -27,5 +27,8 @@ export default defineConfig({
     '/transfers': '/',
     '/market': '/',
     '/admin':'/'
+  },
+  image: {
+    domains: ['live.staticflickr.com'],
   }
 });

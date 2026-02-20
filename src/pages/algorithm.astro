@@ -42,7 +42,7 @@ const { Content } = await doc.render();
     </div>
 
     {/* Content with Math Rendering */}
-    <article class="prose prose-invert prose-lg max-w-none
+    <article class="prose prose-invert prose-sm sm:prose-base md:prose-lg max-w-none
       prose-headings:font-black prose-headings:uppercase prose-headings:text-white
       prose-p:text-neutral-400 prose-p:font-light prose-p:leading-relaxed
       prose-strong:text-white prose-strong:font-bold
@@ -57,22 +57,36 @@ const { Content } = await doc.render();
       <Content />
     </article>
 
-    {/* Footer */}
-    <div class="mt-16 pt-8 border-t border-white/10 text-center text-sm text-neutral-500">
-      <p>Questions or feedback? <a href="/contact" class="text-blue-400 hover:text-blue-300 transition-colors">Get in touch</a></p>
-    </div>
-
   </div>
 </BaseLayout>
 
 <style is:global>
-  /* KaTeX Customization for Dark Mode */
-  .katex { font-size: 1.1em; }
-  .katex-display { margin: 2rem 0; overflow-x: auto; overflow-y: hidden; }
+  /* ⚡ THE MOBILE FIXES */
   
-  /* Inline math color */
-  .katex-inline { color: #34d399; /* emerald-400 */ }
-  
-  /* Display math (centered equations) color */
-  .katex-display .katex { color: #fbbf24; /* amber-400 */ }
+  /* Ensure tables scroll horizontally instead of breaking the page width */
+  .prose table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent math formulas from clipping or stretching the screen  */
+  .katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin; /* Clean look for Firefox */
+  }
+
+  /* Reduce font size slightly for math on mobile to save space [cite: 64] */
+  @media (max-width: 640px) {
+    .katex { font-size: 0.95em; }
+    .prose h1 { font-size: 2.25rem !important; }
+  }
+
+  /* Existing customizations [cite: 66, 67] */
+  .katex-inline { color: #34d399; }
+  .katex-display .katex { color: #fbbf24; }
 </style>

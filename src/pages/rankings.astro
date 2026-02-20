@@ -7,7 +7,7 @@ import LateralTab from "../components/eloComps/LateralTab"
 import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
 import { calculateRankings } from "../lib/elo/calcELO";
 import { getCollection } from "astro:content";
-import Image from "astro/components/Image.astro";
+import { Image } from "astro:assets";
 
 // --- DATA FETCHING ---
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
@@ -93,7 +93,6 @@ const regionalAverages = regions.map(reg => {
         ? Math.round(regionalTeams.reduce((acc, t) => acc + t.rating, 0) / regionalTeams.length)
         : 1200;
 
-    // ⚡ TREND LOGIC: Calculate change from historical data
     // We sum the ELO change from the last 24h of these specific top 5 teams
     const change = regionalTeams.reduce((acc, t) => {
         const lastMatch = processedMatches.find(m => 
@@ -119,6 +118,7 @@ const regionalAverages = regions.map(reg => {
         height={1080}
         format="webp"
         quality="mid"
+        loading="eager"
         class="w-full h-full object-cover opacity-50 grayscale"
     />
         <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent"></div>

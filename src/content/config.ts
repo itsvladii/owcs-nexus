@@ -10,7 +10,7 @@ const docsCollection = defineCollection({
   }),
 });
 
-//rendo questi schema visibili
+
 export const collections={
     'docs': docsCollection
 }

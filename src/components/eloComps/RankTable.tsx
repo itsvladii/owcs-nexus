@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import RankingModal from './ELOGraph';
+import Image from 'astro/components/Image.astro';
 import '../../styles/global.css'
 
 export interface RankingTeam {

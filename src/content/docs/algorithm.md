@@ -1,18 +1,18 @@
 ---
 title: "OWCS Nexus ELO Ranking System"
-description: "Complete technical documentation of our modified Elo algorithm for competitive Overwatch"
-lastUpdated: 2025-01-10
+description: "Complete technical documentation of our modified ELO algorithm for the Overwatch Champions Series"
+lastUpdated: 2025-02-20
 version: "1.0"
 ---
 # OWCS ELO Rating System Documentation
 
 ## Overview
 
-This rating system ranks Overwatch Champions Series (OWCS) teams using a modified ELO algorithm that accounts for the unique characteristics of competitive Overwatch esports, from the regional differences of teams to the tournaments that they play in. The system processes match results chronologically and updates team ratings based on match outcomes, tournament importance, and performance context.
+This system ranks teams playing in the Overwatch Champions Series (OWCS) using a modified ELO algorithm that accounts for the unique characteristics of OW Esports, from the regional differences in strength to the tournaments that they play in. The system processes match results chronologically, updating team ratings based on outcomes, tournament importance and performance context.
 
-## Data Sources & Transparency
+## Data Sources
 
-Matches are pulled thanks to the [Liquipedia Overwatch API.](https://liquipedia.net/overwatch/api.php) The matches that are "eligble" for calculation are:
+Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.net/api) The matches that are "eligble" for calculation are:
 
 - ✅ Matches from official OWCS tournaments. This means matches from the following tournaments will be taken into consideration:
   - **Regional Stages** (Round Robin phase, Playoffs, Seeding deciders ect.)
@@ -34,7 +34,7 @@ Matches are pulled thanks to the [Liquipedia Overwatch API.](https://liquipedia.
 
 ### The ELO Rating System
 
-ELO is a method for calculating the relative skill levels of players or teams in competitive games. Originally developed by Arpad Elo for chess, it has been adapted for various competitive contexts, from international football like the [FIFA Men's World Rankings](https://inside.fifa.com/fifa-world-ranking/men) to esports like the [Global Power Rankings](https://lolesports.com/it-IT/gpr/2025/worlds) from League of Legends Esports.
+ELO is a method for calculating the relative skill levels of players or teams in competitive games. Originally developed by Arpad Elo for chess, it has been adapted for various competitive contexts, from international football like the [FIFA Men's World Rankings](https://inside.fifa.com/fifa-world-ranking/men) to esports like the [Global Power Rankings](https://lolesports.com/it-IT/gpr/2025/worlds) from the League of Legends esports scene.
 
 ### Expected Score (Win Probability)
 
