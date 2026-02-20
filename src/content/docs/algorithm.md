@@ -12,19 +12,21 @@ This rating system ranks Overwatch Champions Series (OWCS) teams using a modifie
 
 ## Data Sources & Transparency
 
-**Primary Data Source:** Matches are pulled thanks to the [Liquipedia Overwatch API.](https://liquipedia.net/overwatch/api.php) The matches that are "eligble" for calculation are:
+Matches are pulled thanks to the [Liquipedia Overwatch API.](https://liquipedia.net/overwatch/api.php) The matches that are "eligble" for calculation are:
 
-- ✅ Matches from official OWCS tournaments. This means matches from:
-  - Regional Stages (Round Robin phase, Playoffs, Seeding deciders ect.)
-  - Major LAN tournaments (Group Stages and Playoffs)
-  - Qualification matches for Regional Stages (Promotion/Relegation, Open Qualifiers for Stage 1 ect.)
-  - Qualification matches for Major LAN events (Last Chance Qualifiers, extra-regional qualifier tournaments e.g OWCS Asia Stage 1 Championship ect.)
+- ✅ Matches from official OWCS tournaments. This means matches from the following tournaments will be taken into consideration:
+  - **Regional Stages** (Round Robin phase, Playoffs, Seeding deciders ect.)
+  - **Major LAN tournaments** (Playoffs and eventual Group Stages)
+  - **Qualification tournaments for Regional Stages** (Promotion/Relegation, Open Qualifiers for Stage 1 ect.)
+  - **Qualification tournaments for Major LAN events** (Last Chance Qualifiers, extra-regional qualifier tournaments e.g OWCS Asia Stage 1 Championship ect.)
 - ❌ Matches from other non-OWCS tournaments. This means matches from the following tournaments are NOT taken into consideration:
-  - Overwatch Collegiate
-  - Overwatch Calling All Heroes
-  - Overwatch World Cup
-  - FACEIT League Masters/Expert/Open from any region
-  - Miscellaneous OWCS events like showmatches and Pre-Season Bootcamp 
+  - **Overwatch Collegiate**
+  - **Calling All Heroes**
+  - **Overwatch World Cup**
+  - **FACEIT League Masters/Expert/Open from any region.**
+  - **Miscellaneous OWCS events like showmatches and Pre-Season Bootcamp** 
+
+**Disclamer:**  It is important to note that the algorithm will only take into account matches that have actually been recorded on Liquipedia as played and finished. **Matches that ended in a forfeit or that do not have a score (for whatever reason) will NOT be accounted for**.
 
 ---
 

@@ -313,12 +313,34 @@ export function calculateRankings(matches: any[]) {
         }
     });
 
-    /* C.3 Team Logo URL setter */
-    let logoA = match.match2opponents[0].teamtemplate
-    let logoB = match.match2opponents[1].teamtemplate
+    //Get the raw team data of the match
+    const oppA = match.match2opponents[0];
+    const oppB = match.match2opponents[1];
+    
+    //Verify that the match did not end on a FF
+    const forfeitStatuses = ["ff", "dq", "canceled", "forfeit", "w/o"];
+    const isForfeitStatus = 
+        (oppA.status && forfeitStatuses.includes(oppA.status.toLowerCase())) ||
+        (oppB.status && forfeitStatuses.includes(oppB.status.toLowerCase()));
 
-    const rawScoreA = match.match2opponents[0].score;
-    const rawScoreB = match.match2opponents[1].score;
+
+    /* C.3 Team Logo URL setter */
+    let logoA = oppA.teamtemplate
+    let logoB = oppB.teamtemplate
+
+    const rawScoreA = oppA.score;
+    const rawScoreB = oppB.score;
+
+    const forfeitScores = ["FF", "-1"];
+    const isForfeitScore = 
+        forfeitScores.includes(String(rawScoreA).toUpperCase()) || 
+        forfeitScores.includes(String(rawScoreB).toUpperCase());
+
+    if (isForfeitStatus || isForfeitScore) {
+        continue;
+    }
+
+  
     
     
     if (logoA) {
@@ -353,6 +375,9 @@ export function calculateRankings(matches: any[]) {
     const scoreA_val = (rawScoreA === -1 || rawScoreA === null) ? 0 : Number(rawScoreA);
     const scoreB_val = (rawScoreB === -1 || rawScoreB === null) ? 0 : Number(rawScoreB);
 
+    // Extra safety net just in case Liquipedia throws a weird string we didn't expect
+    if (isNaN(scoreA_val) || isNaN(scoreB_val)) continue;
+
     if (!teamA.tournaments.includes(tournament)) teamA.tournaments.push(tournament);
     if (!teamB.tournaments.includes(tournament)) teamB.tournaments.push(tournament);
 
@@ -371,7 +396,6 @@ export function calculateRankings(matches: any[]) {
     let kA = getThreePhaseKFactor(gamesA ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
     let kB = getThreePhaseKFactor(gamesB ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
 
-    //Calculate Points Change
     const changeA = kA * (scoreA - expectedA);
     const changeB = kB * (scoreB - expectedB);
 

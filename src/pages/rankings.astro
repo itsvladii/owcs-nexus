@@ -1,9 +1,9 @@
 ---
 // src/pages/rankings.astro
+export const prerender = false;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable, { type RankingTeam } from "../components/eloComps/RankTable";
-// 1. Swap the old GPRExpl for the new Sidebar version
-import GPRExpl from "../components/eloComps/GPRExpl.astro";
+import LateralTab from "../components/eloComps/LateralTab"
 import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
 import { calculateRankings } from "../lib/elo/calcELO";
 import { getCollection } from "astro:content";
@@ -17,7 +17,7 @@ const { rankings, stats, processedMatches } = calculateRankings(matches);
 
 Astro.response.headers.set(
     "Cache-Control",
-    "public, max-age=0, s-maxage=3600, stale-while-revalidate",
+    "public, s-maxage=300, stale-while-revalidate=600",
 );
 
 // --- LOCAL DATA MAPPING ---
@@ -38,6 +38,8 @@ function getLocalTeam(apiName: string) {
 const lastUpdated = new Date().toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
+    hour:"numeric",
+    timeZoneName: "short",
     year: "numeric",
 });
 
@@ -77,6 +79,33 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         form: team.form
     };
 });
+
+// src/pages/rankings.astro
+
+const regions = ["Korea", "North America", "EMEA", "China", "Japan", "Pacific"];
+const regionalAverages = regions.map(reg => {
+    const regionalTeams = rankings
+        .filter(t => t.region === reg)
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 5);
+
+    const avg = regionalTeams.length > 0 
+        ? Math.round(regionalTeams.reduce((acc, t) => acc + t.rating, 0) / regionalTeams.length)
+        : 1200;
+
+    // ⚡ TREND LOGIC: Calculate change from historical data
+    // We sum the ELO change from the last 24h of these specific top 5 teams
+    const change = regionalTeams.reduce((acc, t) => {
+        const lastMatch = processedMatches.find(m => 
+            (m.team_a === t.name || m.team_b === t.name) && 
+            (new Date().getTime() - new Date(m.date).getTime() < 86400000)
+        );
+        const change = lastMatch ? (lastMatch.team_a === t.name ? lastMatch.elo_change_a : lastMatch.elo_change_b) : 0;
+        return acc + (change || 0);
+    }, 0) / (regionalTeams.length || 1);
+
+    return { name: reg, avg, trend: Math.round(change) };
+}).sort((a, b) => b.avg - a.avg);
 ---
 
 <BaseLayout title="Global Power Rankings | OWCS Nexus">
@@ -220,12 +249,14 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
                 <p class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0">
                     * Click on any team to see detailed stats and match history.
                 </p>
+                
             </div>
+
 
             {/* RIGHT: THE ALGORITHM SIDEBAR (Fixed Width) */}
             {/* This will stick to the screen on Desktop */}
             <div class="w-full lg:w-80 shrink-0">
-                <GPRExpl />
+                <LateralTab regionalAverages={regionalAverages} client:load/>
             </div>
 
         </div>
