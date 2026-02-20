@@ -14,8 +14,17 @@ This rating system ranks Overwatch Champions Series (OWCS) teams using a modifie
 
 **Primary Data Source:** Matches are pulled thanks to the [Liquipedia Overwatch API.](https://liquipedia.net/overwatch/api.php) The matches that are "eligble" for calculation are:
 
-- ✅ Matches from official OWCS tournaments (Stages, Majors, Regional Playoffs, Promotion/Relegation, Open Qualifiers)
-- ❌ Showmatches, FACEIT League matches, matches from other non-OWCS tournaments (Collegiate, Calling All Hereos, Overwatch World Cup ect.), OWCS Pre-Season Bootcamp ect.
+- ✅ Matches from official OWCS tournaments. This means matches from:
+  - Regional Stages (Round Robin phase, Playoffs, Seeding deciders ect.)
+  - Major LAN tournaments (Group Stages and Playoffs)
+  - Qualification matches for Regional Stages (Promotion/Relegation, Open Qualifiers for Stage 1 ect.)
+  - Qualification matches for Major LAN events (Last Chance Qualifiers, extra-regional qualifier tournaments e.g OWCS Asia Stage 1 Championship ect.)
+- ❌ Matches from other non-OWCS tournaments. This means matches from the following tournaments are NOT taken into consideration:
+  - Overwatch Collegiate
+  - Overwatch Calling All Heroes
+  - Overwatch World Cup
+  - FACEIT League Masters/Expert/Open from any region
+  - Miscellaneous OWCS events like showmatches and Pre-Season Bootcamp 
 
 ---
 
@@ -23,7 +32,7 @@ This rating system ranks Overwatch Champions Series (OWCS) teams using a modifie
 
 ### The ELO Rating System
 
-ELO is a method for calculating the relative skill levels of players or teams in competitive games. Originally developed by Arpad Elo for chess, it has been adapted for various competitive contexts, from international football like the FIFA Men's World Rankings to esports like the LoL Esports Global Power Rankings.
+ELO is a method for calculating the relative skill levels of players or teams in competitive games. Originally developed by Arpad Elo for chess, it has been adapted for various competitive contexts, from international football like the [FIFA Men's World Rankings](https://inside.fifa.com/fifa-world-ranking/men) to esports like the [Global Power Rankings](https://lolesports.com/it-IT/gpr/2025/worlds) from League of Legends Esports.
 
 ### Expected Score (Win Probability)
 

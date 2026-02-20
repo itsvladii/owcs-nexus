@@ -69,13 +69,5 @@ const docsCollection = defineCollection({
 
 //rendo questi schema visibili
 export const collections={
-    'players':defineCollection({
-        type:'content', //content vuol dire che scrivo file MD
-        schema:playerSchema //indico lo schema che devo seguire
-    }),
-    'teams':defineCollection({
-        type:'content', //content vuol dire che scrivo file MD
-        schema:teamSchema //indico lo schema che devo seguire
-    }),
     'docs': docsCollection
 }

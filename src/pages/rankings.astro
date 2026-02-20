@@ -214,7 +214,7 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
             <div class="flex-1 min-w-0 w-full">
                 {/* THE TABLE */}
                 <div class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm">
-                    <RankingsTable teams={tableData} matches={processedMatches} client:only="react" />
+                    <RankingsTable teams={tableData.slice(0,30)} matches={processedMatches} client:only="react" />
                 </div>
                 
                 <p class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0">

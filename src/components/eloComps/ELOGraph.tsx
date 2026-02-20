@@ -14,6 +14,7 @@ function getSmartAbbreviation(name: string): string {
     if (!name) return "";
     return name
         .replace(/Overwatch Champions Series/g, 'OWCS')
+        .replace(/Open Qualifiers/g, 'Qualif.')
         .replace(/North America/g, 'NA')
         .replace(/Europe, Middle East & North Africa/g, 'EMEA')
         .replace(/Korea/g, 'KR')

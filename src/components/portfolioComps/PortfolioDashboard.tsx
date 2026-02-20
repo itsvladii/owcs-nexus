@@ -118,8 +118,6 @@ export default function PortfolioDashboard() {
 
       if (portfolioRaw && teamsRaw && txRaw) {
         // Calculate Net Worth (Stock Value + Cash)
-        // Note: Usually "Net Worth" = Assets + Cash. 
-        // We will calc Stock Value in helper, then add Cash here.
         
         calculateFinancials(portfolioRaw, teamsRaw, txRaw, profile?.cash || 0);
         

@@ -37,7 +37,6 @@ export const GET: APIRoute = async () => {
   try {
     const endpoint = new URL('https://api.liquipedia.net/api/v3/match');
     endpoint.searchParams.set('wiki', 'overwatch');
-    endpoint.searchParams.set('limit', '1');
     endpoint.searchParams.set('order', 'date DESC');
     
     endpoint.searchParams.set(
