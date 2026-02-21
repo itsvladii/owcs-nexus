@@ -184,12 +184,10 @@ const startVideo =
                             width={1600}
                             height={900}
                             loading="eager"
-                            class="absolute inset-0 object-cover w-full h-full opacity-60 transition-opacity duration-1000"
+                            class="w-full h-full object-cover object-center sm:object-center max-sm:object-[50%_20%] opacity-60"
                             onload="this.classList.remove('opacity-0')"
                         />
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent"
-                        >
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent sm:via-black/20">
                         </div>
                     </div>
 
@@ -208,8 +206,7 @@ const startVideo =
                         <p class="text-neutral-400 max-w-md mb-6">
                             Want to know who's the apex predator in OWCS? Our
                             customized ELO algorithm calculates ELO scores for
-                            all the teams that play in the OWCS. Data doesn't
-                            lie.
+                            all the teams that play in the OWCS.
                         </p>
                         <a
                             href="/rankings"
@@ -361,8 +358,8 @@ const startVideo =
                             >Coming Soon</span
                         >
                     </div>
-                    <p class="text-white font-bold mb-4 opacity-50">
-                        Track every signing and release in the ecosystem.
+                    <p class="text-white mb-4 opacity-50">
+                        Track every signing and release in the OWCS.
                     </p>
                     <button
                         disabled

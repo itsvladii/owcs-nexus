@@ -7,12 +7,12 @@ interface Props {
 }
 
 const REGION_COLORS: Record<string, string> = {
-    "Korea": "#6eff18",         // Red/CR style
-    "North America": "#823bf2",  // Blue/USA style
-    "EMEA": "#54c4c4",           // Purple/Euro style
-    "Pacific": "#58cdff",        // Emerald
-    "China": "#f7c525",          // Gold/Yellow
-    "Japan": "#ec0201",          // Pink
+    "Korea": "#6eff18",
+    "North America": "#823bf2",
+    "EMEA": "#54c4c4",
+    "Pacific": "#58cdff",
+    "China": "#f7c525",
+    "Japan": "#ec0201",
 };
 
 // Fallback color if a region isn't in the list
@@ -47,7 +47,7 @@ const SECTIONS = [
 
 export default function RankingsSidebar({ regionalAverages }: Props) {
     // Use a string literal type for safety
-    const [activeTab, setActiveTab] = useState<'algorithm' | 'regions'>('algorithm');
+    const [activeTab, setActiveTab] = useState<'algorithm' | 'regions'>('regions');
 
     return (
         <aside className="w-full lg:w-80 shrink-0 space-y-8">
@@ -154,6 +154,27 @@ export default function RankingsSidebar({ regionalAverages }: Props) {
                             <p className="text-[9px] font-mono text-neutral-600 uppercase leading-relaxed pt-4 border-t border-white/5 italic">
                                 * Based on mean rating of top 5 active rosters per region.
                             </p>
+                            <div className="mt-8 flex items-center justify-center gap-6 text-[10px] font-mono uppercase tracking-widest text-neutral-500">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    <span>Calibrating</span>
+                                </div>
+                                <div className="inline-flex items-center gap-4 px-4 py-3">
+                                    {/* ⚡ THE FIX: Use flex gap-0.5 instead of negative spacing */}
+                                    <div className="flex items-center gap-0.5">
+                                        <span className="w-1 h-5 rounded-full bg-[#6eff18]/50"></span>
+                                        <span className="w-1 h-5 rounded-full bg-[#823bf2]/50"></span>
+                                        <span className="w-1 h-5 rounded-full bg-[#54c4c4]/50"></span>
+                                        <span className="w-1 h-5 rounded-full bg-[#f7c525]/50"></span>
+                                        <span className="w-1 h-5 rounded-full bg-[#ec0201]/50"></span>
+                                    </div>
+
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] leading-none">Partner Status</span>
+                                        <span className="text-[8px] font-mono text-neutral-500 uppercase mt-1.5 tracking-tighter">Official OWCS Partner Team</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

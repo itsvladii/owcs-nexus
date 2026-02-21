@@ -27,10 +27,21 @@ interface Props {
 }
 
 const REGION_FILTERS = ['All Regions', 'Korea', 'North America', 'EMEA', 'China', 'Pacific', 'Japan'];
+const REGION_COLORS: Record<string, string> = {
+    "Korea": "#6eff18",         
+    "North America": "#823bf2",  
+    "EMEA": "#54c4c4",           
+    "Pacific": "#58cdff",        
+    "China": "#f7c525",          
+    "Japan": "#ec0201",          
+};
+
+
 
 export default function RankingsTable({ teams, matches }: Props) {
   const [selectedTeam, setSelectedTeam] = useState<RankingTeam | null>(null);
   const [regionFilter, setRegionFilter] = useState('All Regions');
+  
 
   // --- FILTER LOGIC ---
   const filteredTeams = useMemo(() => {
@@ -41,6 +52,7 @@ export default function RankingsTable({ teams, matches }: Props) {
       return true;
     });
   }, [teams, regionFilter]);
+  
 
   return (
     <>
@@ -78,7 +90,7 @@ export default function RankingsTable({ teams, matches }: Props) {
 
         {/* --- ROWS --- */}
         {filteredTeams.length > 0 ? filteredTeams.map((team) => {
-
+          const borderColor = REGION_COLORS[team.region] || "#525252";
           let rankColor = "text-neutral-500";
           let rowBg = "";
           let rankIcon = null;
@@ -99,17 +111,18 @@ export default function RankingsTable({ teams, matches }: Props) {
 
           return (
             <div
-              key={team.name}
-              onClick={() => setSelectedTeam(team)}
-              className={`
-                grid grid-cols-12 gap-4 p-4 border-b border-neutral-800 items-center transition-all cursor-pointer
-                ${rowBg}
-                ${team.isPartner ? 'hover:bg-neutral-800/90' : 'hover:bg-neutral-800/50'}
-                group relative
-              `}
-              style={{ borderLeft: team.isPartner ? `4px solid ${team.color}` : `4px solid transparent` }}
-            >
-
+    key={team.name}
+    onClick={() => setSelectedTeam(team)}
+    className={`
+      grid grid-cols-12 gap-4 p-4 border-b border-neutral-800 items-center transition-all cursor-pointer
+      group relative
+      ${team.isPartner ? 'bg-neutral-800/10' : 'hover:bg-neutral-800/50'}
+    `}
+    style={{ 
+      /* ⚡ THE FIX: Dynamically assign the border color based on the region mapping */
+      borderLeft: team.isPartner ? `4px solid ${borderColor}99` : `4px solid transparent` 
+    }}
+  >
               {/* Rank */}
               <div className="col-span-2 sm:col-span-1 text-center flex flex-col items-center justify-center">
                 {rankIcon && <span className="text-xs mb-1 animate-pulse">{rankIcon}</span>}
@@ -124,9 +137,11 @@ export default function RankingsTable({ teams, matches }: Props) {
                 <div className="w-10 h-10 items-center justify-center p-1 shadow-inner flex-shrink-0">
                   {team.logo ? (
                     <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />
+                    
                   ) : (
                     <span className="text-neutral-400 font-bold text-xs">{team.name.substring(0, 2).toUpperCase()}</span>
                   )}
+                  
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className={`text-xl font-bold font-title truncate leading-tight ${team.isPartner ? 'text-white' : 'text-neutral-300'}`}>
@@ -135,16 +150,19 @@ export default function RankingsTable({ teams, matches }: Props) {
                   <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-0.5">
                     {team.region}
                   </span>
+
                 </div>
                 <div className="flex flex-col min-w-0 justify-center">
-    {(team.wins + team.losses) < 10 && (
-        <div className="mt-1">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wide w-fit">
-                Calibrating
-            </span>
-        </div>
-    )}
-</div>
+                  {(team.wins + team.losses) < 10 && (
+    <div className="group relative flex items-center">
+      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+      {/* Optional Tooltip on Hover */}
+      <span className="absolute bottom-full mb-2 hidden group-hover:block bg-neutral-900 text-[8px] px-2 py-1 rounded border border-white/10 whitespace-nowrap">
+        Calibrating
+      </span>
+    </div>
+  )}
+                </div>
               </div>
 
               {/* Rating */}

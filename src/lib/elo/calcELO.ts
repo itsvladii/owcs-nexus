@@ -55,15 +55,18 @@ const PARTNER_TEAMS_2025 = new Set([
   "ZETA DIVISION",
   "Spacestation Gaming",
   "Team Liquid",
+  "Disguised",
+  "Dallas Fuel",
   "Twisted Minds",
   "Virtus.pro",
-  "Disguised",
-  "Dallas Fuel"
+  "Team Peps",
+  "All Gamers",
+  "Weibo Gaming",
+  "JD Gaming"
 ]);
 
 //Alias Map for eventual team rebrandings happening during the season
-const TEAM_ALIASES: Record<string, string> = {
-};
+
 
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
@@ -84,7 +87,7 @@ const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
 
 //Normalize team names based on the team aliases map (i.e Team CC(Chinese orgless team)-> Team CC)
 function getNormalizedTeamName(name: string): string {
-  return TEAM_ALIASES[name] || name;
+  return name.replace(/\s*\(.*?\)\s*$/, "");
 }
 
 /**
