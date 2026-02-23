@@ -4,6 +4,11 @@ description: "Complete technical documentation of our modified ELO algorithm for
 lastUpdated: 2025-02-20
 version: "1.0"
 ---
+import VolatilityHierarchy from "/src/components/algComps/VolatilityHierarchy.tsx"
+import RegionalPowerBars from "/src/components/algComps/RegionalPowerBars.tsx"
+import CalibrationGraph from "/src/components/algComps/CalibrationGraph.tsx"
+import EligibilityHUB from "/src/components/algComps/EligibilityHUD.tsx"
+
 # OWCS ELO Rating System Documentation
 
 ## Overview
@@ -12,21 +17,11 @@ This system ranks teams playing in the Overwatch Champions Series (OWCS) using a
 
 ## Data Sources
 
-Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.net/api) The matches that are "eligble" for calculation are:
+Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.net/api) The matches that are "eligible" for calculation are the following:
 
-- ✅ Matches from official OWCS tournaments. This means matches from the following tournaments will be taken into consideration:
-  - **Regional Stages** (Round Robin phase, Playoffs, Seeding deciders ect.)
-  - **Major LAN tournaments** (Playoffs and eventual Group Stages)
-  - **Qualification tournaments for Regional Stages** (Promotion/Relegation, Open Qualifiers for Stage 1 ect.)
-  - **Qualification tournaments for Major LAN events** (Last Chance Qualifiers, extra-regional qualifier tournaments e.g OWCS Asia Stage 1 Championship ect.)
-- ❌ Matches from other non-OWCS tournaments. This means matches from the following tournaments are NOT taken into consideration:
-  - **Overwatch Collegiate**
-  - **Calling All Heroes**
-  - **Overwatch World Cup**
-  - **FACEIT League Masters/Expert/Open from any region.**
-  - **Miscellaneous OWCS events like showmatches and Pre-Season Bootcamp** 
+<EligibilityHUB client:load />
 
-**Disclamer:**  It is important to note that the algorithm will only take into account matches that have actually been recorded on Liquipedia as played and finished. **Matches that ended in a forfeit or that do not have a score (for whatever reason) will NOT be accounted for**.
+**Disclaimer:** Aside from processing matches from eligible tournaments, the algorithm will also only processes finished matches with definitive scores. **Forfeits or matches missing a final score will NOT be taken into consideration**.
 
 ---
 
@@ -98,19 +93,11 @@ Where:
 
 Since OWCS regions do not have the same strength, teams are initialized at region-specific ELO baselines that reflect the historical competitive strength of the various regions. 
 
-For example, at the start of the 2025 OWCS season's ELO leaderboard teams would start with their respective regional ELO baselines that are as follows:
+For example, at the start of OWCS 2026, teams will start with their respective regional ELO baselines that are as follows:
 
-| Region         | Starting Elo ($R_0$) | Basis                                           |
-|----------------|----------------------|-------------------------------------------------|
-| Korea          | 1304                 | Dominant history throughout all of OW Esports's history|
-| North America  | 1264                 | Cornerstone of Western OW Esports                 |
-| EMEA           | 1255                 | Historically good, variable peaks                |
-| Japan          | 1211                 | Emerging strength in the last couple of years   |
-| China          | 1200                 | Baseline (returned to OW esports recently)      |
-| Pacific        | 1189                 | Developing region                               |
-| Default        | 1200                 | Fallback for unclassified teams                 |
+<RegionalPowerBars/>
 
-**Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous seasons to objectively measure regional strength:
+**Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous season to objectively measure regional strength:
 1. First off, we re-calculate every official match of the previous seasons assuming zero prior regional bias (every team starts at a baseline of 1200 ELO).
 2. Then, we assessed regional strength by calculating the average ELO of the Top 3 Teams in each region.
 
@@ -124,17 +111,7 @@ The K-factor ($K$) is the most critical parameter in the ELO system, determining
 
 ### Base K-Factor Values
 The K-Factor calculation will start from these base values that will change depending on the context of the match:
-$$
-K_{\text{major}} = 60 \quad \text{(Major tournaments)}
-$$
-
-$$
-K_{\text{standard}} = 20 \quad \text{(Regular matches)}
-$$
-
-$$
-K_{\text{calibration}} = 50 \quad \text{(New teams)}
-$$
+<VolatilityHierarchy/>
 
 ### K-Factor Calculation Algorithm
 
@@ -174,19 +151,9 @@ $$
 K_{\text{calibration}}(n) = 50 - \frac{(50 - 20) \cdot n}{6}, \quad n < 6
 $$
 
-Where $n$ is the number of games played. This creates the progression:
+Where $n$ is the number of games played. This creates the following progression:
 
-$$
-\begin{align}
-n = 0 &: K = 50.0 \quad \text{(maximum volatility)} \\
-n = 1 &: K = 45.0 \\
-n = 2 &: K = 40.0 \\
-n = 3 &: K = 35.0 \\
-n = 4 &: K = 30.0 \\
-n = 5 &: K = 25.0 \\
-n \geq 6 &: K = K_{\text{base}} \quad \text{(stable)}
-\end{align}
-$$
+<CalibrationGraph client:only="react"/>
 
 **Purpose:** New teams are "harder to read" because they do not have prior data to work with, therefore they need rapid rating adjustments to find their true skill level quickly. Think of it as "placement matches" for teams (like in Competitive in Overwatch) before getting their "rank".
 
@@ -631,6 +598,8 @@ R_{\text{new}} = 1200 + 0.70 \cdot (R_{\text{old}} - 1200)
 $$
 
 Note: Teams below baseline actually *increase* toward 1200.
+
+
 
 ### Examples
 

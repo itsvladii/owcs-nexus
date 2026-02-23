@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // Import the React versions of Lucide icons
-import { Activity, Zap, Scale, Globe } from 'lucide-react';
+import { Activity, Zap, Scale, Globe, ArrowUp, ArrowDown, ArrowDown01 } from 'lucide-react';
 
 interface Props {
     regionalAverages: { name: string; avg: number }[];
@@ -154,24 +154,50 @@ export default function RankingsSidebar({ regionalAverages }: Props) {
                             <p className="text-[9px] font-mono text-neutral-600 uppercase leading-relaxed pt-4 border-t border-white/5 italic">
                                 * Based on mean rating of top 5 active rosters per region.
                             </p>
-                            <div className="mt-8 flex items-center justify-center gap-6 text-[10px] font-mono uppercase tracking-widest text-neutral-500">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                    <span>Calibrating</span>
+                            {/* CONTENT AREA: Maintaining organized hierarchy */}
+                            <div className="mt-10 pt-6 border-t border-white/5 space-y-6">
+                                <h4 className="text-[10px] font-mono text-neutral-500 uppercase tracking-[0.2em] mb-4">Legend & Status</h4>
+
+                                {/* 1. RANK VELOCITY */}
+                                <div className="space-y-2">
+                                    <span className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest">Rank Climb (7D)</span>
+                                    <div className="flex items-center gap-6">
+                                        <div className="flex items-center gap-2 text-emerald-500 font-bold text-[10px] font-mono">
+                                            <ArrowUp size={15} />
+                                            <span>CLIMB</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-red-500 font-bold text-[10px] font-mono">
+                                            <ArrowDown size={15} />
+                                            <span>DROP</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="inline-flex items-center gap-4 px-4 py-3">
-                                    {/* ⚡ THE FIX: Use flex gap-0.5 instead of negative spacing */}
-                                    <div className="flex items-center gap-0.5">
-                                        <span className="w-1 h-5 rounded-full bg-[#6eff18]/50"></span>
-                                        <span className="w-1 h-5 rounded-full bg-[#823bf2]/50"></span>
-                                        <span className="w-1 h-5 rounded-full bg-[#54c4c4]/50"></span>
-                                        <span className="w-1 h-5 rounded-full bg-[#f7c525]/50"></span>
-                                        <span className="w-1 h-5 rounded-full bg-[#ec0201]/50"></span>
+
+                                {/* 2. TEAM STATUS */}
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-2">
+                                        <span className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest">Calibration</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-mono text-white uppercase tracking-wider">New Team</span>
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] leading-none">Partner Status</span>
-                                        <span className="text-[8px] font-mono text-neutral-500 uppercase mt-1.5 tracking-tighter">Official OWCS Partner Team</span>
+                                    {/* 3. PARTNER STATUS */}
+                                    <div className="space-y-2 text-right">
+                                        <span className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest">Partner Status</span>
+                                        <div className="flex items-center justify-end gap-3">
+                                            <div className="flex items-center gap-0.5">
+                                                <span className="w-1 h-3 rounded-full bg-[#6eff18]/50"></span>
+                                                <span className="w-1 h-3 rounded-full bg-[#823bf2]/50"></span>
+                                                <span className="w-1 h-3 rounded-full bg-[#54c4c4]/50"></span>
+                                                <span className="w-1 h-3 rounded-full bg-[#58cdff]/50"></span>
+                                                <span className="w-1 h-3 rounded-full bg-[#f7c525]/50"></span>
+                                                <span className="w-1 h-3 rounded-full bg-[#ec0201]/50"></span>
+                                                
+                                            </div>
+                                            <span className="text-[10px] font-mono text-white uppercase tracking-wider">Official OWCS Partner Team</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

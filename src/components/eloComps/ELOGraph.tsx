@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Chart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
-import { Image } from "astro:assets";
 
 interface Props {
     team: any;
@@ -27,6 +26,17 @@ function getSmartAbbreviation(name: string): string {
 export default function RankingModal({ team, isOpen, onClose, matches }: Props) {
     const [mounted, setMounted] = useState(false);
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+    const REGION_COLORS: Record<string, string> = {
+    "Korea": "#6eff18",         
+    "North America": "#823bf2",  
+    "EMEA": "#54c4c4",           
+    "Pacific": "#58cdff",        
+    "China": "#f7c525",          
+    "Japan": "#ec0201",          
+};
+    const borderColor = useMemo(() => {
+        return REGION_COLORS[team.region] || "#525252";
+    }, [team.region]);
 
     useEffect(() => {
         setMounted(true);
@@ -38,8 +48,24 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
         if (!team || !matches) return [];
         return matches
             .filter(m => m.team_a === team.name || m.team_b === team.name)
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [team, matches]);
+
+    // PEAK RATING CALCULATOR
+    const peakRating = useMemo(() => {
+        if (!team?.history) return 0;
+        return Math.max(...team.history.map((h: any) => h.elo));
+    }, [team]);
+
+    const sosRating = useMemo(() => {
+        if (!teamHistory || teamHistory.length === 0) return 0;
+        const totalOpponentElo = teamHistory.reduce((acc, m) => {
+            const isTeamA = m.team_a === team.name;
+            const opponentElo = isTeamA ? m.team_b_elo_after : m.team_a_elo_after;
+            return acc + (opponentElo || 1200);
+        }, 0);
+        return Math.round(totalOpponentElo / teamHistory.length);
+    }, [teamHistory, team]);
 
     const chartConfig = useMemo(() => {
         if (!team || !team.history) return null;
@@ -48,9 +74,12 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
             new Date(a.date).getTime() - new Date(b.date).getTime()
         );
 
-        const dataPoints = sortedHistory.map((h: any) => ({
-            x: new Date(h.date).getTime(),
-            y: Math.round(h.elo)
+        //Using the index (idx) as x ensures multiple games on the same day 
+        // are plotted sequentially rather than stacked on the same date
+        const dataPoints = sortedHistory.map((h: any, idx: number) => ({
+            x: idx,
+            y: Math.round(h.elo),
+            date: h.date // Keep the date for the formatter
         }));
 
         return {
@@ -63,8 +92,13 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                     zoom: { enabled: false },
                 },
                 theme: { mode: 'dark' },
-                stroke: { curve: 'smooth', width: 3, colors: ['#22c55e'] },
-                markers: { size: 0 },
+                stroke: { curve: 'straight', width: 3, colors: [borderColor] },
+                markers: {
+                    size: 4,
+                    colors: [borderColor],
+                    strokeColors: '#000',
+                    hover: { size: 6 }
+                },
                 dataLabels: { enabled: false },
                 fill: {
                     type: 'gradient',
@@ -73,25 +107,42 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                         opacityFrom: 0.4,
                         opacityTo: 0,
                         stops: [0, 100],
+                        colorStops: [
+                            { offset: 0, color: borderColor, opacity: 0.4 },
+                            { offset: 100, color: borderColor, opacity: 0 }
+                        ]
                     }
                 },
                 grid: { show: true, borderColor: '#1f1f1f', strokeDashArray: 4 },
                 xaxis: {
-                    type: 'datetime',
+                    type: 'numeric', // Use numeric to respect the index-based spacing
                     axisBorder: { show: false },
                     labels: {
                         style: { colors: '#737373', fontSize: '10px' },
-                        datetimeFormatter: { hour: 'dd MMM' }
-                    }
+                        formatter: (val: number) => {
+                            const entry = sortedHistory[Math.floor(val)];
+                            if (!entry) return "";
+                            return new Date(entry.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                        }
+                    },
+                    tickAmount: sortedHistory.length > 10 ? 10 : sortedHistory.length
                 },
                 yaxis: {
                     opposite: true,
                     labels: { style: { colors: '#737373' } }
                 },
-                tooltip: { theme: 'dark' }
+                tooltip: {
+                    theme: 'dark',
+                    x: {
+                        formatter: (val: number) => {
+                            const entry = sortedHistory[Math.floor(val)];
+                            return entry ? new Date(entry.date).toLocaleDateString() : "";
+                        }
+                    }
+                }
             } as ApexOptions
         };
-    }, [team]);
+    }, [team, borderColor]);
 
     if (!mounted || !isOpen || !team) return null;
 
@@ -99,19 +150,14 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
 
-            {/* MODAL CONTAINER: Fixed height on mobile to prevent overflow issues */}
             <div className="relative w-full max-w-5xl bg-neutral-950 border border-white/10 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col h-[95vh] sm:max-h-[90vh] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
 
-                {/* MODAL HEADER: Responsive Stacking */}
                 <div className="px-5 py-5 sm:px-8 sm:py-6 border-b border-white/5 bg-neutral-900/40 flex justify-between items-start relative overflow-hidden">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 relative z-10 w-full">
                         {team.logo && (
                             <img
                                 src={team.logo}
                                 alt={team.name}
-                                width="80"
-                                height="80"
-                                loading="lazy"
                                 className="w-12 h-12 sm:w-20 sm:h-20 object-contain"
                             />
                         )}
@@ -119,32 +165,34 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                             <h2 className="text-2xl sm:text-5xl font-black font-title text-white uppercase tracking-tighter leading-none">{team.name}</h2>
                             <div className="flex gap-4 sm:gap-6 mt-3 sm:mt-4">
                                 <div className="flex flex-col">
-                                    <span className="text-neutral-500 font-mono text-[8px] sm:text-[9px] uppercase tracking-widest">ELO Rating</span>
+                                    <span className="text-neutral-500 font-mono text-[8px] sm:text-[9px] uppercase tracking-widest leading-none mb-1">Current Rating</span>
                                     <span className="text-lg sm:text-2xl font-mono font-black text-emerald-400 leading-none">{Math.round(team.rating)}</span>
                                 </div>
                                 <div className="flex flex-col border-l border-white/10 pl-4 sm:pl-6">
-                                    <span className="text-neutral-500 font-mono text-[8px] sm:text-[9px] uppercase tracking-widest">Seasonal Record</span>
-                                    <span className="text-lg sm:text-2xl font-mono font-black text-white leading-none">{team.wins}W - {team.losses}L</span>
+                                    <span className="text-neutral-500 font-mono text-[8px] sm:text-[9px] uppercase tracking-widest leading-none mb-1">All-Time Peak</span>
+                                    <span className="text-lg sm:text-2xl font-mono font-black text-white leading-none">{Math.round(peakRating)}</span>
+                                </div>
+                                <div className="flex flex-col border-l border-white/10 pl-4 sm:pl-6">
+                                    <span className="text-neutral-500 font-mono text-[8px] sm:text-[9px] uppercase tracking-widest leading-none mb-1">Avg Opponent ELO</span>
+                                    <span className="text-lg sm:text-2xl font-mono font-black text-blue-400 leading-none">{sosRating}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <button onClick={onClose} className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar bg-neutral-950">
-                    {/* Graph Section: Hidden or height-adjusted for very small screens */}
                     <div className="h-48 sm:h-72 w-full p-4 sm:p-6 bg-neutral-900/20 border-b border-white/5">
-                        <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-2 block">ELO Graph</span>
+                        <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-2 block">Performance Timeline</span>
                         {chartConfig && (
                             <Chart options={chartConfig.options} series={chartConfig.series} type="area" height="100%" width="100%" />
                         )}
                     </div>
 
-                    {/* Match Log Section */}
                     <div className="p-4 sm:p-8">
                         <h3 className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-[0.3em] mb-4 sm:mb-6 flex items-center gap-3">
                             <div className="w-1 h-4 bg-blue-500"></div>
@@ -152,7 +200,7 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                         </h3>
 
                         <div className="space-y-3">
-                            {teamHistory.map((m) => {
+                            {[...teamHistory].reverse().map((m) => {
                                 const isTeamA = m.team_a === team.name;
                                 const opponent = isTeamA ? m.team_b : m.team_a;
                                 const myScore = isTeamA ? m.score_a : m.score_b;
@@ -167,7 +215,6 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                                             onClick={() => m.details && setExpandedMatchId(isExpanded ? null : m.id)}
                                             className={`flex flex-col sm:grid sm:grid-cols-12 gap-3 sm:gap-4 items-start sm:items-center p-4 ${m.details ? 'cursor-pointer' : ''}`}
                                         >
-                                            {/* Mobile Top Row: Win/Loss and Stats */}
                                             <div className="flex w-full justify-between items-center sm:col-span-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-black text-xs shrink-0 ${isWin ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
@@ -183,7 +230,6 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                                                 </div>
                                             </div>
 
-                                            {/* Opponent and Score */}
                                             <div className="flex justify-between sm:justify-start w-full sm:col-span-6 gap-8">
                                                 <div className="text-white font-bold tracking-tight text-sm sm:text-base truncate">
                                                     <span className="text-neutral-600 font-normal mr-2 italic">VS</span> {opponent}
@@ -193,13 +239,11 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                                                 </div>
                                             </div>
 
-                                            {/* Desktop-only Elo change */}
                                             <div className={`hidden sm:block sm:col-span-2 text-right font-mono font-black ${isWin ? 'text-emerald-400' : 'text-red-400'}`}>
                                                 {isWin ? '+' : ''}{change}
                                             </div>
                                         </div>
 
-                                        {/* Expanded Details: Optimized for Mobile */}
                                         {isExpanded && m.details && (
                                             <div className="bg-black/60 border-t border-white/5 p-4 sm:p-5 space-y-4 animate-in slide-in-from-top-2">
                                                 {m.details.mvp && (
@@ -226,8 +270,6 @@ export default function RankingModal({ team, isOpen, onClose, matches }: Props) 
                                                                         {map.score}
                                                                     </span>
                                                                 </div>
-
-                                                                {/* Bans: Wrapped for mobile */}
                                                                 {map.bans && map.bans.length > 0 && (
                                                                     <div className="flex flex-wrap gap-1.5 items-center pt-1 border-t border-white/5">
                                                                         <span className="text-[8px] text-neutral-700 font-mono font-bold uppercase mr-1">Bans:</span>

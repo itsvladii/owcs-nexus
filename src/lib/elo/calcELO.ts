@@ -555,26 +555,42 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
     : null;
 
   //BIGGEST MOVERS CALCULATOR
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+// --- src/lib/calcELO.ts ---
 
-  const getPastRating = (team: RatedTeam) => {
-    const entry = team.history.filter(h => new Date(h.date) <= oneWeekAgo).pop();
-    return entry ? entry.elo : (STARTING_ELO[team.region] || 1200);
-  };
+// 1. Change the timeframe to 24 hours
+const oneWeekAgo = new Date();
+oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  const allTeams = Object.values(teams);
-  const oldRankings = [...allTeams].sort((a, b) => getPastRating(b) - getPastRating(a));
-  const currentRankings = [...allTeams].sort((a, b) => b.rating - a.rating);
+const getPastRating = (team: RatedTeam) => {
+  // Get the last ELO entry from a week ago
+  const entry = team.history.filter(h => new Date(h.date) <= oneWeekAgo).pop();
+  // If no entry exists from last week, use their starting regional ELO (or the base 1200 as a last fallback)
+  return entry ? entry.elo : (STARTING_ELO[team.region] || 1200);
+};
 
-  const oldRankMap = new Map<string, number>();
-  oldRankings.forEach((t, i) => oldRankMap.set(t.name, i + 1));
+const allTeams = Object.values(teams);
+// Generate a "Snapshot" of what the rankings were 24h ago
+const oldRankings = [...allTeams].sort((a, b) => getPastRating(b) - getPastRating(a));
+const currentRankings = [...allTeams].sort((a, b) => b.rating - a.rating);
 
-  currentRankings.forEach((team, index) => {
-    const currentRank = index + 1;
-    const oldRank = oldRankMap.get(team.name) || currentRank;
-    team.rankDelta = oldRank - currentRank;
-  });
+const oldRankMap = new Map<string, number>();
+oldRankings.forEach((t, i) => oldRankMap.set(t.name, i + 1));
+
+currentRankings.forEach((team, index) => {
+  const currentRank = index + 1;
+  const oldRank = oldRankMap.get(team.name) || currentRank;
+  
+  // Logic: Rank 10 yesterday - Rank 8 today = +2 climb
+  team.rankDelta = oldRank - currentRank;
+
+  //Reset delta to 0 if the team hasn't played in the last 24h
+  // This prevents arrows from staying up forever.
+  const lastMatchDate = new Date(team.history[team.history.length - 1].date);
+  const isCurrentlyActive = lastMatchDate >= oneWeekAgo;
+
+  // Only show the delta if they played this week; otherwise, it's 0 (stale)
+  team.rankDelta = isCurrentlyActive ? (oldRank - currentRank) : 0;
+});
 
   const movers = Object.values(teams).map(t => {
     const start = startRatings[t.name] || t.rating;

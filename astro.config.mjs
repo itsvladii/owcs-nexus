@@ -6,6 +6,8 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import vercel from '@astrojs/vercel';
 
+import mdx from '@astrojs/mdx';
+
 // https://astro.build/config
 export default defineConfig({
   // This is still correct
@@ -20,7 +22,7 @@ export default defineConfig({
       theme: 'dracula', // or your preferred code theme
     }
   },
-  integrations: [react()],
+  integrations: [react(), mdx()],
   adapter: vercel(),
   redirects: {
     '/portfolio': '/',

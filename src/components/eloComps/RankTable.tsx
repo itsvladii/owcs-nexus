@@ -129,7 +129,7 @@ export default function RankingsTable({ teams, matches }: Props) {
                 <span className={`font-title text-3xl ${rankColor} group-hover:scale-110 transition-transform leading-none`}>
                   #{team.rank}
                 </span>
-                {TrendIcon && <div className={`text-[10px] font-bold mt-1 ${trendClass}`}>{TrendIcon}</div>}
+                {TrendIcon && team.rankDelta!=0 && <div className={`text-[10px] font-bold mt-1 ${trendClass}`}>{TrendIcon}</div>}
               </div>
 
               {/* Team */}
@@ -156,10 +156,6 @@ export default function RankingsTable({ teams, matches }: Props) {
                   {(team.wins + team.losses) < 10 && (
     <div className="group relative flex items-center">
       <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-      {/* Optional Tooltip on Hover */}
-      <span className="absolute bottom-full mb-2 hidden group-hover:block bg-neutral-900 text-[8px] px-2 py-1 rounded border border-white/10 whitespace-nowrap">
-        Calibrating
-      </span>
     </div>
   )}
                 </div>

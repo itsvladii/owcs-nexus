@@ -1,7 +1,8 @@
 ---
 // src/pages/index.astro
 export const prerender = false;
-
+import heroIMG_1 from "../content/img/owcs_1.jpg"
+import heroIMG_2 from "../content/img/owcs_2.jpg"
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import LiveMatchCard from "../components/homeComps/LiveMatchCard";
@@ -41,6 +42,9 @@ const HERO_IMAGES = [
     "https://live.staticflickr.com/65535/53888518623_1d23f8e915_k.jpg",
     "https://live.staticflickr.com/65535/54955984327_fd3012c7a8_k.jpg",
     "https://live.staticflickr.com/65535/54697746377_41483eadef_k.jpg",
+    "https://live.staticflickr.com/65535/54692863385_cc60b7e1f5_h.jpg",
+    "https://live.staticflickr.com/65535/54694648741_b86c80f312_h.jpg",
+    heroIMG_1,heroIMG_2
 ];
 
 // Pick a random index on the server side
@@ -183,6 +187,7 @@ const startVideo =
                             alt="OWCS Hero"
                             width={1600}
                             height={900}
+                            format="webp"
                             loading="eager"
                             class="w-full h-full object-cover object-center sm:object-center max-sm:object-[50%_20%] opacity-60"
                             onload="this.classList.remove('opacity-0')"
