@@ -13,7 +13,7 @@ import { Image } from "astro:assets";
 const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
 const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
 const matches = await fetchAllSeasonMatches(apiKey, userAgent);
-const { rankings, stats, processedMatches } = calculateRankings(matches);
+const { rankings, stats, processedMatches } = calculateRankings(matches,{isStartSeason:false});
 
 Astro.response.headers.set(
     "Cache-Control",

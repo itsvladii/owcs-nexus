@@ -67,15 +67,14 @@ const PARTNER_TEAMS_2025 = new Set([
 
 //Alias Map for eventual team rebrandings happening during the season
 
-
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
-  "Korea": 1454,
-  "North America": 1312,
-  "EMEA": 1398,
-  "China": 1282,
-  "Japan": 1304,
-  "Pacific": 1240,
+  "Korea": 1541,
+  "North America": 1385,
+  "EMEA": 1512,
+  "China": 1386,
+  "Japan": 1380,
+  "Pacific": 1295,
   "default": 1200
 };
 
@@ -128,7 +127,7 @@ function getThreePhaseKFactor(
   isRegional: boolean,
   winnerElo: number,
   loserElo: number,
-  scoreA: number,    // ✅ Added score inputs
+  scoreA: number,    
   scoreB: number
 ): number {
   
@@ -146,7 +145,7 @@ function getThreePhaseKFactor(
   // 3. CALIBRATION (The Rocket Fuel)
   // If new team (<6 games), ignore the above and give them high volatility.
   if (gamesPlayed < 6) {
-    k = 50 - ((50 - 20) * (gamesPlayed / 6)); // Linear drop 50 -> 20
+    k = 50 - ((50 - 20) * (gamesPlayed / 8)); // Linear drop 50 -> 20
   }
 
   // 4. THE BULLY PENALTY (Anti-Farming)
@@ -155,22 +154,13 @@ function getThreePhaseKFactor(
     k *= 0.5; 
   }
 
-  // 5. THE "STATEMENT WIN" (Stomp Bonus) 💥
+  // 5. THE "STATEMENT WIN"
   // We apply a multiplier based on the Margin of Victory of the winner, rewarding dominant victories
   k*=getMovMultiplier(scoreA,scoreB)
 
   // 6. SAFETY FLOOR
   // Ensure a match is always worth something
   return Math.max(k, 5);
-}
-
-//Seasonal Soft Reset Helper
-function applySeasonalSquish(teams: Record<string, RatedTeam>) {
-  for (const team of Object.values(teams)) {
-    const baseline = STARTING_ELO_BASELINE; 
-    const newRating = baseline + (team.rating - baseline) * SEASONAL_RETENTION;
-    team.rating = Math.round(newRating);
-  }
 }
 
 //Function that infers a team's region based on the last game that they've played
@@ -213,7 +203,7 @@ function getMovMultiplier(scoreA: number, scoreB: number): number {
 }
 
 // --- 3. MAIN ALGORITHM ---
-export function calculateRankings(matches: any[]) {
+export function calculateRankings(matches: any[],options={isStartSeason:true}) {
   // --- A. Check if the algorithm has all the matches at its disposal for the ELO calculations ---
   if (!matches || !Array.isArray(matches)) {
     console.error("[ELO] Error: 'matches' is not an array. Received:", typeof matches);
@@ -238,7 +228,8 @@ export function calculateRankings(matches: any[]) {
       teams[name] = {
         name,
         region,
-        rating: STARTING_ELO[region] || STARTING_ELO['default'],
+        //if we're calculating the base regional elo for the start of the season, default it to 1200
+        rating: options.isCalibration ? 1200:STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
         losses: 0,
         history: [],
@@ -295,13 +286,6 @@ export function calculateRankings(matches: any[]) {
 
     const matchDateStr = match.date.split(' ')[0];
 
-    // Seasonal reset check
-    const matchYear = new Date(match.date).getFullYear();
-    if (currentYear !== null && matchYear > currentYear) {
-       applySeasonalSquish(teams);
-    }
-    currentYear = matchYear;
-
     // Roster reset check
     [teamA, teamB].forEach(team => {
         const reset = ROSTER_RESETS.find(r => 
@@ -343,9 +327,6 @@ export function calculateRankings(matches: any[]) {
         continue;
     }
 
-  
-    
-    
     if (logoA) {
       if(logoA.imageurl)
         teamA.logo = `https://wsrv.nl/?url=${encodeURIComponent(logoA.imageurl)}&w=200&we`;
@@ -492,169 +473,140 @@ const mvpData = match.extradata?.mvp?.players?.['1']?.displayname || null;
         diff: Math.abs(changeA)
       });
     }
+
   }
 
-// --- UPDATED STATS CALCULATION ---
-  // DAYS AT THE TOP CALCULATOR (Only counts after first match played)
+  if (options.isStartSeason) {
+    return {
+      rankings: Object.values(teams).sort((a, b) => b.rating - a.rating),
+      processedMatches: processedMatches,
+      allTeams: Object.values(teams),
+      stats: {
+        biggestMover: null,
+        biggestLoser: null,
+        biggestUpsets: [],
+        longestReign: null
+      }
+    };
+  }
+
+// --- E. STATISTICS CALCULATIONS ---
+  // 1. DAYS AT THE TOP (The "King of the Hill" Stat)
   const daysAtOne: Record<string, number> = {};
   const allDates = new Set<string>();
-  
-  // Get all dates where matches actually occurred
   Object.values(teams).forEach(t => {
-      // Skip the initial January 1st baseline entry
       t.history.slice(1).forEach(h => allDates.add(h.date.split(' ')[0]));
   });
 
   const sortedDates = Array.from(allDates).sort();
-  if (sortedDates.length === 0) return { /* handle empty case */ };
-
-  // Add today to calculate the current ongoing reign
   const today = new Date().toISOString().split('T')[0];
-  if (sortedDates[sortedDates.length - 1] < today) sortedDates.push(today);
-
-  for (let i = 0; i < sortedDates.length - 1; i++) {
-      const startDate = sortedDates[i];
-      const endDate = sortedDates[i+1];
-      const diffTime = Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-
-      let topTeam = null;
-      let maxElo = -1;
-
-      Object.values(teams).forEach(t => {
-          // Check if the team has actually played a match BEFORE or ON this date
-          const hasStarted = t.history.some(h => h.date !== '2026-01-01' && h.date.split(' ')[0] <= startDate);
-          if (!hasStarted) return;
-
-          let elo = 1200;
-          for (let h = t.history.length - 1; h >= 0; h--) {
-              if (t.history[h].date.split(' ')[0] <= startDate) {
-                  elo = t.history[h].elo;
-                  break;
-              }
-          }
-          if (elo > maxElo) {
-              maxElo = elo;
-              topTeam = t.name;
-          }
-      });
-
-      if (topTeam) {
-          daysAtOne[topTeam] = (daysAtOne[topTeam] || 0) + diffDays;
-      }
+  if (sortedDates.length > 0 && sortedDates[sortedDates.length - 1] < today) {
+      sortedDates.push(today);
   }
+
+  if (sortedDates.length >= 2) {
+    for (let i = 0; i < sortedDates.length - 1; i++) {
+        const startDate = sortedDates[i];
+        const endDate = sortedDates[i+1];
+        const diffDays = Math.ceil(Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)); 
+
+        let topTeam = null;
+        let maxElo = -1;
+
+        Object.values(teams).forEach(t => {
+            const hasStarted = t.history.some(h => h.date !== '2026-01-01' && h.date.split(' ')[0] <= startDate);
+            if (!hasStarted) return;
+
+            let elo = 1200;
+            for (let h = t.history.length - 1; h >= 0; h--) {
+                if (t.history[h].date.split(' ')[0] <= startDate) {
+                    elo = t.history[h].elo;
+                    break;
+                }
+            }
+            if (elo > maxElo) {
+                maxElo = elo;
+                topTeam = t.name;
+            }
+        });
+
+        if (topTeam) {
+            daysAtOne[topTeam] = (daysAtOne[topTeam] || 0) + diffDays;
+        }
+    }
+  }
+
   const kingName = Object.keys(daysAtOne).reduce((a, b) => daysAtOne[a] > daysAtOne[b] ? a : b, null as string | null);
-  const longestReign = kingName 
-    ? { 
-        name: kingName, 
-        days: daysAtOne[kingName],
-        // ✅ ADD THESE LINES:
-        logo: teams[kingName]?.logo, 
-        logoDark: teams[kingName]?.logoDark
-      } 
-    : null;
+  const longestReign = kingName ? { 
+    name: kingName, 
+    days: daysAtOne[kingName], 
+    logo: teams[kingName]?.logo, 
+    logoDark: teams[kingName]?.logoDark 
+  } : null;
 
-  //BIGGEST MOVERS CALCULATOR
-// --- src/lib/calcELO.ts ---
+  // 2. RANKING DELTA & MOVERS (Weekly Momentum)
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-// 1. Change the timeframe to 24 hours
-const oneWeekAgo = new Date();
-oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const getPastRating = (team: RatedTeam) => {
+    const entry = team.history.filter(h => new Date(h.date) <= oneWeekAgo).pop();
+    return entry ? entry.elo : (STARTING_ELO[team.region] || 1200);
+  };
 
-const getPastRating = (team: RatedTeam) => {
-  // Get the last ELO entry from a week ago
-  const entry = team.history.filter(h => new Date(h.date) <= oneWeekAgo).pop();
-  // If no entry exists from last week, use their starting regional ELO (or the base 1200 as a last fallback)
-  return entry ? entry.elo : (STARTING_ELO[team.region] || 1200);
-};
+  const allTeamsList = Object.values(teams);
+  const oldRankings = [...allTeamsList].sort((a, b) => getPastRating(b) - getPastRating(a));
+  const currentRankings = [...allTeamsList].sort((a, b) => b.rating - a.rating);
 
-const allTeams = Object.values(teams);
-// Generate a "Snapshot" of what the rankings were 24h ago
-const oldRankings = [...allTeams].sort((a, b) => getPastRating(b) - getPastRating(a));
-const currentRankings = [...allTeams].sort((a, b) => b.rating - a.rating);
+  const oldRankMap = new Map<string, number>();
+  oldRankings.forEach((t, i) => oldRankMap.set(t.name, i + 1));
 
-const oldRankMap = new Map<string, number>();
-oldRankings.forEach((t, i) => oldRankMap.set(t.name, i + 1));
-
-currentRankings.forEach((team, index) => {
-  const currentRank = index + 1;
-  const oldRank = oldRankMap.get(team.name) || currentRank;
-  
-  // Logic: Rank 10 yesterday - Rank 8 today = +2 climb
-  team.rankDelta = oldRank - currentRank;
-
-  //Reset delta to 0 if the team hasn't played in the last 24h
-  // This prevents arrows from staying up forever.
-  const lastMatchDate = new Date(team.history[team.history.length - 1].date);
-  const isCurrentlyActive = lastMatchDate >= oneWeekAgo;
-
-  // Only show the delta if they played this week; otherwise, it's 0 (stale)
-  team.rankDelta = isCurrentlyActive ? (oldRank - currentRank) : 0;
-});
-
-  const movers = Object.values(teams).map(t => {
-    const start = startRatings[t.name] || t.rating;
-    return {
-      name: t.name,
-      diff: t.rating - start,
-      current: t.rating,
-      logo: t.logo,         
-      logoDark: t.logoDark  
-    };
+  currentRankings.forEach((team, index) => {
+    const currentRank = index + 1;
+    const oldRank = oldRankMap.get(team.name) || currentRank;
+    const lastMatchDate = new Date(team.history[team.history.length - 1]?.date || '2025-01-01');
+    team.rankDelta = (lastMatchDate >= oneWeekAgo) ? (oldRank - currentRank) : 0;
   });
+
+  const movers = allTeamsList.map(t => ({
+    name: t.name,
+    diff: t.rating - (startRatings[t.name] || t.rating),
+    current: t.rating,
+    logo: t.logo,
+    logoDark: t.logoDark
+  }));
 
   const biggestMover = movers.sort((a, b) => b.diff - a.diff)[0];
   const biggestLoser = movers.sort((a, b) => a.diff - b.diff)[0];
   
-  //BIGGEST UPSETS CALCULATOR
-  const biggestUpsets = upsets.filter(u => {
-        const t = u.tournament.toLowerCase();
-       if (t.includes("qualifier")) return false;
-       const isGlobal = t.includes("major") || 
-                        t.includes("midseason") || 
-                        t.includes("world") || 
-                        t.includes("clash"); 
-       return isGlobal;
+  // 3. BIGGEST UPSETS (Global Majors only)
+  const biggestUpsets = upsets
+    .filter(u => {
+       const t = u.tournament.toLowerCase();
+       return !t.includes("qualifier") && (t.includes("major") || t.includes("midseason") || t.includes("world") || t.includes("clash"));
     })
-    .slice(0,2)
-    .sort((a: any, b: any) => a.prob - b.prob);
+    .sort((a, b) => a.prob - b.prob)
+    .slice(0, 2);
 
-  let latestDateInDb = new Date('2025-01-01');
-  if (matches.length > 0) {
-      const lastMatch = matches.reduce((latest, current) => new Date(current.date) > new Date(latest.date) ? current : latest);
-      latestDateInDb = new Date(lastMatch.date);
-  }
+  // --- F. FINAL RANKING FILTERS ---
+  let latestDateInDb = matches.length > 0 
+    ? new Date(matches.reduce((l, c) => new Date(c.date) > new Date(l.date) ? c : l).date)
+    : new Date('2025-01-01');
   
   const cutoffDate = new Date(latestDateInDb);
   cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
 
-  //RANKING FILTERS
-  //Teams that have at least 1 win and have more than 1000 ELO points are displayed
-  //Teams that did not play for more than 90 days are not displayed
   const filteredRankings = currentRankings.filter((t: any) => {
        if (t.rating < 1000 || t.wins === 0) return false;
-       const lastPlayedEntry = t.history[t.history.length - 1];
-       if (!lastPlayedEntry) return false;
-       if (new Date(lastPlayedEntry.date) < cutoffDate) return false;
-       return true;
+       const lastPlayed = t.history[t.history.length - 1];
+       return lastPlayed && new Date(lastPlayed.date) >= cutoffDate;
   });
 
-  filteredRankings.forEach(t => {
-      if (t.form.length > 5) {
-          t.form = t.form.slice(-5); 
-      }
-  });
+  filteredRankings.forEach(t => { if (t.form.length > 5) t.form = t.form.slice(-5); });
 
-  //Return all the filtered rankings
   return {
     rankings: filteredRankings,
     processedMatches: processedMatches,
-    allTeams: Object.values(teams),
-    stats: {
-      biggestMover,
-      biggestLoser,
-      biggestUpsets,
-      longestReign
-    }
+    allTeams: allTeamsList,
+    stats: { biggestMover, biggestLoser, biggestUpsets, longestReign }
   };
 }

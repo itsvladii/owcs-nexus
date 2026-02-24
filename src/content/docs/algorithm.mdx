@@ -97,9 +97,17 @@ For example, at the start of OWCS 2026, teams will start with their respective r
 
 <RegionalPowerBars/>
 
+Here is a quick analysis of the starting points for 2026:
+
+- **Korea** remains statistically the strongest region in OWCS, with teams like Crazy Raccoons and Team Falcons claming 2 of the 3 Major LANs and having at least one Korean team finishing on the podium in 2025. Though on second place there's **EMEA**, after a breakout year with Twisted Minds and Al Qadsiah both reaching podiums at the Midseason Championship and World Finals, where Twisted Minds got crowned World Champions after an all-EMEA affair with Al Qadisah in the Grand Finals.
+
+- **China** returned as an official OWCS region in 2025 and slots in at third alongside **North America**. China's domestic scene was largely defined by Weibo Gaming and Team CC, while North America featured a more balanced field headlined by teams like Team Liquid and Spacestation Gaming. Both regions performed respectably on the international stage, though neither reached a podium or took home a trophy.
+
+- **Japan** and the **Pacific** round out the standings. Japan had a genuine breakout season, with VARREL being a consistent presence during Midseason Championship and World Finals, and even upset ROC Esports in Riyadh. The Pacific had a more modest trajectory, with a lighter international footprint with The Gatos Guapos being the only Pacific team partecipaing in a Major LAN during the 2025 season in the Midseason Championship.
+
 **Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous season to objectively measure regional strength:
 1. First off, we re-calculate every official match of the previous seasons assuming zero prior regional bias (every team starts at a baseline of 1200 ELO).
-2. Then, we assessed regional strength by calculating the average ELO of the Top 3 Teams in each region.
+2. Then, we assess the regional strength by calculating a weighted average of the Top 3 teams (50/30/20 distribution) and we apply a 70% compression in order to push those peaks back toward the 1200 baseline.
 
 *Why only Top 3?* In international competition, a region's ability to win championships is defined by its strongest representatives, not its median team. Including the bottom 50% of a region (who rarely compete internationally) dilutes the data with uncalibrated "local" ELO noise.
 

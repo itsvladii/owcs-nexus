@@ -2,12 +2,12 @@
 import React from 'react';
 
 const STARTING_ELO = {
-  "Korea": 1454,
-  "EMEA": 1398,
-  "North America": 1312,
-  "Japan": 1304,
-  "China": 1282,
-  "Pacific": 1240,
+  "Korea": 1541,
+  "EMEA": 1512,
+  "China": 1386,
+  "North America": 1385,
+  "Japan": 1380,
+  "Pacific": 1295,
   "default": 1200
 };
 
