@@ -1,13 +1,11 @@
 // src/components/docs/RegionalPowerBars.tsx
-import React from 'react';
-
-const STARTING_ELO = {
-  "Korea": 1541,
-  "EMEA": 1512,
-  "China": 1386,
-  "North America": 1385,
-  "Japan": 1380,
-  "Pacific": 1295,
+const STARTING_ELO: Record<string, number> = {
+  "Korea": 1554,
+  "EMEA": 1544,
+  "China": 1415,
+  "North America": 1412,
+  "Japan": 1405,
+  "Pacific": 1326,
   "default": 1200
 };
 

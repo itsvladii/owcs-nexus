@@ -13,7 +13,8 @@ export interface RatedTeam {
   tournaments: string[];
   form: string[]; // i.e ["W", "L", "W", "W", "L"]
   lastResetDate?: string;
-  isPartner?:boolean
+  isPartner?:boolean;
+  gamesInCurrentRoster: number; //number of games in the current roster
 }
 
 export interface ProcessedMatch {
@@ -41,10 +42,6 @@ export interface ProcessedMatch {
   };
 }
 
-
-const SEASONAL_RETENTION = 0.70; // Keep 70% rating on year reset
-const STARTING_ELO_BASELINE = 1200; // Baseline for soft resets
-
 const INACTIVITY_DAYS = 90; //Teams that do not play an offical OWCS match for more than 90 days are going to be labled as "disbanded"
 
 //Set of OWCS Partner Teams for 2026
@@ -66,19 +63,22 @@ const PARTNER_TEAMS_2025 = new Set([
 ]);
 
 //Alias Map for eventual team rebrandings happening during the season
+const TEAM_ALIASES: Record<string, string> = {
+};
 
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
-  "Korea": 1541,
-  "North America": 1385,
-  "EMEA": 1512,
-  "China": 1386,
-  "Japan": 1380,
-  "Pacific": 1295,
+  "Korea": 1554,
+  "North America": 1412,
+  "EMEA": 1544,
+  "China": 1415,
+  "Japan": 1405,
+  "Pacific": 1326,
   "default": 1200
 };
 
-//Record of all the roster resets (i.e the team doesn't keep more than 2 players of the original roster)
+
+//Record of all the roster resets (i.e the team doesn't keep more than 3 players of the original roster)
 const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
 ];
 
@@ -86,7 +86,10 @@ const ROSTER_RESETS: { team: string, date: string, resetTo: number }[] = [
 
 //Normalize team names based on the team aliases map (i.e Team CC(Chinese orgless team)-> Team CC)
 function getNormalizedTeamName(name: string): string {
-  return name.replace(/\s*\(.*?\)\s*$/, "");
+  let normalized = name.replace(/\s*\(.*?\)\s*$/, "");
+  
+  // Second, check if this name is an alias for another team 
+  return TEAM_ALIASES[normalized] || normalized;
 }
 
 /**
@@ -122,7 +125,7 @@ function isRegionalMatch(regionA: string | null, regionB: string | null): boolea
  * Implements the Hierarchy: Major > Calibration > Regional > Bully Penalty.
  */
 function getThreePhaseKFactor(
-  gamesPlayed: number,
+  gamesInCurrentRoster: number,
   isMajor: boolean,
   isRegional: boolean,
   winnerElo: number,
@@ -138,14 +141,14 @@ function getThreePhaseKFactor(
   // 2. REGIONAL COMPRESSION
   // If it's a standard regional game, we dampen it slightly (20 -> 15).
   // We skip this if it's a Major or the team is in calibration.
-  if (!isMajor && gamesPlayed >= 6 && isRegional) {
+  if (!isMajor && gamesInCurrentRoster >= 6 && isRegional) {
     k = 15; 
   }
 
   // 3. CALIBRATION (The Rocket Fuel)
   // If new team (<6 games), ignore the above and give them high volatility.
-  if (gamesPlayed < 6) {
-    k = 50 - ((50 - 20) * (gamesPlayed / 8)); // Linear drop 50 -> 20
+  if (gamesInCurrentRoster < 6) {
+    k = 50 - ((50 - 20) * (gamesInCurrentRoster / 6)); // Linear drop 50 -> 20
   }
 
   // 4. THE BULLY PENALTY (Anti-Farming)
@@ -235,7 +238,8 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
         history: [],
         tournaments: [],
         form:[],
-        isPartner: PARTNER_TEAMS_2025.has(name)
+        isPartner: PARTNER_TEAMS_2025.has(name),
+        gamesInCurrentRoster: 0
       };
     }
     return teams[name];
@@ -296,7 +300,8 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
 
         if (reset) { 
             team.rating = reset.resetTo; 
-            team.lastResetDate = reset.date; 
+            team.lastResetDate = reset.date;
+            team.gamesInCurrentRoster = 0;
         }
     });
 
@@ -377,8 +382,8 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
     const gamesB = teamB.wins + teamB.losses;
 
     //Get the K-Factor for the match
-    let kA = getThreePhaseKFactor(gamesA ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
-    let kB = getThreePhaseKFactor(gamesB ,isMajor, isRegional, winnerRating, loserRating,scoreA_val,scoreB_val);
+    let kA = getThreePhaseKFactor(teamA.gamesInCurrentRoster, isMajor, isRegional, winnerRating, loserRating, scoreA_val, scoreB_val);
+    let kB = getThreePhaseKFactor(teamB.gamesInCurrentRoster, isMajor, isRegional, winnerRating, loserRating, scoreA_val, scoreB_val);
 
     const changeA = kA * (scoreA - expectedA);
     const changeB = kB * (scoreB - expectedB);
@@ -387,9 +392,13 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
     teamA.rating += changeA;
     teamB.rating += changeB;
 
+    teamA.gamesInCurrentRoster++;
+    teamB.gamesInCurrentRoster++;
+
     //Push results into teams's "ELO history"
     teamA.history.push({ date: match.date, elo: teamA.rating });
     teamB.history.push({ date: match.date, elo: teamB.rating });
+
 
     //Update teams's last 5 games form
     if (scoreA) { 

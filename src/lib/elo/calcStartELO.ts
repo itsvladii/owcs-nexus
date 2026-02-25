@@ -4,8 +4,7 @@ import { fetchAllSeasonMatches, fetchPastSeasons } from '../stats/fetchMatches';
 
 const BASE_BASELINE = 1200;
 // Using the retention coefficient from your core algorithm for consistency
-const REGRESSION_FACTOR = 0.7; 
-const MIN_WINS = 1; 
+const REGRESSION_FACTOR = 0.6;
 const API_KEY = process.env.LIQUIPEDIA_API_KEY;
 
 async function main() {
@@ -37,10 +36,12 @@ async function main() {
 
   rankings.forEach((team: any) => {
     const totalGames = team.wins + team.losses;
-    console.log(`Team: ${team.name} | Region: ${team.region} | Games: ${totalGames}`);
     // We only consider established teams to avoid ELO noise
-    if (team.totalGames===1) return;
-    if (team.rating < 1000||team.wins===1) return;
+   if (totalGames < 8) return; 
+   if (team.wins < 2) return;
+    // Existing rating safety floor
+    if (team.rating < 1000) return;
+    console.log(`Team: ${team.name} | Region: ${team.region} | Games: ${totalGames}`);
 
     let r = team.region;
     

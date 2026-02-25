@@ -97,17 +97,19 @@ For example, at the start of OWCS 2026, teams will start with their respective r
 
 <RegionalPowerBars/>
 
-Here is a quick analysis of the starting points for 2026:
+Here's a quick breakdown of where each region stands heading into 2026:
 
-- **Korea** remains statistically the strongest region in OWCS, with teams like Crazy Raccoons and Team Falcons claming 2 of the 3 Major LANs and having at least one Korean team finishing on the podium in 2025. Though on second place there's **EMEA**, after a breakout year with Twisted Minds and Al Qadsiah both reaching podiums at the Midseason Championship and World Finals, where Twisted Minds got crowned World Champions after an all-EMEA affair with Al Qadisah in the Grand Finals.
+- **Korea remains the benchmark**. With Crazy Raccoon and Team Falcons claiming two out of three Major LANs and at least one Korean team on every 2025 podium, the region's dominance is well-earned, even if it showed some signs of weakness at times. 
+- **EMEA follows closely in second after a breakout year**, with Twisted Minds and Al Qadsiah both reached podiums at the Midseason Championship and World Finals, culminating in an all-EMEA Grand Final that Twisted Minds won to claim the World Championship title.
+- **China and North America share third**, separated by the slimmest of margins. China's scene was anchored by Weibo Gaming, Team CC, and ROC Esports, whereas NA fielded a more balanced field headlined by Team Liquid, Spacestation Gaming, and Geekay Esports. Both regions performed respectably internationally but fell short of a podium finish in LAN events.
 
-- **China** returned as an official OWCS region in 2025 and slots in at third alongside **North America**. China's domestic scene was largely defined by Weibo Gaming and Team CC, while North America featured a more balanced field headlined by teams like Team Liquid and Spacestation Gaming. Both regions performed respectably on the international stage, though neither reached a podium or took home a trophy.
+  > *Note on NA's baseline*: NA's ratings were meaningfully impacted by **NTMR's post-Stage 1 roster overhaul**. After a historic 3rd place in OWCS Champions Clash that included an upset over Crazy Raccoon, NTMR parted ways with their roster (later picked up by Geekay Esports) and fielded an entirely new lineup for Stage 2, triggering an ELO reset to 1200. This temporarily deflated NA's perceived international strength until both the new NTMR squad and Geekay re-stabilized.
 
-- **Japan** and the **Pacific** round out the standings. Japan had a genuine breakout season, with VARREL being a consistent presence during Midseason Championship and World Finals, and even upset ROC Esports in Riyadh. The Pacific had a more modest trajectory, with a lighter international footprint with The Gatos Guapos being the only Pacific team partecipaing in a Major LAN during the 2025 season in the Midseason Championship.
+- **Japan and the Pacific round out the standings**. Japan (as a region) had a breakout season behind VARREL, who were a consistent presence at Major LANs and even upset ROC Esports in Riyadh. Pacific had a quieter year, with The Gatos Guapos being the only representative at a Major LAN (Midseason Championship).
 
 **Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous season to objectively measure regional strength:
-1. First off, we re-calculate every official match of the previous seasons assuming zero prior regional bias (every team starts at a baseline of 1200 ELO).
-2. Then, we assess the regional strength by calculating a weighted average of the Top 3 teams (50/30/20 distribution) and we apply a 70% compression in order to push those peaks back toward the 1200 baseline.
+1. First off, we re-calculate every official match of last season assuming zero prior regional bias (every team starts at a baseline of 1200).
+2. Then, we assess the regional strength by calculating a weighted average of the Top 3 teams (50/30/20 distribution) and we apply a 60% compression of those averages in order to push those peaks back toward the 1200 baseline.
 
 *Why only Top 3?* In international competition, a region's ability to win championships is defined by its strongest representatives, not its median team. Including the bottom 50% of a region (who rarely compete internationally) dilutes the data with uncalibrated "local" ELO noise.
 
@@ -718,7 +720,7 @@ $$
 
 Example: `NTMR` reset to $1264$ on `2025-05-01` after the OWCS Champions Clash.
 
-**Purpose:** This is to avoid teams that completely changed their roster in the middle of the season to "inherit" the ELO points scored by said team, but with a different roster.
+**Purpose:** This hard reset ensures that a brand new roster doesn't inherit the results obtained by the previous roster, where they had no part in achieving.
 
 ### Region Inference
 Teams can change regions during a season. Therefore, a team's region is inferred from the tournament name of their last played match using keyword matching:
