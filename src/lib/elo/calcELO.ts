@@ -251,8 +251,6 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
   );
 
   // C. Process Matches
-  let currentYear: number | null = null;
-
   for (const match of sortedMatches) {
 
     /* C.1 Save Team Data */
@@ -377,9 +375,6 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
     const teamAWon = match.score_a > match.score_b;
     const winnerRating = teamAWon ? teamA.rating : teamB.rating;
     const loserRating = teamAWon ? teamB.rating : teamA.rating;
-    
-    const gamesA = teamA.wins + teamA.losses;
-    const gamesB = teamB.wins + teamB.losses;
 
     //Get the K-Factor for the match
     let kA = getThreePhaseKFactor(teamA.gamesInCurrentRoster, isMajor, isRegional, winnerRating, loserRating, scoreA_val, scoreB_val);

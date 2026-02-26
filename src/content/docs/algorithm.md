@@ -3,10 +3,8 @@ title: "OWCS Nexus ELO Ranking System"
 description: "Complete technical documentation of our modified ELO algorithm for the Overwatch Champions Series"
 lastUpdated: 2025-02-20
 version: "1.0"
+template: doc
 ---
-import VolatilityHierarchy from "/src/components/algComps/VolatilityHierarchy.tsx"
-import RegionalPowerBars from "/src/components/algComps/RegionalPowerBars.tsx"
-import EligibilityHUB from "/src/components/algComps/EligibilityHUD.tsx"
 
 # OWCS ELO Rating System Documentation
 
@@ -15,15 +13,27 @@ import EligibilityHUB from "/src/components/algComps/EligibilityHUD.tsx"
 This system ranks teams playing in the Overwatch Champions Series (OWCS) using a modified ELO algorithm that accounts for the unique characteristics of OW Esports, from the regional differences in strength to the tournaments that they play in. The system processes match results chronologically, updating team ratings based on outcomes, tournament importance and performance context.
 
 <blockquote class="warning">
-**Disclamer** 
+⚠️ Disclamer
 
 This ranking system is currently in its initial deployment phase. While the algorithm is based on a re-simulation of the 2025 season, users should treat this data as a "strong approximation" rather than absolute certainty. Some data discrepancies may exist as we refine regional weights, roster continuity mapping and eventual team rebrands.
 </blockquote>
+
 ## Data Sources
 
 Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.net/api) The matches that are "eligible" for calculation are the following:
 
-<EligibilityHUB client:visible />
+- ✅ Matches from official OWCS tournaments. This means matches from the following tournaments will be taken into consideration:
+  - **Regional Stages** (Round Robin phase, Playoffs, Seeding deciders ect.)
+  - **Major LAN tournaments** (Playoffs and eventual Group Stages)
+  - **Qualification tournaments for Regional Stages** (Promotion/Relegation, Open Qualifiers for Stage 1 ect.)
+  - **Qualification tournaments for Major LAN events** (Last Chance Qualifiers, extra-regional qualifier tournaments e.g OWCS Asia Stage 1 Championship ect.)
+
+- ❌ Matches from other non-OWCS tournaments. This means matches from the following tournaments are NOT taken into consideration:
+  - **Overwatch Collegiate**
+  - **Calling All Heroes**
+  - **Overwatch World Cup**
+  - **FACEIT League Masters/Expert/Open from any region.**
+  - **Miscellaneous OWCS events like showmatches and Pre-Season Bootcamp**
 
 **Important:** Aside from processing matches from eligible tournaments, the algorithm will also only processes finished matches with definitive scores. **Forfeits or matches missing a final score will NOT be taken into consideration**.
 
@@ -51,13 +61,13 @@ Where:
 
 **Interpretation Examples:**
 
-| Rating Difference | $\Delta R = R_A - R_B$ | Win Probability $E_A$ | Interpretation |
-|-------------------|------------------------|----------------------|----------------|
-| Equal teams | $0$ | $50\%$ | Even match |
-| Small advantage | $+100$ | $\approx 64\%$ | Slight favorite |
-| Moderate advantage | $+200$ | $\approx 76\%$ | Clear favorite |
-| Large advantage | $+400$ | $\approx 91\%$ | Heavy favorite |
-| Dominant advantage | $+600$ | $\approx 97\%$ | Near certain winners |
+| Rating Difference  | $\Delta R = R_A - R_B$ | Win Probability $E_A$ | Interpretation       |
+|--------------------|------------------------|-----------------------|----------------------|
+| Equal teams        | $0$                    | $50\%$                | Even match           |
+| Small advantage    | $+100$                 | $\approx 64\%$        | Slight favorite      |
+| Moderate advantage | $+200$                 | $\approx 76\%$        | Clear favorite       |
+| Large advantage    | $+400$                 | $\approx 91\%$        | Heavy favorite       |
+| Dominant advantage | $+600$                 | $\approx 97\%$        | Near certain winners |
 
 The expected score for Team B is simply:
 
@@ -99,7 +109,15 @@ Since OWCS regions do not have the same strength, teams are initialized at regio
 
 For example, at the start of OWCS 2026, teams will start with their respective regional ELO baselines that are as follows:
 
-<RegionalPowerBars/>
+| Region        | Starting Elo ($R_0$) | Basis                                                      |
+|---------------|----------------------|------------------------------------------------------------|
+| Korea         | 1554                 | Dominant history throughout all of OW Esports's history    |
+| North America | 1412                 | Cornerstone of Western OW Esports. good 2025 year          |
+| EMEA          | 1544                 | Historically good, breakout season in 2025                 |
+| Japan         | 1405                 | Emerging strength in the last couple of years              |
+| China         | 1415                 | Returned to OW esports recently, very top heavy regionally |
+| Pacific       | 1326                 | Developing region, modest growth                           |
+| Default       | 1200                 | Fallback for unclassified teams                            |
 
 Here's a quick breakdown of where each region stands heading into 2026:
 
@@ -108,7 +126,7 @@ Here's a quick breakdown of where each region stands heading into 2026:
 - **China and North America share third**, separated by the slimmest of margins. China's scene was anchored by Weibo Gaming, Team CC, and ROC Esports, whereas NA fielded a more balanced field headlined by Team Liquid, Spacestation Gaming, and Geekay Esports. Both regions performed respectably internationally but fell short of a podium finish in LAN events.
 
   <blockquote class="info">
-  **Note on NA's baseline**
+  Note on NA's baseline
 
   NA's ratings were meaningfully impacted by NTMR's post-Stage 1 roster overhaul. After a historic 3rd place in OWCS Champions Clash that included an upset over Crazy Raccoon, NTMR parted ways with their roster (later picked up by Geekay Esports) and fielded an entirely new lineup for Stage 2, triggering an ELO reset to 1200. This temporarily deflated NA's perceived international strength until both the new NTMR squad and Geekay re-stabilized.
   </blockquote>
@@ -122,9 +140,11 @@ Here's a quick breakdown of where each region stands heading into 2026:
 *Why only Top 3?* In international competition, a region's ability to win championships is defined by its strongest representatives, not its median team. Including the bottom 50% of a region (who rarely compete internationally) dilutes the data with uncalibrated "local" ELO noise.
  
 <blockquote class="info">
-**Why 2025 and not 2024 as a starting point?**
-The 2026 baselines are derived from a 2025 re-simulation rather than OWCS's inaugural 2024 season. The key reason is structural, as 2025 was the first year China competed as an official region after the Overwatch League disbanded in 2023, meaning 2024 data predates full regional parity. Using it would produce an artificially inflated Chinese baseline drawn from a (much) smaller, less contested sample. From 2027 onward, baselines will roll forward annually from 2025 as the earliest anchor point.
+Why 2025 and not 2024 as a starting point?
+
+The 2026 baselines are derived from a 2025 re-simulation rather than OWCS's inaugural season in 2024. The key reason is structural, as 2025 was the first year China competed as an official region after the Overwatch League disbanded in 2023, meaning 2024 data predates full regional parity. Using it would produce an artificially inflated Chinese baseline drawn from a (much) smaller, less contested sample. From 2027 onward, baselines will roll forward annually from 2025 as the earliest anchor point.
 </blockquote>
+
 ---
 
 ## The K-Factor System
@@ -133,7 +153,17 @@ The K-factor ($K$) is the most critical parameter in the ELO system, determining
 
 ### Base K-Factor Values
 The K-Factor calculation will start from these base values that will change depending on the context of the match:
-<VolatilityHierarchy client:idle />
+$$
+K_{\text{major}} = 60 \quad \text{(Major tournaments)}
+$$
+
+$$
+K_{\text{standard}} = 20 \quad \text{(Regular matches)}
+$$
+
+$$
+K_{\text{calibration}} = 50 \quad \text{(New teams)}
+$$
 
 ### K-Factor Calculation Algorithm
 
