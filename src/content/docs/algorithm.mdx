@@ -6,7 +6,6 @@ version: "1.0"
 ---
 import VolatilityHierarchy from "/src/components/algComps/VolatilityHierarchy.tsx"
 import RegionalPowerBars from "/src/components/algComps/RegionalPowerBars.tsx"
-import CalibrationGraph from "/src/components/algComps/CalibrationGraph.tsx"
 import EligibilityHUB from "/src/components/algComps/EligibilityHUD.tsx"
 
 # OWCS ELO Rating System Documentation
@@ -15,13 +14,18 @@ import EligibilityHUB from "/src/components/algComps/EligibilityHUD.tsx"
 
 This system ranks teams playing in the Overwatch Champions Series (OWCS) using a modified ELO algorithm that accounts for the unique characteristics of OW Esports, from the regional differences in strength to the tournaments that they play in. The system processes match results chronologically, updating team ratings based on outcomes, tournament importance and performance context.
 
+<blockquote class="warning">
+**Disclamer** 
+
+This ranking system is currently in its initial deployment phase. While the algorithm is based on a re-simulation of the 2025 season, users should treat this data as a "strong approximation" rather than absolute certainty. Some data discrepancies may exist as we refine regional weights, roster continuity mapping and eventual team rebrands.
+</blockquote>
 ## Data Sources
 
 Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.net/api) The matches that are "eligible" for calculation are the following:
 
-<EligibilityHUB client:load />
+<EligibilityHUB client:visible />
 
-**Disclaimer:** Aside from processing matches from eligible tournaments, the algorithm will also only processes finished matches with definitive scores. **Forfeits or matches missing a final score will NOT be taken into consideration**.
+**Important:** Aside from processing matches from eligible tournaments, the algorithm will also only processes finished matches with definitive scores. **Forfeits or matches missing a final score will NOT be taken into consideration**.
 
 ---
 
@@ -103,7 +107,11 @@ Here's a quick breakdown of where each region stands heading into 2026:
 - **EMEA follows closely in second after a breakout year**, with Twisted Minds and Al Qadsiah both reached podiums at the Midseason Championship and World Finals, culminating in an all-EMEA Grand Final that Twisted Minds won to claim the World Championship title.
 - **China and North America share third**, separated by the slimmest of margins. China's scene was anchored by Weibo Gaming, Team CC, and ROC Esports, whereas NA fielded a more balanced field headlined by Team Liquid, Spacestation Gaming, and Geekay Esports. Both regions performed respectably internationally but fell short of a podium finish in LAN events.
 
-  > *Note on NA's baseline*: NA's ratings were meaningfully impacted by **NTMR's post-Stage 1 roster overhaul**. After a historic 3rd place in OWCS Champions Clash that included an upset over Crazy Raccoon, NTMR parted ways with their roster (later picked up by Geekay Esports) and fielded an entirely new lineup for Stage 2, triggering an ELO reset to 1200. This temporarily deflated NA's perceived international strength until both the new NTMR squad and Geekay re-stabilized.
+  <blockquote class="info">
+  **Note on NA's baseline**
+
+  NA's ratings were meaningfully impacted by NTMR's post-Stage 1 roster overhaul. After a historic 3rd place in OWCS Champions Clash that included an upset over Crazy Raccoon, NTMR parted ways with their roster (later picked up by Geekay Esports) and fielded an entirely new lineup for Stage 2, triggering an ELO reset to 1200. This temporarily deflated NA's perceived international strength until both the new NTMR squad and Geekay re-stabilized.
+  </blockquote>
 
 - **Japan and the Pacific round out the standings**. Japan (as a region) had a breakout season behind VARREL, who were a consistent presence at Major LANs and even upset ROC Esports in Riyadh. Pacific had a quieter year, with The Gatos Guapos being the only representative at a Major LAN (Midseason Championship).
 
@@ -112,7 +120,11 @@ Here's a quick breakdown of where each region stands heading into 2026:
 2. Then, we assess the regional strength by calculating a weighted average of the Top 3 teams (50/30/20 distribution) and we apply a 60% compression of those averages in order to push those peaks back toward the 1200 baseline.
 
 *Why only Top 3?* In international competition, a region's ability to win championships is defined by its strongest representatives, not its median team. Including the bottom 50% of a region (who rarely compete internationally) dilutes the data with uncalibrated "local" ELO noise.
-
+ 
+<blockquote class="info">
+**Why 2025 and not 2024 as a starting point?**
+The 2026 baselines are derived from a 2025 re-simulation rather than OWCS's inaugural 2024 season. The key reason is structural, as 2025 was the first year China competed as an official region after the Overwatch League disbanded in 2023, meaning 2024 data predates full regional parity. Using it would produce an artificially inflated Chinese baseline drawn from a (much) smaller, less contested sample. From 2027 onward, baselines will roll forward annually from 2025 as the earliest anchor point.
+</blockquote>
 ---
 
 ## The K-Factor System
@@ -121,7 +133,7 @@ The K-factor ($K$) is the most critical parameter in the ELO system, determining
 
 ### Base K-Factor Values
 The K-Factor calculation will start from these base values that will change depending on the context of the match:
-<VolatilityHierarchy/>
+<VolatilityHierarchy client:idle />
 
 ### K-Factor Calculation Algorithm
 
@@ -161,9 +173,19 @@ $$
 K_{\text{calibration}}(n) = 50 - \frac{(50 - 20) \cdot n}{6}, \quad n < 6
 $$
 
-Where $n$ is the number of games played. This creates the following progression:
+Where $n$ is the number of games played. This creates the progression:
 
-<CalibrationGraph client:only="react"/>
+$$
+\begin{align}
+n = 0 &: K = 50.0 \quad \text{(maximum volatility)} \\
+n = 1 &: K = 45.0 \\
+n = 2 &: K = 40.0 \\
+n = 3 &: K = 35.0 \\
+n = 4 &: K = 30.0 \\
+n = 5 &: K = 25.0 \\
+n \geq 6 &: K = K_{\text{base}} \quad \text{(stable)}
+\end{align}
+$$
 
 **Purpose:** New teams are "harder to read" because they do not have prior data to work with, therefore they need rapid rating adjustments to find their true skill level quickly. Think of it as "placement matches" for teams (like in Competitive in Overwatch) before getting their "rank".
 

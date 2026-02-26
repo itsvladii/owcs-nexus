@@ -87,7 +87,55 @@ const { Content } = await doc.render();
     .prose h1 { font-size: 2.25rem !important; }
   }
 
-  /* Existing customizations [cite: 66, 67] */
-  .katex-inline { color: #34d399; }
+  /* Existing customizations */
   .katex-display .katex { color: #fbbf24; }
+
+
+/* src/pages/algorithm.astro */
+
+/* Global reset for quote marks and italics */
+article blockquote p::before,
+article blockquote p::after {
+  content: none !important;
+}
+article blockquote {
+  font-style: normal !important;
+}
+
+/* Amber Warning (Disclaimer) */
+article blockquote.warning {
+  border-left: 4px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+  color: #fef3c7;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Target the header inside warning */
+article blockquote.warning strong:first-of-type {
+  color: #f59e0b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+/* Emerald Info (Why 2025) */
+article blockquote.info {
+  border-left: 4px solid #10b981;
+  background: rgba(16, 185, 129, 0.05);
+  color: #ecfdf5;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Target the header inside info */
+article blockquote.info strong:first-of-type {
+  color: #10b981 !important;
+  display: block; /* Makes it a full title line */
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
 </style>
