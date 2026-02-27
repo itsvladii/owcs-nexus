@@ -398,22 +398,48 @@
                 </div>
               </div>
               {#if expandedMatchId === m.id && m.details}
-                <div
-                  transition:slide
-                  class="bg-black/60 border-t border-white/5 p-4 space-y-4"
-                >
-                  {#each m.details.maps as map}
-                    <div
-                      class="flex items-center justify-between bg-white/5 p-3 rounded-lg border border-white/5"
-                    >
-                      <span class="text-xs font-bold text-white uppercase"
-                        >{map.name}</span
-                      >
-                      <span class="font-mono font-bold">{map.score}</span>
-                    </div>
-                  {/each}
-                </div>
-              {/if}
+  <div transition:slide class="bg-black/60 border-t border-white/5 p-4 sm:p-5 space-y-4">
+    
+    {#if m.details.mvp}
+      <div class="flex items-center gap-3 pb-3 border-b border-white/5">
+        <span class="text-[8px] sm:text-[10px] font-bold bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded uppercase tracking-widest">Match MVP</span>
+        <span class="text-xs font-mono text-white font-bold italic">{m.details.mvp}</span>
+      </div>
+    {/if}
+
+    <div class="grid gap-2">
+      {#each m.details.maps as map}
+        {@const isMapWin = (map.winner === '1' && isTeamA) || (map.winner === '2' && !isTeamA)}
+        
+        <div class="flex flex-col gap-2 bg-white/5 p-3 rounded-lg border border-white/5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class={`w-1 h-6 rounded-full ${isMapWin ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold font-mono text-white uppercase">{map.name}</span>
+                <span class="text-[8px] text-neutral-600 font-mono uppercase tracking-widest">{map.mode || 'Map'}</span>
+              </div>
+            </div>
+            <span class={`font-mono font-bold text-sm ${isMapWin ? 'text-emerald-400' : 'text-red-400'}`}>
+              {map.score}
+            </span>
+          </div>
+
+          {#if map.bans && map.bans.length > 0}
+            <div class="flex flex-wrap gap-1.5 items-center pt-1 border-t border-white/5">
+              <span class="text-[8px] text-neutral-700 font-mono font-bold uppercase mr-1">Bans:</span>
+              {#each map.bans as ban}
+                <span class="text-[10px] font-mono text-red-400/60 bg-red-400/5 px-1 rounded border border-red-400/10">
+                  {ban}
+                </span>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/each}
+    </div>
+  </div>
+{/if}
             </div>
           {/each}
         </div>
