@@ -2,7 +2,6 @@
 // src/pages/algorithm.astro
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-
 // 1. Fetch the specific "algorithm" entry directly
 // (Instead of relying on getStaticPaths to pass it in)
 const doc = await getEntry('docs', 'algorithm');

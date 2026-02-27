@@ -1,9 +1,24 @@
 ---
 // src/pages/index.astro
-import heroIMG_1 from "../content/img/owcs_1.jpg"
-import heroIMG_2 from "../content/img/owcs_2.jpg"
+import owcs1 from "../content/img/owcs_1.jpg";
+import owcs2 from "../content/img/owcs_2.jpg";
+import owcs3 from "../content/img/owcs_3.jpg";
+import owcs4 from "../content/img/owcs_4.jpg";
+import owcs5 from "../content/img/owcs_5.jpg";
+import owcs6 from "../content/img/owcs_6.jpg";
+import owcs7 from "../content/img/owcs_7.jpg";
+import owcs8 from "../content/img/owcs_8.jpg";
+import owcs9 from "../content/img/owcs_9.jpg";
+import owcs10 from "../content/img/owcs_10.jpg";
+import owcs11 from "../content/img/owcs_11.jpg";
+import owcs12 from "../content/img/owcs_12.jpg";
+import owcs13 from "../content/img/owcs_13.jpg";
+import owcs14 from "../content/img/owcs_14.jpg";
+import owcs15 from "../content/img/owcs_15.jpg";
+import owcs16 from "../content/img/owcs_16.jpg";
+import owcs17 from "../content/img/owcs_17.jpg";
+import owcs18 from "../content/img/owcs_18.jpg";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
 import LiveMatchCard from "../components/homeComps/LiveMatchCard.svelte";
 import { Image } from "astro:assets";
 
@@ -27,25 +42,9 @@ const heroClipIDs = [
 ];
 
 const HERO_IMAGES = [
-    "https://live.staticflickr.com/65535/54691711792_ec4236bbf4_k.jpg",
-    "https://live.staticflickr.com/65535/54692530606_09abbfe6d5_k.jpg",
-    "https://live.staticflickr.com/65535/54691712462_8f4bc996eb_k.jpg",
-    "https://live.staticflickr.com/65535/54692862825_208da32d32_k.jpg",
-    "https://live.staticflickr.com/65535/54692781824_5555aa5d4b_k.jpg",
-    "https://live.staticflickr.com/65535/54694648941_b812949091_k.jpg",
-    "https://live.staticflickr.com/65535/54694650621_c3214ca9d6_k.jpg",
-    "https://live.staticflickr.com/65535/54694650186_05abecc3c1_k.jpg",
-    "https://live.staticflickr.com/65535/54693825092_82b45122bb_k.jpg",
-    "https://live.staticflickr.com/65535/54696718595_466aa6af37_k.jpg",
-    "https://live.staticflickr.com/65535/54698810054_71fc8a22c3_k.jpg",
-    "https://live.staticflickr.com/65535/53888518623_1d23f8e915_k.jpg",
-    "https://live.staticflickr.com/65535/54955984327_fd3012c7a8_k.jpg",
-    "https://live.staticflickr.com/65535/54697746377_41483eadef_k.jpg",
-    "https://live.staticflickr.com/65535/54692863385_cc60b7e1f5_h.jpg",
-    "https://live.staticflickr.com/65535/54694648741_b86c80f312_h.jpg",
-    heroIMG_1,heroIMG_2
+    owcs1, owcs2, owcs3, owcs4, owcs5, owcs6, owcs7, owcs8, owcs9, 
+    owcs10, owcs11, owcs12, owcs13, owcs14, owcs15, owcs16, owcs17, owcs18
 ];
-
 // Pick a random index on the server side
 const randomImage = HERO_IMAGES[Math.floor(Math.random() * HERO_IMAGES.length)];
 
@@ -182,15 +181,17 @@ const startVideo =
                 >
                     <div class="absolute inset-0 z-0">
                         <Image
-                            src={randomImage}
-                            alt="OWCS Hero"
-                            width={1600}
-                            height={900}
-                            format="webp"
-                            loading="eager"
-                            class="w-full h-full object-cover object-center sm:object-center max-sm:object-[50%_20%] opacity-60"
-                            onload="this.classList.remove('opacity-0')"
-                        />
+                src={randomImage}
+                alt="OWCS Action Highlight"
+                width={1200} 
+                height={800}
+                widths={[400, 800, 1200]}
+                sizes="(max-width: 1024px) 100vw, 66vw"
+                format="webp"
+                quality="mid"
+                loading="eager" 
+                class="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105 opacity-60"
+            />
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent sm:via-black/20">
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 // src/pages/rankings.astro
+import owcs_wf from "../content/img/owcs_wf.jpg";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable from "../components/eloComps/RankTable.svelte";
 import LateralTab from "../components/eloComps/LateralTab.svelte"
@@ -115,6 +116,8 @@ const regionalAverages = regions.map(reg => {
 
     return { name: reg, avg, trend: Math.round(change) };
 }).sort((a, b) => b.avg - a.avg);
+
+const headerImg=owcs_wf
 ---
 
 <BaseLayout title="Global Power Rankings | OWCS Nexus">
@@ -122,7 +125,7 @@ const regionalAverages = regions.map(reg => {
             <div class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end">
     <div class="absolute inset-0 z-0">
        <Image 
-        src="https://live.staticflickr.com/65535/54956871956_239e2d7ec1_k.jpg" 
+        src={headerImg}
         alt="Header Background" 
         width={1920} 
         height={1080}
