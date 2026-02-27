@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron",
+      "path": "/api/syncELO",
       "schedule": "0 9 * * *"
     }
   ]

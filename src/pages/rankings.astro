@@ -4,31 +4,44 @@ export const prerender = false;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable, { type RankingTeam } from "../components/eloComps/RankTable";
 import LateralTab from "../components/eloComps/LateralTab"
-import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
-import { calculateRankings } from "../lib/elo/calcELO";
-import { getCollection } from "astro:content";
+import { supabase } from "../lib/contentScripts/supabase";
 import { Image } from "astro:assets";
 
 // --- DATA FETCHING ---
-const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
-const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
-const matches = await fetchAllSeasonMatches(apiKey, userAgent);
-const { rankings, stats, processedMatches } = calculateRankings(matches,{isStartSeason:false});
+const { data: rankings } = await supabase
+    .from('rankings')
+    .select('*')
+    .order('rating', { ascending: false });
+
+const { data: statsData } = await supabase
+    .from('global_stats')
+    .select('*')
+    .single();
+
+const stats = {
+    biggestMover: statsData?.biggest_mover || null,
+    longestReign: statsData?.longest_reign || null,
+    biggestUpsets: statsData?.biggest_upsets || [] 
+};
+
+// 2. KEEP PROCESSED MATCHES (For the modal)
+const { data: processedMatches } = await supabase
+    .from('processed_matches')
+    .select('*');
 
 Astro.response.headers.set(
     "Cache-Control",
     "public, s-maxage=300, stale-while-revalidate=600",
 );
 
-// --- LOCAL DATA MAPPING ---
-const allTeams = await getCollection("teams");
 const teamMap = new Map();
-allTeams.forEach((t) => {
-    teamMap.set(t.data.name.toLowerCase(), t);
-    if (t.data.liquipediaName) {
-        teamMap.set(t.data.liquipediaName.toLowerCase(), t);
-    }
-});
+if (rankings) {
+    rankings.forEach((t) => {
+        // Since the DB data might have slightly different property names, 
+        // adjust as needed. If 'name' is top-level:
+        teamMap.set(t.name.toLowerCase(), t);
+    });
+}
 
 function getLocalTeam(apiName: string) {
     if (!apiName) return undefined;
@@ -51,12 +64,10 @@ function getTeamProps(team: {
     const localTeam = getLocalTeam(team.name);
     const hasPage = !!localTeam;
 
-    const color = localTeam?.data.colour || "#525252"; // Fallback gray
-
     // LOGO LOGIC: Local File (Best) -> API Logo (Good) -> Fallback (None)
     const logo = team.logoDark || team.logo;
 
-    return { localTeam, hasPage, color, logo };
+    return { localTeam, hasPage, logo };
 }
 
 // --- DATA PREP FOR TABLE ---
@@ -70,7 +81,7 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         wins: team.wins,
         losses: team.losses,
         region: team.region || "Unknown",
-        logo: team.logoDark,
+        logo: team.logo_dark || team.logo,
         isPartner: team.isPartner || false,
         hasPage: !!localData,
         history: team.history,
