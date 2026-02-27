@@ -4,8 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import vercel from '@astrojs/vercel';
-
+import svelte from '@astrojs/svelte';
 import mdx from '@astrojs/mdx';
 
 // https://astro.build/config
@@ -22,14 +21,7 @@ export default defineConfig({
       theme: 'dracula', // or your preferred code theme
     }
   },
-  integrations: [react(), mdx()],
-  adapter: vercel(),
-  redirects: {
-    '/portfolio': '/',
-    '/transfers': '/',
-    '/market': '/',
-    '/admin':'/'
-  },
+  integrations: [mdx(),svelte()],
   image: {
     domains: ['live.staticflickr.com'],
   }

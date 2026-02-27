@@ -2,8 +2,8 @@
 // src/pages/rankings.astro
 export const prerender = false;
 import BaseLayout from "../layouts/BaseLayout.astro";
-import RankingsTable, { type RankingTeam } from "../components/eloComps/RankTable";
-import LateralTab from "../components/eloComps/LateralTab"
+import RankingsTable from "../components/eloComps/RankTable.svelte";
+import LateralTab from "../components/eloComps/LateralTab.svelte"
 import { supabase } from "../lib/contentScripts/supabase";
 import { Image } from "astro:assets";
 
@@ -28,11 +28,6 @@ const stats = {
 const { data: processedMatches } = await supabase
     .from('processed_matches')
     .select('*');
-
-Astro.response.headers.set(
-    "Cache-Control",
-    "public, s-maxage=300, stale-while-revalidate=600",
-);
 
 const teamMap = new Map();
 if (rankings) {
@@ -254,7 +249,7 @@ const regionalAverages = regions.map(reg => {
             <div class="flex-1 min-w-0 w-full">
                 {/* THE TABLE */}
                 <div class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm">
-                    <RankingsTable teams={tableData.slice(0,30)} matches={processedMatches} client:only="react" />
+                    <RankingsTable teams={tableData.slice(0,30)} matches={processedMatches} client:only="svelte" />
                 </div>
                 
                 <p class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0">
