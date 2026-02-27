@@ -1,7 +1,6 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import react from '@astrojs/react';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import svelte from '@astrojs/svelte';
