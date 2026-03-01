@@ -11,5 +11,5 @@ jobs:
     steps:
       - name: Ping Sync API
         run: |
-          curl -X GET "https://owcs-nexus.vercel.app/api/syncELO" \
+          curl -X GET "https://owcs-wiki.vercel.app/api/syncELO" \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
