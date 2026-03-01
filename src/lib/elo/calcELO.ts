@@ -206,7 +206,12 @@ function getMovMultiplier(scoreA: number, scoreB: number): number {
 }
 
 // --- 3. MAIN ALGORITHM ---
-export function calculateRankings(matches: any[],options={isStartSeason:true}) {
+export function calculateRankings(matches: any[], options: {
+  isStartSeason?: boolean;
+  isCalibration?: boolean;
+  /** Pre-seeded team state loaded from the DB (for incremental syncs) */
+  initialTeams?: Record<string, RatedTeam>;
+} = { isStartSeason: true }) {
   // --- A. Check if the algorithm has all the matches at its disposal for the ELO calculations ---
   if (!matches || !Array.isArray(matches)) {
     console.error("[ELO] Error: 'matches' is not an array. Received:", typeof matches);
@@ -216,7 +221,11 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
     };
   }
 
-  const teams: Record<string, RatedTeam> = {};
+  // Seed team state from the DB snapshot if doing an incremental sync.
+  // Deep-clone to avoid mutating the caller's object.
+  const teams: Record<string, RatedTeam> = options.initialTeams
+    ? JSON.parse(JSON.stringify(options.initialTeams))
+    : {};
   const upsets: any[] = [];
   const processedMatches: ProcessedMatch[] = [];
   
@@ -224,7 +233,8 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const startRatings: Record<string, number> = {};
 
-  // Helper to initialize the team 'structure'
+  // Helper to initialize the team 'structure'.
+  // If the team was pre-seeded from the DB it already exists — just return it.
   const getTeam = (name: string, tournament: string) => {
     if (!teams[name]) {
       const region = inferRegion(tournament);
@@ -232,12 +242,12 @@ export function calculateRankings(matches: any[],options={isStartSeason:true}) {
         name,
         region,
         //if we're calculating the base regional elo for the start of the season, default it to 1200
-        rating: options.isCalibration ? 1200:STARTING_ELO[region] || STARTING_ELO['default'],
+        rating: options.isCalibration ? 1200 : STARTING_ELO[region] || STARTING_ELO['default'],
         wins: 0,
         losses: 0,
         history: [],
         tournaments: [],
-        form:[],
+        form: [],
         isPartner: PARTNER_TEAMS_2025.has(name),
         gamesInCurrentRoster: 0
       };

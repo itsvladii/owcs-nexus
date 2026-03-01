@@ -22,17 +22,21 @@ export interface Match {
 
 
 // 3. Fetch Season Matches (For Global Power Rankings)
-export async function fetchAllSeasonMatches(apiKey: string, userAgent: string) {
+export async function fetchAllSeasonMatches(apiKey: string, userAgent: string, since?: string) {
   if (!apiKey) return [];
+
+  // Use the provided `since` date if doing an incremental sync, otherwise fall
+  // back to the season start date.
+  const afterDate = since ?? '2026-02-20';
 
   try {
     const endpoint = new URL('https://api.liquipedia.net/api/v3/match');
     endpoint.searchParams.set('wiki', 'overwatch');
     endpoint.searchParams.set('limit', '1000');
     endpoint.searchParams.set('order', 'date ASC');
-    endpoint.searchParams.set('conditions', '[[finished::1]] AND [[date::>2026-02-20]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])');
+    endpoint.searchParams.set('conditions', `[[finished::1]] AND [[date::>${afterDate}]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])`);
 
-    console.log(`[Liquipedia] Fetching season matches...`);
+    console.log(`[Liquipedia] Fetching season matches since ${afterDate}...`);
 
     const response = await fetch(endpoint.toString(), {
       method: 'GET',
@@ -119,4 +123,3 @@ export async function fetchPastSeasons(apiKey: string, userAgent: string) {
     return [];
   }
 }
-
