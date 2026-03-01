@@ -1,17 +1,17 @@
-name: Global ELO Sync
+# .github/workflows/sync-elo.yml
+name: Sync ELO Rankings
 
 on:
   schedule:
-    # This runs every 3 hours (00:00, 03:00, 06:00, etc. UTC)
     - cron: '0 */3 * * *'
-  workflow_dispatch: # This adds a "Run manually" button in GitHub Actions
+  workflow_dispatch: # lets you trigger it manually from GitHub UI too
 
 jobs:
-  trigger-sync:
+  sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Hit Vercel Sync Endpoint
+      - name: Trigger sync
         run: |
-          curl -X GET "https://owcs-wiki.vercel.app/api/syncELO" \
-          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-          -f
+          curl -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://owcs-wiki.vercel.app/api/syncELO
