@@ -43,7 +43,7 @@
   >
     <div 
       transition:fly={{ y: 20, duration: 400 }}
-      class="w-full max-w-lg bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+      class="w-full max-w-lg bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
     >
       <div class="p-6 border-b border-white/5 bg-neutral-950 flex items-center gap-4">
         <div class="p-3 bg-amber-500/20 text-amber-500 rounded-xl">
@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      <div class="p-6 space-y-6">
+      <div class="p-6 space-y-6 overflow-y-auto custom-scrollbar">
         <p class="text-sm text-neutral-300 leading-relaxed">
           Before you look at the numbers and start angrily typing on r/CompetitiveOverwatch or on Twitter, you must acknowledge the following truths about how this algorithm works:
         </p>
@@ -132,7 +132,7 @@
         </div>
       </div>
 
-      <div class="p-6 pt-0">
+      <div class="p-6 pt-0 shrink-0">
         <button
           on:click={handleEnter}
           disabled={!allChecked}
