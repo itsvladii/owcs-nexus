@@ -68,12 +68,12 @@ const TEAM_ALIASES: Record<string, string> = {
 
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
-  "Korea": 1554,
-  "North America": 1412,
-  "EMEA": 1544,
-  "China": 1415,
-  "Japan": 1405,
-  "Pacific": 1326,
+  "Korea": 1216,
+  "North America": 1201,
+  "EMEA": 1228,
+  "China": 1201,
+  "Japan": 1184,
+  "Pacific": 1165,
   "default": 1200
 };
 
@@ -103,12 +103,18 @@ function getExpectedScore(ratingA: number, ratingB: number): number {
 // Helper to determine if a tournament is an International Major
 function isMajorTournament(name: string): boolean {
   const n = name.toLowerCase();
-  
-  // 1. Explicit Major Keywords
-  if (n.includes('major') || n.includes('world') || n.includes('clash')) return true;
-  
-  // 2. Specific Big Events (Midseason, EWC)
-  if (n.includes('midseason') || n.includes('ewc') || n.includes('esports world cup')) return true;
+
+  // Explicitly exclude qualifier/road-to events first, regardless of other keywords.
+  if (n.includes('qualifier') || n.includes('last chance')) return false;
+  if (n.includes('road to')) return false;
+  if (n.includes('group stage')) return false;
+
+  // Match known major event keywords only after exclusions pass
+  if (n.includes('champions clash')) return true;
+  if (n.includes('midseason championship')) return true;
+  if (n.includes('world finals')) return true;
+  if (n.includes('ewc') || n.includes('esports world cup')) return true;
+  if (n.includes('major')) return true;
 
   return false;
 }

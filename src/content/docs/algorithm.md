@@ -1,41 +1,45 @@
 ---
 title: "OWCS Nexus ELO Ranking System"
-description: "Complete technical documentation of our modified ELO algorithm for the Overwatch Champions Series"
-lastUpdated: 2025-02-20
+description: "Complete technical documentation of the modified ELO algorithm powering the OWCS Nexus rankings"
+lastUpdated: 2026-03-01
 version: "1.0"
 template: doc
 ---
 
-# OWCS ELO Rating System Documentation
+# OWCS ELO Rating System — Technical Documentation
 
 ## Overview
 
-This system ranks teams playing in the Overwatch Champions Series (OWCS) using a modified ELO algorithm that accounts for the unique characteristics of OW Esports, from the regional differences in strength to the tournaments that they play in. The system processes match results chronologically, updating team ratings based on outcomes, tournament importance and performance context.
+This system ranks teams competing in the Overwatch Champions Series (OWCS) using a modified ELO algorithm designed for the specific characteristics of OW Esports: regional disparities in strength, a mix of domestic and international competition, roster volatility, and a structured annual season format.
+
+The system processes match results chronologically, updating team ratings after every match based on the outcome, tournament importance, scoreline, and competitive context. At the start of each season, regional baselines are recalculated from a full re-simulation of the previous year's data to account for how each region actually performed.
 
 <blockquote class="warning">
-⚠️ Disclamer
+⚠️ Disclaimer
 
-This ranking system is currently in its initial deployment phase. While the algorithm is based on a re-simulation of the 2025 season, users should treat this data as a "strong approximation" rather than absolute certainty. Some data discrepancies may exist as we refine regional weights, roster continuity mapping and eventual team rebrands.
+This ranking system is currently in its initial deployment phase. While the algorithm is based on a re-simulation of the 2025 season, users should treat this data as a strong approximation rather than an absolute truth. Some data discrepancies may exist as we refine regional weights, roster continuity mapping, and team rebranding records.
 </blockquote>
+
+---
 
 ## Data Sources
 
-Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.net/api) The matches that are "eligible" for calculation are the following:
+Match data is pulled from the [Official Liquipedia API](https://liquipedia.net/api). Only matches from official OWCS tournaments are eligible for calculation:
 
-- ✅ Matches from official OWCS tournaments. This means matches from the following tournaments will be taken into consideration:
-  - **Regional Stages** (Round Robin phase, Playoffs, Seeding deciders ect.)
-  - **Major LAN tournaments** (Playoffs and eventual Group Stages)
-  - **Qualification tournaments for Regional Stages** (Promotion/Relegation, Open Qualifiers for Stage 1 ect.)
-  - **Qualification tournaments for Major LAN events** (Last Chance Qualifiers, extra-regional qualifier tournaments e.g OWCS Asia Stage 1 Championship ect.)
+**✅ Eligible matches:**
+- Regional Stages (Round Robin, Playoffs, Seeding Deciders)
+- Major LAN tournaments (Group Stages and Playoffs)
+- Qualification tournaments for Regional Stages (Promotion/Relegation, Open Qualifiers)
+- Qualification tournaments for Major LAN events (Last Chance Qualifiers, cross-regional qualifiers such as the OWCS Asia Stage Championship)
 
-- ❌ Matches from other non-OWCS tournaments. This means matches from the following tournaments are NOT taken into consideration:
-  - **Overwatch Collegiate**
-  - **Calling All Heroes**
-  - **Overwatch World Cup**
-  - **FACEIT League Masters/Expert/Open from any region.**
-  - **Miscellaneous OWCS events like showmatches and Pre-Season Bootcamp**
+**❌ Ineligible matches:**
+- Matches from Overwatch Collegiate
+- Matches from Calling All Heroes (CAH)
+- Matches from the Overwatch World Cup (OWWC)
+- Matches from the FACEIT League (Masters/Expert/Open, any region)
+- Showmatches, OWCS Pre-Season Bootcamp and other miscellaneous events
 
-**Important:** Aside from processing matches from eligible tournaments, the algorithm will also only processes finished matches with definitive scores. **Forfeits or matches missing a final score will NOT be taken into consideration**.
+Additionally, the algorithm only processes **completed matches with definitive scores**. Forfeits, walkovers, and matches with missing scores are skipped entirely.
 
 ---
 
@@ -43,43 +47,45 @@ Matches are pulled thanks to the [Official Liquipedia API.](https://liquipedia.n
 
 ### The ELO Rating System
 
-ELO is a method for calculating the relative skill levels of players or teams in competitive games. Originally developed by Arpad Elo for chess, it has been adapted for various competitive contexts, from international football like the [FIFA Men's World Rankings](https://inside.fifa.com/fifa-world-ranking/men) to esports like the [Global Power Rankings](https://lolesports.com/it-IT/gpr/2025/worlds) from the League of Legends esports scene.
+ELO is a method for calculating relative skill levels in competitive settings. Originally developed by Arpad Elo for chess, it has been adapted across many domains, from international football with the [FIFA's Men's World Rankings](https://inside.fifa.com/fifa-world-ranking/men) to esports like the [League of Legends Global Power Rankings](https://lolesports.com/it-IT/gpr/2025/worlds).
+
+The core principle is simple: winning against a stronger opponent should earn more rating points than winning against a weaker one, and losing to a weaker opponent should cost more than losing to a stronger one.
 
 ### Expected Score (Win Probability)
 
-The heart of this ELO system is the **expected score** function, which predicts the probability of a team winning based on rating differences. This uses the **logistic distribution**:
+The expected score function predicts the probability of a team winning, given the current ratings of both teams. It uses the **logistic distribution**:
 
 $$
 E_A = \frac{1}{1 + 10^{(R_B - R_A)/400}}
 $$
 
 Where:
-- $E_A$ = Expected score for Team A (probability of winning, $0 \leq E_A \leq 1$)
+- $E_A$ = Expected score for Team A (win probability, $0 \leq E_A \leq 1$)
 - $R_A$ = Current rating of Team A
 - $R_B$ = Current rating of Team B
-- The constant $400$ determines the scale of rating differences
+- The constant $400$ sets the scale: a 400-point difference means the stronger team wins ~91% of the time
 
-**Interpretation Examples:**
-
-| Rating Difference  | $\Delta R = R_A - R_B$ | Win Probability $E_A$ | Interpretation       |
-|--------------------|------------------------|-----------------------|----------------------|
-| Equal teams        | $0$                    | $50\%$                | Even match           |
-| Small advantage    | $+100$                 | $\approx 64\%$        | Slight favorite      |
-| Moderate advantage | $+200$                 | $\approx 76\%$        | Clear favorite       |
-| Large advantage    | $+400$                 | $\approx 91\%$        | Heavy favorite       |
-| Dominant advantage | $+600$                 | $\approx 97\%$        | Near certain winners |
-
-The expected score for Team B is simply:
+The expected score for Team B is always the complement:
 
 $$
-E_B = 1 - E_A = \frac{1}{1 + 10^{(R_A - R_B)/400}}
+E_B = 1 - E_A
 $$
+
+**Interpretation examples:**
+
+| Rating Difference ($R_A - R_B$) | Win Probability ($E_A$) | Interpretation |
+|---|---|---|
+| $0$ | $50\%$ | Even match |
+| $+100$ | $\approx 64\%$ | Slight favourite |
+| $+200$ | $\approx 76\%$ | Clear favourite |
+| $+400$ | $\approx 91\%$ | Heavy favourite |
+| $+600$ | $\approx 97\%$ | Near-certain winner |
 
 ---
 
 ## Rating Update Formula
 
-After each match, team ratings are updated based on the difference between the actual result and the expected result:
+After each match, ratings are updated based on how much the actual result differed from what was expected:
 
 $$
 R_A^{\text{new}} = R_A^{\text{old}} + K_A \cdot (S_A - E_A)
@@ -90,163 +96,177 @@ R_B^{\text{new}} = R_B^{\text{old}} + K_B \cdot (S_B - E_B)
 $$
 
 Where:
-- $R^{\text{new}}$ = Updated rating after the match
-- $R^{\text{old}}$ = Rating before the match
-- $K$ = K-factor (volatility parameter, based on the "context" of the match and determines the "magnitude" of rating change)
-- $S$ = Actual score (1 for winner, 0 for loser)
-- $E$ = Expected score (win probability, shown before)
+- $K$ = K-factor (controls how much ratings move — explained in detail below)
+- $S$ = Actual result (1 for winner, 0 for loser)
+- $E$ = Expected score (win probability from above)
 
-**Key Insight:** The term $(S - E)$ represents the "surprise" of the result:
-- If $S - E > 0$: Team performed better than expected (gained rating)
-- If $S - E < 0$: Team performed worse than expected (lost rating)
-- If $S - E \approx 0$: Result matched expectation (minimal rating change)
+The term $(S - E)$ is the "surprise factor" of the result:
+- $S - E > 0$: Team outperformed expectations → gains rating
+- $S - E < 0$: Team underperformed expectations → loses rating
+- $S - E \approx 0$: Result was expected → minimal change
+
+**Note on zero-sum:** Because each team uses its own K-factor (which may differ), the total rating points in the system are not strictly conserved. This is intentional and is explained further under [System Properties](#system-properties--limitations).
 
 ---
 
 ## Starting Ratings by Region
 
-Since OWCS regions do not have the same strength, teams are initialized at region-specific ELO baselines that reflect the historical competitive strength of the various regions. 
+OWCS regions are built equally. Rather than starting all teams at a flat 1200, teams are initialized at region-specific baselines that reflect each region's demonstrated historical performance in Major events and the competitive "depth" of the region:
 
-For example, at the start of OWCS 2026, teams will start with their respective regional ELO baselines that are as follows:
+For OWCS 2026, the starting baselines are:
 
-| Region        | Starting Elo ($R_0$) | Basis                                                      |
-|---------------|----------------------|------------------------------------------------------------|
-| Korea         | 1554                 | Dominant history throughout all of OW Esports's history    |
-| North America | 1412                 | Cornerstone of Western OW Esports. good 2025 year          |
-| EMEA          | 1544                 | Historically good, breakout season in 2025                 |
-| Japan         | 1405                 | Emerging strength in the last couple of years              |
-| China         | 1415                 | Returned to OW esports recently, very top heavy regionally |
-| Pacific       | 1326                 | Developing region, modest growth                           |
-| Default       | 1200                 | Fallback for unclassified teams                            |
+| Region | Starting ELO ($R_0$) | Notes |
+|---|---|---|
+| Korea | 1216 | Consistently dominant; Falcons and CR won 2 of 3 2025 majors and consistently on the podium |
+| EMEA | 1228 | Breakout year; all-EMEA World Finals grand final, Twisted Minds world champions |
+| North America | 1201 | Solid but no Major podium or silverware; impacted by NTMR mid-season roster overhaul |
+| China | 1201 | Comparable Major performances to NA; anchored by Weibo Gaming |
+| Japan | 1184 | Emerging strength, both regionally and internationally as VARREL made history with first-ever major win |
+| Pacific | 1165 | Developing region; very limited Major representation in 2025 |
+| Default | 1200 | Fallback for unclassified or unrecognized teams |
 
-Here's a quick breakdown of where each region stands heading into 2026:
+### Why these specific numbers?
 
-- **Korea remains the benchmark**. With Crazy Raccoon and Team Falcons claiming two out of three Major LANs and at least one Korean team on every 2025 podium, the region's dominance is well-earned, even if it showed some signs of weakness at times. 
-- **EMEA follows closely in second after a breakout year**, with Twisted Minds and Al Qadsiah both reached podiums at the Midseason Championship and World Finals, culminating in an all-EMEA Grand Final that Twisted Minds won to claim the World Championship title.
-- **China and North America share third**, separated by the slimmest of margins. China's scene was anchored by Weibo Gaming, Team CC, and ROC Esports, whereas NA fielded a more balanced field headlined by Team Liquid, Spacestation Gaming, and Geekay Esports. Both regions performed respectably internationally but fell short of a podium finish in LAN events.
+These baselines are not arbitrary: they are calculated from a full re-simulation of the previous seasons and combines two distinct "phases":
 
-  <blockquote class="info">
-  Note on NA's baseline
+**Phase 1 — International Performances (60% weight):** How well did this region's best representatives perform at Major events relative to expectations? This is measured as the normalized per-match overperformance: the sum of `(actual result − expected win probability)` across all major matches, divided by total major matches played. 
 
-  NA's ratings were meaningfully impacted by NTMR's post-Stage 1 roster overhaul. After a historic 3rd place in OWCS Champions Clash that included an upset over Crazy Raccoon, NTMR parted ways with their roster (later picked up by Geekay Esports) and fielded an entirely new lineup for Stage 2, triggering an ELO reset to 1200. This temporarily deflated NA's perceived international strength until both the new NTMR squad and Geekay re-stabilized.
-  </blockquote>
+**Reason**: This prevents developing regions for participating, as a team losing matches in Majors where they were always expected to lose scores neutrally, while a team pulling upsets scores positively.
 
-- **Japan and the Pacific round out the standings**. Japan (as a region) had a breakout season behind VARREL, who were a consistent presence at Major LANs and even upset ROC Esports in Riyadh. Pacific had a quieter year, with The Gatos Guapos being the only representative at a Major LAN (Midseason Championship).
+**Phase 2 — Domestic Depth (40% weight):** How competitive and even is the region internally? This is the average calibration rating of all qualified teams, minus a variance penalty for lopsided distributions. This ensures that a region where one team dominates and everyone else is far behind is penalized relative to a region where multiple teams fight for the regional Stage title. 
 
-**Key Insight:** These starting values are not arbitrary. They are derived from a complete re-simulation of the previous season to objectively measure regional strength:
-1. First off, we re-calculate every official match of last season assuming zero prior regional bias (every team starts at a baseline of 1200).
-2. Then, we assess the regional strength by calculating a weighted average of the Top 3 teams (50/30/20 distribution) and we apply a 60% compression of those averages in order to push those peaks back toward the 1200 baseline.
+**Note**: A minimum average threshold of 1250 is required before any depth bonus applies, preventing "uniformly mediocre" regions from being rewarded for low variance.
 
-*Why only Top 3?* In international competition, a region's ability to win championships is defined by its strongest representatives, not its median team. Including the bottom 50% of a region (who rarely compete internationally) dilutes the data with uncalibrated "local" ELO noise.
- 
+These two phases are combined, and the result is compressed 60% toward the 1200 baseline via a soft reset formula:
+
+$$
+R_{\text{baseline}} = 1200 + (\text{combinedScore} - 1200) \times 0.6
+$$
+
+**Meaning**: This means that no region retains more than 60% of its deviation from 1200 as a starting advantage.
+
+### Calibration methodology
+
+The calibration simulation forces all teams to start at exactly 1200 regardless of region. This ensures that no prior regional biases are taken into consideration during the regional baseline calculations.
+
+Only teams meeting all three qualifying thresholds are included in the calibration:
+- At least 8 total games played
+- At least 2 wins
+- Calibration rating ≥ 1000
+
+### Handling roster resets in calibration
+
+Teams that underwent a major roster change during the season (≥60% roster change) have their ELO reset during **live rankings**. However, using their post-reset rating for the **regional baseline** calculations would erase the performance of the original roster.
+
+For these teams, the calibration script uses their **peak pre-reset rating**, provided that peak was sustained for at least 3 matches (to filter out single-tournament hot streaks). For teams with no roster reset, the final end-of-season rating is used as it represents sustained performance across the season.
+
+### Why 2025 as the starting point?
+
+The 2026 baselines are anchored to a 2025 re-simulation rather than OWCS's inaugural 2024 season. The primary reason is structural, as 2025 was the first year China competed as an official OWCS region after the Overwatch League disbanded in 2023. Using 2024 data would produce a Chinese baseline derived from a far smaller, less contested sample that predates full regional parity. From 2027 onward, baselines will roll forward annually using 2025 as the starting point.
+
 <blockquote class="info">
-Why 2025 and not 2024 as a starting point?
+Note on NA's 2026 baseline
 
-The 2026 baselines are derived from a 2025 re-simulation rather than OWCS's inaugural season in 2024. The key reason is structural, as 2025 was the first year China competed as an official region after the Overwatch League disbanded in 2023, meaning 2024 data predates full regional parity. Using it would produce an artificially inflated Chinese baseline drawn from a (much) smaller, less contested sample. From 2027 onward, baselines will roll forward annually from 2025 as the earliest anchor point.
+NA and China are tied at 1201, reflecting nearly identical major LAN performance in 2025. NA's ranking was meaningfully impacted by NTMR's post-Champions Clash roster overhaul, where after a 3rd-place finish that included an historic upset over Crazy Raccoon, NTMR parted ways with their roster and triggered an ELO reset to 1200. The calibration script partially recovers NTMR's miracle run by using its pre-reset peak rating, which is why NA's baseline isn't lower than it would otherwise be.
 </blockquote>
 
 ---
 
 ## The K-Factor System
 
-The K-factor ($K$) is the most critical parameter in the ELO system, determining how much ratings change after each match. It essentially shows the "context" of the match, taking into account *where* the match was played and *how* the match went.
+The K-factor ($K$) determines how much a team's rating can change in a single match. It is calculated per-team and per-match based on the following considerations:
 
-### Base K-Factor Values
-The K-Factor calculation will start from these base values that will change depending on the context of the match:
+### Base values
+
 $$
-K_{\text{major}} = 60 \quad \text{(Major tournaments)}
+K_{\text{major}} = 60 \quad \text{(Major international tournaments)}
 $$
 
 $$
 K_{\text{standard}} = 20 \quad \text{(Regular matches)}
 $$
 
-$$
-K_{\text{calibration}} = 50 \quad \text{(New teams)}
-$$
-
-### K-Factor Calculation Algorithm
-
-The "final" K-factor is determined through a hierarchical decision tree with the following priority:
-
-#### 1. Tournament Tier Baseline
+### Step 1 — Tournament tier baseline
 
 $$
-K_{\text{base}} = 
+K_{\text{base}} =
 \begin{cases}
 60 & \text{if Major tournament} \\
 20 & \text{otherwise}
 \end{cases}
 $$
 
-**Major Tournaments** are identified by keywords: "major", "world", "clash", "midseason", "ewc", "esports world cup"
+**Major tournament classification** is determined by keyword matching on the tournament name, with exclusion rules applied first:
 
-#### 2. Regional Compression
+*Exclusions (these are never Majors regardless of other keywords):*
+- Contains "qualifier" or "last chance"
+- Contains "road to"
 
-For established teams ($n_{\text{games}} \geq 6$) playing regional matches:
+*Inclusions (only checked after exclusions pass):*
+- Contains "champions clash"
+- Contains "midseason championship"
+- Contains "world finals"
+- Contains "ewc" or "esports world cup"
+- Contains "major"
+
+**Reason**: The exclusion-first approach prevents compound tournament names (e.g. "Road to World Finals" or "Midseason LCQ") from being incorrectly classified as major events.
+
+### Step 2 — Regional compression
+
+For established teams ($n_{\text{games}} \geq 6$) playing against an opponent from the same region, in a non-Major:
 
 $$
-K_{\text{regional}} = 
-\begin{cases}
-15 & \text{if not Major and } n_{\text{games}} \geq 6 \\
-K_{\text{base}} & \text{otherwise}
-\end{cases}
+K_{\text{regional}} = 15
 $$
 
-**Rationale:** Intra-regional matches provide less information about global strength than international competition, therefore the K-Factor will be slightly reduced from 20 to 15.
+**Reason**: Intra-regional matches carry less information about global competitive strength than cross-regional ones. This reduces their impact on ratings without eliminating it entirely.
 
-#### 3. Calibration Override
+### Step 3 — Calibration override
 
-For new teams with fewer than 6 matches played, K-factor linearly decreases:
+For new teams with fewer than 6 matches on their current roster, K-factor starts high and decreases linearly as they accumulate results:
 
 $$
 K_{\text{calibration}}(n) = 50 - \frac{(50 - 20) \cdot n}{6}, \quad n < 6
 $$
 
-Where $n$ is the number of games played. This creates the progression:
+This produces the following progression:
+
+| Games played ($n$) | K-factor |
+|---|---|
+| 0 | 50.0 (maximum volatility) |
+| 1 | 45.0 |
+| 2 | 40.0 |
+| 3 | 35.0 |
+| 4 | 30.0 |
+| 5 | 25.0 |
+| ≥6 | Standard K (step 1/2 applies) |
+
+**Reason**: This phase acts as a built-in "placement system" similar to how Overwatch has in Competitive, as new rosters are harder to position because of the lack of previous data, therefore "wider swings" are needed for teams to reach their true ranking positions. 
+
+### Step 4 — Bully penalty (anti-farming)
+
+When the winning team holds a large rating advantage over the losing team:
 
 $$
-\begin{align}
-n = 0 &: K = 50.0 \quad \text{(maximum volatility)} \\
-n = 1 &: K = 45.0 \\
-n = 2 &: K = 40.0 \\
-n = 3 &: K = 35.0 \\
-n = 4 &: K = 30.0 \\
-n = 5 &: K = 25.0 \\
-n \geq 6 &: K = K_{\text{base}} \quad \text{(stable)}
-\end{align}
-$$
-
-**Purpose:** New teams are "harder to read" because they do not have prior data to work with, therefore they need rapid rating adjustments to find their true skill level quickly. Think of it as "placement matches" for teams (like in Competitive in Overwatch) before getting their "rank".
-
-#### 4. "Bully Penalty" (Anti-Farming Mechanism)
-
-When the winning team's rating significantly exceeds the losing team's rating:
-
-$$
-K_{\text{bully}} = 
+K_{\text{bully}} =
 \begin{cases}
-K \cdot 0.5 & \text{if } R_{\text{winner}} - R_{\text{loser}} > 250 \\
+K \times 0.5 & \text{if } R_{\text{winner}} - R_{\text{loser}} > 250 \\
 K & \text{otherwise}
 \end{cases}
 $$
 
-**Purpose:**  Beating a local low-rated team is "expected behavior" for a regional powerhouse and yields almost no new information. This forces elite regional teams to get good international results in Major LAN events in order to climb further.
+**Reason**: Beating a local low-rated team is "expected behavior" from a regional powerhouse and yields almost no new information. This forces elite regional teams to get good international results in Major LAN events in order to climb further.
 
-#### 5. Margin of Victory (MoV) Multiplier
+### Step 5 — Margin of Victory (MoV) multiplier
 
-The "margin of victory" (MoV) is measured by the **winner's map win percentage** in the match:
+The scoreline of a match carries information about how dominant the performance was. The MoV (Margin of Victory) multiplier rewards convincing wins and reduces the impact of close matches:
 
 $$
 p_{\text{win}} = \frac{\max(s_A, s_B)}{s_A + s_B}
 $$
 
-Where $s_A$ and $s_B$ are the map scores for Team A and Team B.
-
-##### MoV Multiplier Function
-
 $$
-M(s_A, s_B) = 
+M(s_A, s_B) =
 \begin{cases}
 1.2 & \text{if } p_{\text{win}} \geq 0.80 \quad \text{(Dominant)} \\
 1.0 & \text{if } 0.60 \leq p_{\text{win}} < 0.80 \quad \text{(Solid)} \\
@@ -254,641 +274,297 @@ M(s_A, s_B) =
 \end{cases}
 $$
 
-**Application:** This multiplier is applied to the final K-Factor:
-$$
-K* = K \cdot M(s_A, s_B)
-$$
-
-**Effect:** 
-- Dominant victories (3-0 in Bo5, 4-1 in Bo7): Winner gains 20% more, loser loses 20% more
-- Close matches (3-2 in Bo5, 4-3 in Bo7): Both teams' rating changes reduced by 20%
-
-##### Examples
-
-**Bo5 Series (First to 3):**
-
-| Score | Total Maps | $p_{\text{win}}$ | Category | Multiplier |
-|-------|-----------|-----------------|----------|------------|
-| 3-0 | 3 | 1.00 | Dominant | 1.2× |
-| 3-1 | 4 | 0.75 | Solid | 1.0× |
-| 3-2 | 5 | 0.60 | Solid | 1.0× |
-
-**Bo7 Series (First to 4):**
-
-| Score | Total Maps | $p_{\text{win}}$ | Category | Multiplier |
-|-------|-----------|-----------------|----------|------------|
-| 4-0 | 4 | 1.00 | Dominant | 1.2× |
-| 4-1 | 5 | 0.80 | Dominant | 1.2× |
-| 4-2 | 6 | 0.67 | Solid | 1.0× |
-| 4-3 | 7 | 0.57 | Close | 0.8× |
-
-
-#### 6. Safety Floor
-
-To ensure all matches have meaningful impact, we force the final K-Factor to 5 if (somehow) we have a very low K-Factor:
+Applied to both teams' K-factors:
 
 $$
-K_{\text{final}} = \max(K_{\text{statement}}, 5)
+K^* = K \times M(s_A, s_B)
 $$
 
-### Complete K-Factor Formula
+**Series format examples:**
 
-The final K-factor for a team is computed as:
+| Format | Score | $p_{\text{win}}$ | Category | Multiplier |
+|---|---|---|---|---|
+| Bo3 | 2-0 | 1.00 | Dominant | 1.2× |
+| Bo3 | 2-1 | 0.67 | Solid | 1.0× |
+| Bo5 | 3-0 | 1.00 | Dominant | 1.2× |
+| Bo5 | 3-1 | 0.75 | Solid | 1.0× |
+| Bo5 | 3-2 | 0.60 | Solid | 1.0× |
+| Bo7 | 4-0 | 1.00 | Dominant | 1.2× |
+| Bo7 | 4-1 | 0.80 | Dominant | 1.2× |
+| Bo7 | 4-2 | 0.67 | Solid | 1.0× |
+| Bo7 | 4-3 | 0.57 | Close | 0.8× |
+
+
+### Step 6 — Safety floor
+
+Regardless of all other modifiers, the final K-factor is always at least 5:
 
 $$
-K = \max\left(
-  \begin{cases}
-    K_{\text{calibration}}(n) & \text{if } n < 6 \\
-    K_{\text{base}} \times \alpha_{\text{regional}} \times \alpha_{\text{bully}} \times \alpha_{\text{statement}} & \text{otherwise}
-  \end{cases}
+K_{\text{final}} = \max(K^*, 5)
+$$
+
+**Reason**:This ensures every match always has some impact on ratings.
+
+### Complete K-factor formula
+
+$$
+K_{\text{final}} = \max\left(
+\begin{cases}
+K_{\text{calibration}}(n) \times M & \text{if } n < 6 \\
+K_{\text{base}} \times \alpha_{\text{regional}} \times \alpha_{\text{bully}} \times M & \text{otherwise}
+\end{cases}
 , 5\right)
 $$
 
 Where:
-- $\alpha_{\text{regional}} = 0.75$ if regional match, else $1.0$
-- $\alpha_{\text{bully}} = 0.5$ if bully penalty applies, else $1.0$  
-- $\alpha_{\text{statement}} \in \{1.2, 1.0, 0.8\}$ based on score differential
-
+- $\alpha_{\text{regional}} = 0.75$ if intra-regional non-Major, else $1.0$
+- $\alpha_{\text{bully}} = 0.5$ if bully penalty applies, else $1.0$
+- $M \in \{0.8, 1.0, 1.2\}$ based on margin of victory
 
 ---
 
 ## Complete Rating Update Process
 
-For a match between Team A and Team B:
-
-### Step 1: Calculate Expected Scores
+### Step 1 — Calculate expected scores
 
 $$
-E_A = \frac{1}{1 + 10^{(R_B - R_A)/400}}
+E_A = \frac{1}{1 + 10^{(R_B - R_A)/400}}, \quad E_B = 1 - E_A
 $$
 
-$$
-E_B = 1 - E_A
-$$
-
-### Step 2: Determine Actual Scores
+### Step 2 — Determine actual scores
 
 $$
-S_A = 
-\begin{cases}
-1 & \text{if Team A won} \\
-0 & \text{if Team A lost}
-\end{cases}
+S_A = \begin{cases} 1 & \text{Team A won} \\ 0 & \text{Team A lost} \end{cases}, \quad S_B = 1 - S_A
+$$
+
+### Step 3 — Calculate K-factors
+
+$$
+K_A = f_K(n_A, \text{tournament}, \text{regions}, R_{\text{winner}}, R_{\text{loser}}, s_A, s_B)
 $$
 
 $$
-S_B = 1 - S_A
+K_B = f_K(n_B, \text{tournament}, \text{regions}, R_{\text{winner}}, R_{\text{loser}}, s_A, s_B)
 $$
 
-### Step 3: Calculate K-Factors
+Both teams share the same tournament and match context inputs, but their individual game counts ($n_A$, $n_B$) may differ, producing asymmetric K-factors.
+
+### Step 4 — Calculate rating changes
 
 $$
-K_A = f_K(n_A, \text{tournament}, \text{region}_A, \text{region}_B, R_{\text{winner}}, R_{\text{loser}}, s_A, s_B)
+\Delta R_A = K_A \cdot (S_A - E_A), \quad \Delta R_B = K_B \cdot (S_B - E_B)
 $$
 
-$$
-K_B = f_K(n_B, \text{tournament}, \text{region}_A, \text{region}_B, R_{\text{winner}}, R_{\text{loser}}, s_A, s_B)
-$$
-
-Where $f_K$ is the K-factor function described in the previous section.
-
-### Step 4: Calculate Rating Changes
+### Step 5 — Apply updates
 
 $$
-\Delta R_A = K_A^* \cdot (S_A - E_A)
-$$
-
-$$
-\Delta R_B = K_B^* \cdot (S_B - E_B)
-$$
-
-### Step 5: Update Ratings
-
-$$
-R_A^{\text{new}} = R_A^{\text{old}} + \Delta R_A
-$$
-
-$$
-R_B^{\text{new}} = R_B^{\text{old}} + \Delta R_B
+R_A^{\text{new}} = R_A^{\text{old}} + \Delta R_A, \quad R_B^{\text{new}} = R_B^{\text{old}} + \Delta R_B
 $$
 
 ---
 
 ## Worked Examples
 
-### Example 1: Major Tournament, Evenly Matched Teams
+### Example 1: Major tournament, evenly matched teams
 
-**Setup:**
-- Tournament: OWCS World Finals (Major)
-- Team A: Rating 1450, 25 games played, Korea
-- Team B: Rating 1420, 30 games played, EMEA
-- Score: 3-1 (Team A wins)
-- Different regions → International match
+**Setup:** OWCS World Finals (Major). Team A: 1450 ELO, 25 games, Korea. Team B: 1420 ELO, 30 games, EMEA. Score: 3-1 Team A wins. International match.
 
-**Step 1: Expected Scores**
+**Expected scores:**
+$$E_A = \frac{1}{1 + 10^{(1420-1450)/400}} = 0.543, \quad E_B = 0.457$$
 
-$$
-E_A = \frac{1}{1 + 10^{(1420 - 1450)/400}} = \frac{1}{1 + 10^{-0.075}} = \frac{1}{1 + 0.841} = 0.543
-$$
+**K-factors:** Both past calibration, Major, no bully penalty (diff = 30 < 250).
+$$p_{\text{win}} = \frac{3}{4} = 0.75 \Rightarrow M = 1.0$$
+$$K_A = K_B = 60 \times 1.0 = 60$$
 
-$$
-E_B = 1 - 0.543 = 0.457
-$$
+**Rating changes:**
+$$\Delta R_A = 60 \times (1 - 0.543) = +27.4$$
+$$\Delta R_B = 60 \times (0 - 0.457) = -27.4$$
 
-**Step 2: Actual Scores**
-
-$$
-S_A = 1, \quad S_B = 0
-$$
-
-**Step 3: Calculate K-Factors**
-
-Both teams are past calibration ($n \geq 6$), it's a Major, not regional:
-
-$$
-K_A = K_B = 60 \quad \text{(Major baseline)}
-$$
-
-Rating difference: $1450 - 1420 = 30 < 250$, so no bully penalty.
-
-Score differential: $|3 - 1| = 2$, so statement win bonus:
-
-$$
-K_A = K_B = 60 \times 1.1 = 66
-$$
-
-**Step 4: Apply MoV**
-
-$$
-p_{\text{win}} = \frac{3}{3 + 1} = 0.75 \quad \text{(Solid win)}
-$$
-
-$$
-M = 1.0
-$$
-
-$$
-K_A^* = K_B^* = 66 \times 1.0 = 66
-$$
-
-**Step 5: Rating Changes**
-
-$$
-\Delta R_A = 66 \times (1 - 0.543) = 66 \times 0.457 = 25.1
-$$
-
-$$
-\Delta R_B = 66 \times (0 - 0.457) = 66 \times (-0.457) = -25.1
-$$
-
-**Step 6: New Ratings**
-
-$$
-R_A^{\text{new}} = 1450 + 25.1 = 1475.1
-$$
-
-$$
-R_B^{\text{new}} = 1420 - 25.1 = 1394.9
-$$
+**Result:** $R_A = 1477.4$, $R_B = 1392.6$. Near zero-sum because K-factors are equal.
 
 ---
 
-### Example 2: Regional Match, Strong Team vs Weak Team
+### Example 2: Regional match, dominant favourite
 
-**Setup:**
-- Tournament: EMEA Regional Stage (not Major)
-- Team A: Rating 1550, 40 games, EMEA
-- Team B: Rating 1250, 35 games, EMEA  
-- Score: 3-0 (Team A wins)
-- Same region → Regional match
+**Setup:** EMEA Regional Stage (not Major). Team A: 1550 ELO, 40 games, EMEA. Team B: 1250 ELO, 35 games, EMEA. Score: 3-0. Intra-regional.
 
-**Step 1: Expected Scores**
+**Expected scores:**
+$$E_A = \frac{1}{1 + 10^{(1250-1550)/400}} = 0.849, \quad E_B = 0.151$$
 
-$$
-E_A = \frac{1}{1 + 10^{(1250 - 1550)/400}} = \frac{1}{1 + 10^{-0.75}} = \frac{1}{1 + 0.178} = 0.849
-$$
+**K-factors:** Same region → regional compression. Rating diff = 300 > 250 → bully penalty. 3-0 → $p_{\text{win}} = 1.0$ → $M = 1.2$.
+$$K_A = K_B = 20 \times 0.75 \times 0.5 \times 1.2 = 9.0$$
 
-$$
-E_B = 0.151
-$$
+**Rating changes:**
+$$\Delta R_A = 9.0 \times (1 - 0.849) = +1.4$$
+$$\Delta R_B = 9.0 \times (0 - 0.151) = -1.4$$
 
-**Step 2: Actual Scores**
-
-$$
-S_A = 1, \quad S_B = 0
-$$
-
-**Step 3: Calculate K-Factors**
-
-Both past calibration, regional match:
-
-$$
-K_{\text{base}} = 15 \quad \text{(regional compression)}
-$$
-
-Rating difference: $1550 - 1250 = 300 > 250$, bully penalty applies:
-
-$$
-K = 15 \times 0.5 = 7.5
-$$
-
-Score differential: $|3 - 0| = 3$, statement win bonus:
-
-$$
-K_A = K_B = 7.5 \times 1.2 = 9.0
-$$
-
-**Step 4: Apply MoV**
-
-$$
-p_{\text{win}} = \frac{3}{3 + 0} = 1.0 \quad \text{(Dominant)}
-$$
-
-$$
-M = 1.2
-$$
-
-$$
-K_A^* = K_B^* = 9.0 \times 1.2 = 10.8
-$$
-
-**Step 5: Rating Changes**
-
-$$
-\Delta R_A = 10.8 \times (1 - 0.849) = 10.8 \times 0.151 = 1.6
-$$
-
-$$
-\Delta R_B = 10.8 \times (0 - 0.151) = -1.6
-$$
-
-**Step 6: New Ratings**
-
-$$
-R_A^{\text{new}} = 1550 + 1.6 = 1551.6
-$$
-
-$$
-R_B^{\text{new}} = 1250 - 1.6 = 1248.4
-$$
-
-**Analysis:** The strong team gained only 1.6 points despite winning 3-0, due to:
-- Regional compression (K reduced to 15)
-- Bully penalty (K cut in half to 7.5)
-- High expected score (0.849, so surprise factor only 0.151)
+**Analysis:** Despite a dominant 3-0 sweep, the top team gains only 1.4 points. Regional compression, bully penalty, and high expected score all combine to ensure this routine result barely moves the needle.
 
 ---
 
-### Example 3: New Team Upset
+### Example 3: New team upsets a veteran
 
-**Setup:**
-- Tournament: OWCS Asia Qualifiers (not Major)
-- Team A (New): Rating 1200, 2 games, Pacific
-- Team B (Veteran): Rating 1450, 50 games, Korea
-- Score: 3-2 (Team A wins - upset!)
-- Different regions → International
+**Setup:** OWCS Asia Qualifiers (not Major). Team A (new): 1200 ELO, 2 games, Pacific. Team B (veteran): 1450 ELO, 50 games, Korea. Score: 3-2 Team A wins. International.
 
-**Step 1: Expected Scores**
+**Expected scores:**
+$$E_A = \frac{1}{1 + 10^{(1450-1200)/400}} = 0.192, \quad E_B = 0.808$$
 
-$$
-E_A = \frac{1}{1 + 10^{(1450 - 1200)/400}} = \frac{1}{1 + 10^{0.625}} = \frac{1}{1 + 4.217} = 0.192
-$$
+**K-factors:** Team A in calibration ($n=2$): $K_A = 50 - (30 \times 2/6) = 40$. Team B standard: $K_B = 20$. No bully penalty (underdog won). $p_{\text{win}} = 3/5 = 0.60$ → $M = 1.0$.
+$$K_A^* = 40, \quad K_B^* = 20$$
 
-$$
-E_B = 0.808
-$$
+**Rating changes:**
+$$\Delta R_A = 40 \times (1 - 0.192) = +32.3$$
+$$\Delta R_B = 20 \times (0 - 0.808) = -16.2$$
 
-**Step 2: Actual Scores**
-
-$$
-S_A = 1, \quad S_B = 0
-$$
-
-**Step 3: Calculate K-Factors**
-
-Team A in calibration ($n = 2$):
-
-$$
-K_A = 50 - \frac{30 \times 2}{6} = 50 - 10 = 40
-$$
-
-Team B past calibration, not Major, international match:
-
-$$
-K_B = 20 \quad \text{(standard baseline)}
-$$
-
-No bully penalty (underdog won).
-
-Score differential: $|3 - 2| = 1$, no statement bonus:
-
-$$
-K_A = 40 \times 1.0 = 40
-$$
-
-$$
-K_B = 20 \times 1.0 = 20
-$$
-
-**Step 4: Apply MoV**
-
-$$
-p_{\text{win}} = \frac{3}{3 + 2} = 0.60 \quad \text{(Solid)}
-$$
-
-$$
-M = 1.0
-$$
-
-$$
-K_A^* = 40, \quad K_B^* = 20
-$$
-
-**Step 5: Rating Changes**
-
-$$
-\Delta R_A = 40 \times (1 - 0.192) = 40 \times 0.808 = 32.3
-$$
-
-$$
-\Delta R_B = 20 \times (0 - 0.808) = -16.2
-$$
-
-**Step 6: New Ratings**
-
-$$
-R_A^{\text{new}} = 1200 + 32.3 = 1232.3
-$$
-
-$$
-R_B^{\text{new}} = 1450 - 16.2 = 1433.8
-$$
-
-**Analysis:** 
-- Team A gained 32.3 points (large gain due to calibration K and major upset)
-- Team B lost only 16.2 points (lower K as established team)
-- Total points change: $+32.3 - 16.2 = +16.1$ (system not zero-sum due to asymmetric K)
-
----
-
-## Seasonal Soft Reset
-
-At the start of each OWCS competitive year, ratings undergo compression toward the baseline to prevent long-term rating drift and maintain competitive balance.
-
-### Reset Formula
-
-$$
-R_{\text{new}} = R_{\text{baseline}} + (R_{\text{old}} - R_{\text{baseline}}) \cdot \rho
-$$
-
-Where:
-- $R_{\text{baseline}} = 1200$ (anchor point)
-- $\rho = 0.70$ (retention coefficient, keeps 70% of rating deviation)
-
-### Mathematical Properties
-
-**Teams above baseline** ($R_{\text{old}} > 1200$):
-
-$$
-R_{\text{new}} = 1200 + 0.70 \cdot (R_{\text{old}} - 1200)
-$$
-
-**Teams below baseline** ($R_{\text{old}} < 1200$):
-
-$$
-R_{\text{new}} = 1200 + 0.70 \cdot (R_{\text{old}} - 1200)
-$$
-
-Note: Teams below baseline actually *increase* toward 1200.
-
-
-
-### Examples
-
-$$
-\begin{align}
-R_{\text{old}} = 1600 &\Rightarrow R_{\text{new}} = 1200 + 0.70(400) = 1480 \\
-R_{\text{old}} = 1400 &\Rightarrow R_{\text{new}} = 1200 + 0.70(200) = 1340 \\
-R_{\text{old}} = 1200 &\Rightarrow R_{\text{new}} = 1200 + 0.70(0) = 1200 \\
-R_{\text{old}} = 1100 &\Rightarrow R_{\text{new}} = 1200 + 0.70(-100) = 1130 \\
-R_{\text{old}} = 900 &\Rightarrow R_{\text{new}} = 1200 + 0.70(-300) = 990
-\end{align}
-$$
-
-**Effect on Rating Gaps:**
-
-Consider two teams with ratings $R_1 = 1600$ and $R_2 = 1300$:
-
-$$
-\Delta R_{\text{old}} = 1600 - 1300 = 300
-$$
-
-After reset:
-
-$$
-R_1^{\text{new}} = 1480, \quad R_2^{\text{new}} = 1270
-$$
-
-$$
-\Delta R_{\text{new}} = 1480 - 1270 = 210 = 0.70 \times 300
-$$
-
-The gap compresses by exactly the retention coefficient: rating differences shrink by 30%.
+**Analysis:** The new team gains 32.3 points (high calibration K + large surprise factor). The veteran loses only 16.2 (lower established K). The system adds a net +16.1 points — a non-zero-sum outcome due to the asymmetric K-factors.
 
 ---
 
 ## Upset Detection
 
-A match is classified as an **upset** if the winning team's expected score was below a threshold:
+A match is classified as an **upset** when the winning team had less than 35% win probability going into the match:
 
 $$
 \text{Upset} \iff E_{\text{winner}} < 0.35
 $$
 
-This corresponds to the winner having less than 35% probability of winning before the match.
+This corresponds to the winner being rated at least ~120 points below their opponent.
 
-### Upset Probability Examples
+| Rating diff (winner vs loser) | Winner's expected score | Classified as upset? |
+|---|---|---|
+| $-50$ | $0.43$ | No |
+| $-100$ | $0.36$ | No |
+| $-120$ | $0.33$ | Yes |
+| $-200$ | $0.24$ | Yes |
+| $-300$ | $0.15$ | Yes (major upset) |
 
-| Rating Difference | Winner Expected Score | Classified as Upset? |
-|-------------------|----------------------|---------------------|
-| $\Delta R = -50$ | $E = 0.43$ | No |
-| $\Delta R = -100$ | $E = 0.36$ | No |
-| $\Delta R = -120$ | $E = 0.33$ | Yes |
-| $\Delta R = -200$ | $E = 0.24$ | Yes (major upset) |
-| $\Delta R = -300$ | $E = 0.15$ | Yes (huge upset) |
-
-**Filtering:** Only upsets occurring in Major tournaments (excluding qualifiers) are featured in statistics, since "regional" upsets aren't as relevant in a global ELO ranking leaderboard.
+**Note**: For the public statistics, only upsets from Major tournaments (excluding qualifiers) are surfaced. Regional upsets are tracked internally but not featured, as they are less meaningful in the context of a "global" team ranking system.
 
 ---
 
 ## Ranking Filters
 
-Not all teams appear in public rankings though. For an OWCS team to appear in the leaderboard, they must satisfy ALL of the following conditions to be ranked:
+Not all teams appear in the public leaderboard. A team must satisfy the following conditions to be ranked:
 
 $$
-\begin{align}
-R &\geq 1000 \\
-W &\geq 1 \\
-\Delta t_{\text{inactive}} &< 90 \text{ days}
-\end{align}
+\text{Ranked} \iff (R \geq 1000) \land (W \geq 1) \land (\Delta t_{\text{inactive}} < 90 \text{ days})
 $$
 
 Where:
 - $R$ = Current rating
 - $W$ = Total wins
-- $\Delta t_{\text{inactive}}$ = Days since last match
+- $\Delta t_{\text{inactive}}$ = Days since their last match
 
-**Logical formulation:**
-
-$$
-\text{Ranked} \iff (R \geq 1000) \land (W \geq 1) \land (\Delta t_{\text{inactive}} < 90)
-$$
+**Note**: The 90-day inactivity cutoff is calculated from the date of the most recent match in the database, not the current calendar date. This means the cutoff advances with the season rather than running in real-time.
 
 ---
 
 ## Special Cases & Edge Handling
 
-### Team Aliases
+### Team aliases
 
-The system maintains a canonical name mapping:
+Some teams appear in Liquipedia with suffixes or parenthetical disambiguators (e.g. "Team CC (Chinese orgless team)"). The system strips these suffixes and maps any known aliases to a canonical team name before processing, in order to maintain a certain level of consistency between team names in the ranking table.
 
-$$
-f_{\text{alias}}(\text{name}) = 
-\begin{cases}
-\text{canonical name} & \text{if alias exists} \\
-\text{name} & \text{otherwise}
-\end{cases}
-$$
+### Roster resets
 
-**Purpose:** This is implemented mainly to stadardize team names across the leaderbord, since Liquipedia tends to add extra data in order to differentiate teams that have the same name.
+When a team changes 60% or more of its active roster, its ELO is reset to the regional baseline (in the live rankings, during regional ELO baselines calculations its reset to 1200) and its game count is set to zero, restarting the calibration phase. This ensures that a newly assembled squad doesn't benefit from a rating their predecessors earned.
 
-### Roster Resets
+**Note**: Roster resets are defined manually, specifying the team name, the date the reset takes effect, and the ELO value to reset to.
 
-When a team changes $\geq 60\%$ of its roster, its ELO score is reset to the regional baseline:
+### Region inference
+
+A team's region is determined by the tournament name of their most recently played match. This handles teams that move between regions mid-season:
 
 $$
-R_{\text{team}}(t_{\text{reset}}) \gets R_{\text{new baseline}}
-$$
-
-Example: `NTMR` reset to $1264$ on `2025-05-01` after the OWCS Champions Clash.
-
-**Purpose:** This hard reset ensures that a brand new roster doesn't inherit the results obtained by the previous roster, where they had no part in achieving.
-
-### Region Inference
-Teams can change regions during a season. Therefore, a team's region is inferred from the tournament name of their last played match using keyword matching:
-
-$$
-\text{region}(T) = 
+\text{region}(T) =
 \begin{cases}
 \text{Korea} & \text{if "Korea" in } T \\
-\text{NA} & \text{if "North America" or "NA" in } T \\
+\text{North America} & \text{if "North America" or "NA" in } T \\
 \text{EMEA} & \text{if "EMEA" or "Europe" in } T \\
 \text{China} & \text{if "China" in } T \\
 \text{Japan} & \text{if "Japan" in } T \text{ and "Pacific" not in } T \\
 \text{Pacific} & \text{if "Pacific" in } T \text{ and "Japan" not in } T \\
-\text{null} & \text{otherwise (multi-region)}
+\text{null} & \text{otherwise (multi-region or unrecognized)}
 \end{cases}
 $$
+
+When region is null, the match is treated as international (not regional), meaning no regional compression is applied.
+
+### Forfeit and invalid score handling
+
+Matches are skipped if any of the following conditions are detected:
+- Opponent status includes "ff", "dq", "canceled", "forfeit", or "w/o"
+- Raw score is "-1", "FF", or missing
+- Parsed score is NaN after conversion
 
 ---
 
 ## System Properties & Limitations
 
-### Non-Zero-Sum Property
+### Non-zero-sum rating pool
 
-Due to asymmetric K-factors, the total rating points in the system can drift:
+Because K-factors are calculated independently per team, the total ELO in the system is not conserved. When a calibrating team (K=40) beats an established team (K=20), the calibrating team gains 40×(S−E) while the established team loses only 20×(S−E). The net effect is a pool injection of 20×(S−E) points.
 
-$$
-\sum_{\text{all teams}} R_i \neq \text{constant}
-$$
+**Reason**: While over time this causes mild inflation, it allows new teams entering from any region to find their level without being permanently anchored with low-rated teams. The seasonal baseline recalculation partially counteracts any long-term drift by anchoring all new teams to fresh regional baselines each year.
 
-**Example:** If $K_A = 40$ and $K_B = 20$:
+### Regional starting bias
 
-$$
-\Delta R_A + \Delta R_B = 40(S_A - E_A) + 20(S_B - E_B)
-$$
-
-Since $S_A + S_B = 1$ and $E_A + E_B = 1$:
+Initial baselines create a prior belief about cross-regional match outcomes before any games are played. For 2026:
 
 $$
-\Delta R_A + \Delta R_B = 40S_A + 20S_B - 40E_A - 20E_B
+P(\text{EMEA wins vs Pacific}) = \frac{1}{1 + 10^{(1165 - 1228)/400}} \approx 0.59
 $$
 
-$$
-= 40S_A + 20(1-S_A) - 40E_A - 20(1-E_A)
-$$
+The system starts with the assumption that EMEA teams have a ~59% win probability against Pacific teams. This prior is progressively overridden as actual match data accumulates.
 
-$$
-= 20S_A + 20 - 20E_A - 20 = 20(S_A - E_A)
-$$
+### International score uses best performer, not average
 
-This is only zero-sum if $K_A = K_B$. With different K-factors:
+The international signal for regional baselines uses the single best-performing team from each region at Majors (highest normalized overperformance), rather than an average across all teams. This means a region's international ceiling is defined by its strongest representative, where one extraordinary team can anchor a region's baseline even if the rest performed poorly internationally. (e.g Japan with VARREL or China with Weibo Gaming) 
 
-$$
-\Delta R_A + \Delta R_B \neq 0
-$$
-
-### Regional Starting Bias
-
-Initial ratings create a prior belief about regional strength:
-
-$$
-P(\text{Korea wins vs Pacific}) = \frac{1}{1 + 10^{(1189-1304)/400}} = 0.62
-$$
-
-Before any matches are played, the system assumes Korean teams have 62% win probability against Pacific teams.
+This is intentional, as international competition is dominated by top representatives, but it is worth being aware of when interpreting large gaps between a region's ceiling team and its median team.
 
 ---
 
 ## Design Philosophy
 
-### Core Principles
-1. **Rapid Convergence**: New teams reach true rating in $< 10$ matches
-2. **Stability**: Established teams resist volatility
-3. **Context Sensitivity**: Different type of matches describe different results
-4. **Anti-Exploitation**: Prevent farming weak opponents
+### Core principles
 
-### Trade-offs
-
-**Asymmetric K vs Zero-Sum:**
-- ✅ Better models different team experience levels
-- ❌ Allows point inflation/deflation over time
-- ⚖️ Mitigated by seasonal soft reset
-
-**Regional Priors vs Blank Slate:**
-- ✅ Better initial predictions for cross-regional matches
-- ❌ Bakes in assumptions about regional strength
-- ⚖️ Play data eventually overrides priors
-
+1. **Rapid convergence:** New rosters reach their approximate true rating within ~6 matches via the calibration phase.
+2. **Stability:** Established teams resist volatility: strong K asymmetry means they can't be badly damaged by a single result.
+3. **Context sensitivity:** A win in a Major is worth more than a win in a regional stage, which is worth more than beating a much weaker local opponent.
+4. **Anti-exploitation:** The bully penalty ensures elite teams must prove themselves internationally, not by farming weak regional opponents.
+5. **Honest baselines:** Season-start ratings are derived from actual simulated performance, not assumptions, and are updated annually.
 ---
 
 ## Glossary
 
-**ELO**: Rating system for skill assessment in competitive games
+**ELO** — A rating system for skill assessment in competitive environments, originally developed by Arpad Elo.
 
-**K-Factor** ($K$): Volatility parameter determining rating change magnitude
+**K-Factor** ($K$) — Volatility parameter that controls how much a team's rating changes after each match.
 
-**Expected Score** ($E$): Predicted win probability based on rating difference
+**Expected Score** ($E$) — Predicted win probability based on the rating difference between two teams, calculated using the logistic function.
 
-**Logistic Function**: $f(x) = \frac{1}{1 + e^{-x}}$, used for win probability
+**Calibration Phase** — The first 6 games on a new roster, during which K is elevated to help the team find its true skill level quickly.
 
-**MoV**: Margin of Victory, quantified by map win percentage in a given match
+**Bully Penalty** — A 50% K reduction applied when the winning team holds a 250+ point rating advantage over the losing team.
 
-**Calibration**: Initial phase where new teams experience high rating volatility ($n < 6$)
+**MoV (Margin of Victory)** — Measured by the winner's map win percentage. Dominant victories earn a 1.2× multiplier; close matches apply 0.8×.
 
-**Bully Penalty**: Reduction in K when strong team beats much weaker opponent
+**Regional Compression** — Reduction of K from 20 to 15 for intra-regional non-Major matches, reflecting their lower information value globally.
 
-**Soft Reset**: Partial compression of ratings toward baseline between seasons
+**Soft Reset / Baseline Recalculation** — The annual process of recalculating regional starting ELOs from a fresh simulation of the previous season, combining international performance and domestic depth signals.
 
-**Zero-Sum**: Property where $\sum \Delta R_i = 0$ (not fully satisfied here)
+**International Score** — The normalized overperformance signal used in calibration: sum of (actual − expected win probability) per Major match, divided by total Major matches, scaled to ELO points.
 
-**Regional Compression**: Reduced K-factor for intra-regional matches
+**Depth Score** — The domestic competitiveness signal used in calibration: average calibration rating of all qualified teams in a region, minus a variance penalty for lopsided distributions.
 
-**Statement Win**: Decisive victory earning bonus K multiplier
+**Upset** — A match result where the winning team had less than 35% expected win probability.
 
-**Upset**: Match where underdog ($E < 0.35$) defeats favorite
+**Roster Reset** — A manual event triggered when a team changes ≥60% of its roster, resetting their ELO to a specified value and restarting the calibration phase.
+
+**Region Inference** — The process of determining a team's current region from the tournament name of their most recently played match.
 
 ---
-**Document Version**: 1.0  
-**Last Updated**: February 2026  
-**Algorithm Version**: v1.0  
+**Document Version:** 1.0
+**Last Updated:** March 2026
+**Algorithm Version:** v1.0
