@@ -15,14 +15,14 @@
   let chartInstance: ApexCharts | null = null;
   let expandedMatchId = $state<string | null>(null);
 
-  const REGION_COLORS: Record<string, string> = {
-    Korea: "#6eff18",
-    "North America": "#823bf2",
-    EMEA: "#54c4c4",
-    Pacific: "#58cdff",
-    China: "#f7c525",
-    Japan: "#ec0201",
-  };
+    const REGION_COLORS: Record<string, string> = {
+        "Korea": "#6eff18",
+        "North America": "#823bf2",
+        "EMEA": "#d4e800",
+        "Pacific": "#00c8ff",
+        "China": "#ff6a00",
+        "Japan": "#ec0201",
+    };
 
   let borderColor = $derived(REGION_COLORS[team?.region]);
 

@@ -13,9 +13,9 @@
   const REGION_COLORS: Record<string, string> = {
     "Korea": "#6eff18",
     "North America": "#823bf2",
-    "EMEA": "#54c4c4",
-    "Pacific": "#58cdff",
-    "China": "#f7c525",
+    "EMEA": "#d4e800",
+    "Pacific": "#00c8ff",
+    "China": "#ff6a00",
     "Japan": "#ec0201",
   };
 
@@ -85,11 +85,14 @@
             {team.rank === 1 ? 'text-amber-400' : team.rank === 2 ? 'text-gray-300' : team.rank === 3 ? 'text-orange-700' : 'text-neutral-500'}">
             #{team.rank}
           </span>
-          {#if team.rankDelta && team.rankDelta !== 0}
-            <div class="text-[10px] font-bold mt-1 {team.rankDelta > 0 ? 'text-green-500' : 'text-red-500'} flex items-center gap-0.5">
-              {Math.abs(team.rankDelta)}
+          
+            <div class="flex items-center gap-0.5 mt-1 text-[10px] font-bold {team.rankDelta > 0 ? 'text-green-500' : 'text-red-500'}">
+            {#if team.rankDelta && team.rankDelta !== 0}
+              <span>{team.rankDelta > 0 ? '▲' : '▼'}</span>
+              <span>{Math.abs(team.rankDelta)}</span>
+            {/if}
             </div>
-          {/if}
+          
         </div>
 
         <div class="col-span-7 sm:col-span-5 flex items-center gap-4">
@@ -101,7 +104,7 @@
             {/if}
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-xl font-bold font-title truncate leading-tight {team.isPartner ? 'text-white' : 'text-neutral-300'}">
+            <span class="text-xl font-title truncate leading-tight {team.isPartner ? 'text-white' : 'text-neutral-300'}">
               {team.name}
             </span>
             <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-0.5">

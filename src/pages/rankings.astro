@@ -6,6 +6,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable from "../components/eloComps/RankTable.svelte";
 import LateralTab from "../components/eloComps/LateralTab.svelte"
 import RankingOOBE from "../components/eloComps/OOBEComp.svelte";
+import RecentMatches from "../components/eloComps/RecentMatches.svelte";
 import { supabase } from "../lib/contentScripts/supabase";
 import { Image } from "astro:assets";
 
@@ -87,9 +88,15 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         hasPage: !!localData,
         history: team.history,
         tournaments: team.tournaments,
-        rankDelta: team.rankDelta,
+        rankDelta: team.rank_delta,
         form: team.form
     };
+});
+
+// Build a lean lookup for RecentMatches: name → { logo, slug }
+const teamInfoMap: Record<string, { logo?: string; slug?: string }> = {};
+tableData.forEach(t => {
+    teamInfoMap[t.name.toLowerCase()] = { logo: t.logo, slug: t.slug };
 });
 
 // src/pages/rankings.astro
@@ -126,7 +133,7 @@ const headerImg=imgWF
             <div class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end">
     <div class="absolute inset-0 z-0">
        <Image 
-        src="https://live.staticflickr.com/65535/54956871956_239e2d7ec1_k.jpg"
+        src={headerImg}
         alt="Header Background" 
         width={1920} 
         height={1080}
@@ -220,12 +227,9 @@ const headerImg=imgWF
     {/* CARD 3 & 4: BIGGEST UPSETS (IMPACT MODULES) */}
     {stats.biggestUpsets.slice(0, 2).map((upset) => (
         <div class="bg-neutral-950/80 border-t-2 border-red-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-            <div class="absolute top-4 right-4 text-[9px] font-mono text-red-500/40 uppercase tracking-tighter">
-                Variance: High
-            </div>
             <p class="text-red-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" />
-                System Shock
+                Biggest Upsets
             </p>
             <div class="flex flex-col gap-3">
                 <div class="flex items-center justify-between">
@@ -241,7 +245,7 @@ const headerImg=imgWF
                         {upset.tournament}
                     </span>
                     <div class="text-right">
-                        <span class="block text-[8px] font-mono text-neutral-600 uppercase">Win_Prob</span>
+                        <span class="block text-[8px] font-mono text-neutral-600 uppercase">Win Prob.</span>
                         <span class="text-xl font-mono font-black text-red-500">{(upset.prob * 100).toFixed(1)}%</span>
                     </div>
                 </div>
@@ -250,6 +254,13 @@ const headerImg=imgWF
     ))}
 </div>
 
+
+        {/* --- RECENT MATCHES FEED --- */}
+        <RecentMatches
+            matches={processedMatches ?? []}
+            teamInfo={teamInfoMap}
+            client:load
+        />
 
         {/* --- MAIN LAYOUT (Split View) --- */}
         <div class="flex flex-col lg:flex-row gap-8 relative items-start">

@@ -19,6 +19,7 @@ export const GET: APIRoute = async () => {
   const yesterdayObj = new Date(dateObj.getTime() - 24 * 60 * 60 * 1000);
   const yesterday = yesterdayObj.toISOString().slice(0, 19).replace('T', ' ');
 
+
   function shortenTournamentName(name: string): string {
     if (!name) return "";
     let shortName = name;
@@ -26,12 +27,34 @@ export const GET: APIRoute = async () => {
     shortName = shortName.replace(/Overwatch League/g, "OWL");
     shortName = shortName.replace(/Overwatch Contenders/g, "Contenders");
     shortName = shortName.replace(/ 20(\d\d)/g, " '$1"); 
-    shortName = shortName.replace(/Stage (\d)/g, "S$1");
     shortName = shortName.replace(/Season (\d)/g, "S$1");
     shortName = shortName.replace(/North America/g, "NA");
     shortName = shortName.replace(/Europe, Middle East & Africa/g, "EMEA");
     shortName = shortName.replace(/South Korea/g, "Korea");
     return shortName.trim();
+  }
+
+
+  function getStreamUrl(tournament: string): string {
+    const t = (tournament || '').toLowerCase();
+
+    // China — streams on Bilibili
+    if (t.includes('china') || t.includes('chinese'))
+      return 'https://space.bilibili.com/365902357';
+
+    // Korea — streams on SOOP (formerly AfreecaTV)
+    if (t.includes('korea') || t.includes('south korea'))
+      return 'https://www.sooplive.co.kr/station/owesports';
+
+    // Pacific (incl. Japan, Australia, SEA) — streams on SOOP
+    if (t.includes('pacific'))
+      return 'https://www.sooplive.com/wdgglobal';
+
+    if (t.includes('japan'))
+      return 'https://www.twitch.tv/ow_esports_jp'
+
+    // Everything else (EMEA, NA, internationals) — main OWCS Twitch
+    return 'https://twitch.tv/ow_esports';
   }
 
   try {
@@ -73,7 +96,7 @@ export const GET: APIRoute = async () => {
         logo: getLogo(op2.teamtemplate?.imageurl || op2.iconurl),
         score: op2.score ?? 0
       },
-      stream: match.stream?.twitch_en_1 ? `https://twitch.tv/${match.stream.twitch_en_1}` : 'https://twitch.tv/overwatch_esports'
+      stream: getStreamUrl(match.tournament)
     };
 
     return new Response(JSON.stringify(payload), { 
