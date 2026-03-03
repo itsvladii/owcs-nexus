@@ -68,12 +68,12 @@ const TEAM_ALIASES: Record<string, string> = {
 
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
-  "Korea": 1216,
-  "North America": 1201,
-  "EMEA": 1228,
-  "China": 1201,
-  "Japan": 1184,
-  "Pacific": 1165,
+  "Korea": 1219,
+  "North America": 1199,
+  "EMEA": 1223,
+  "China": 1195,
+  "Japan": 1178,
+  "Pacific": 1162,
   "default": 1200
 };
 

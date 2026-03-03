@@ -117,12 +117,12 @@ For OWCS 2026, the starting baselines are:
 
 | Region | Starting ELO ($R_0$) | Notes |
 |---|---|---|
-| Korea | 1216 | Consistently dominant; Falcons and CR won 2 of 3 2025 majors and consistently on the podium |
-| EMEA | 1228 | Breakout year; all-EMEA World Finals grand final, Twisted Minds world champions |
-| North America | 1201 | Solid but no Major podium or silverware; impacted by NTMR mid-season roster overhaul |
-| China | 1201 | Comparable Major performances to NA; anchored by Weibo Gaming |
-| Japan | 1184 | Emerging strength, both regionally and internationally as VARREL made history with first-ever major win |
-| Pacific | 1165 | Developing region; very limited Major representation in 2025 |
+| Korea | 1219 | Consistently dominant; Falcons and CR won 2 of 3 2025 majors and consistently on the podium |
+| EMEA | 1223 | Breakout year; all-EMEA World Finals grand final, Twisted Minds world champions |
+| North America | 1199 | Solid but no Major podium or silverware; impacted by NTMR mid-season roster overhaul |
+| China | 1195 | Comparable Major performances to NA; anchored by Weibo Gaming |
+| Japan | 1178 | Emerging strength, both regionally and internationally as VARREL made history with first-ever major win |
+| Pacific | 1162 | Developing region; very limited Major representation in 2025 |
 | Default | 1200 | Fallback for unclassified or unrecognized teams |
 
 ### Why these specific numbers?

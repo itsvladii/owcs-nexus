@@ -30,10 +30,6 @@ const DEPTH_WEIGHT = 0.4;
 const DEPTH_VARIANCE_PENALTY_COEFF = 0.3;
 const DEPTH_VARIANCE_PENALTY_CAP = 50; // Maximum penalty in ELO points
 
-// A region must have an average calibration rating above this threshold
-// before it earns any depth bonus. Prevents rewarding "uniformly mediocre" regions.
-const DEPTH_BONUS_THRESHOLD = BASE_BASELINE + 50; // 1250
-
 // =============================================================================
 // HELPER: isMajorTournament
 // Mirrors the same logic in calcELO.ts so we're consistent about what counts
@@ -223,7 +219,7 @@ function getDepthScore(
 
   // Only apply a depth bonus/penalty if the average is above the threshold.
   // Below threshold: return average as-is (no bonus, no extra penalty).
-  if (avg <= DEPTH_BONUS_THRESHOLD) {
+  if (avg <=  BASE_BASELINE) {
     console.log(
       `   🏠 Depth score: ${Math.round(avg)} (avg below threshold — no depth bonus applied) | ` +
       `stdDev: ${Math.round(stdDev)}`
@@ -268,21 +264,18 @@ async function main() {
     isCalibration: true,
   });
 
-  // 3. Audit which tournaments were classified as Majors
-  console.log('\n🏆 MAJOR TOURNAMENTS DETECTED');
+  console.log('\n📋 TOURNAMENTS FETCHED');
   console.log('--------------------------------------------------------------------');
-  const majorTournaments = [...new Set(
-    (processedMatches ?? [])
-      .filter((m) => isMajorTournament(m.tournament))
-      .map((m) => m.tournament)
-  )].sort();
-
-  if (majorTournaments.length === 0) {
-    console.log('  ⚠️  No major tournaments detected. Check isMajorTournament() keywords.');
+  const fetchedTournaments = [...new Set(matches.map((m: any) => m.tournament))].sort() as string[];
+  if (fetchedTournaments.length === 0) {
+    console.log('  ⚠️  No tournaments found. Check fetchPastSeasons().');
   } else {
-    majorTournaments.forEach((t) => console.log(`  ✅ ${t}`));
+    fetchedTournaments.forEach((t) => {
+      const tag = isMajorTournament(t) ? '🏆 [MAJOR]' : '📌';
+      console.log(`  ${tag} ${t}`);
+    });
   }
-  console.log(`  Total: ${majorTournaments.length} major tournament(s)`);
+  console.log(`  Total: ${fetchedTournaments.length} tournament(s) across ${matches.length} matches`);
 
   // 4. Group teams by region, computing calibration ratings (peak-aware)
   console.log('\n🌍 GROUPING TEAMS BY REGION');
