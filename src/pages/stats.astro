@@ -1,0 +1,352 @@
+---
+export const prerender = false;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { supabase } from "../lib/contentScripts/supabase";
+import { Image } from "astro:assets";
+import MetaFilters from "../components/statsComps/StatsFilters.svelte";
+import MetaOOBE from "../components/statsComps/MetaOOBE.svelte";
+// --- DATA FETCHING ---
+const { data: rawMatches } = await supabase
+    .from("processed_matches")
+    .select("tournament, details, date, team_a, team_b")
+    .not("details", "is", null)
+    .order("date", { ascending: false });
+
+const { data: rankingsRaw } = await supabase
+    .from("rankings")
+    .select("name, logo, logo_dark");
+
+const teamLogoMap: Record<string, { logo: string; logoDark: string }> = {};
+for (const t of rankingsRaw ?? []) {
+    teamLogoMap[t.name] = { logo: t.logo ?? "", logoDark: t.logo_dark ?? "" };
+}
+
+interface TeamBanEntry {
+    hero: string;
+    count: number;
+    pct: number;
+}
+interface TeamBanData {
+    team: string;
+    logo: string;
+    logoDark: string;
+    totalBans: number;
+    bans: TeamBanEntry[];
+}
+
+function buildTeamBans(
+    matches: typeof rawMatches,
+): Record<string, TeamBanData> {
+    const teamMap: Record<string, Record<string, number>> = {};
+    for (const match of matches ?? []) {
+        const maps = match.details?.maps ?? [];
+        const teams = [match.team_a, match.team_b];
+        for (const map of maps) {
+            const bans: string[] = map.bans ?? [];
+            bans.forEach((hero: string, idx: number) => {
+                if (!hero || !teams[idx]) return;
+                const team = teams[idx];
+                if (!teamMap[team]) teamMap[team] = {};
+                teamMap[team][hero] = (teamMap[team][hero] ?? 0) + 1;
+            });
+        }
+    }
+    const result: Record<string, TeamBanData> = {};
+    for (const [team, heroCounts] of Object.entries(teamMap)) {
+        const totalBans = Object.values(heroCounts).reduce((a, b) => a + b, 0);
+        const bans: TeamBanEntry[] = Object.entries(heroCounts)
+            .map(([hero, count]) => ({
+                hero,
+                count,
+                pct: totalBans > 0 ? count / totalBans : 0,
+            }))
+            .sort((a, b) => b.count - a.count);
+        const logos = teamLogoMap[team] ?? { logo: "", logoDark: "" };
+        result[team] = {
+            team,
+            logo: logos.logo,
+            logoDark: logos.logoDark,
+            totalBans,
+            bans,
+        };
+    }
+    return result;
+}
+
+const teamBansAll = buildTeamBans(rawMatches);
+const teamBansPerTournament: Record<string, Record<string, TeamBanData>> = {};
+for (const t of [
+    ...new Set(
+        (rawMatches ?? []).map((m: any) => m.tournament).filter(Boolean),
+    ),
+]) {
+    const tMatches = (rawMatches ?? []).filter((m: any) => m.tournament === t);
+    teamBansPerTournament[t as string] = buildTeamBans(tMatches);
+}
+const teamList = Object.keys(teamBansAll).sort();
+
+Astro.response.headers.set(
+    "Cache-Control",
+    "public, s-maxage=600, stale-while-revalidate=60",
+);
+
+// --- BAN AGGREGATION (server-side, so the client gets clean data) ---
+
+// Collect all distinct tournaments for the filter dropdown
+const tournaments = [
+    ...new Set((rawMatches ?? []).map((m) => m.tournament).filter(Boolean)),
+].sort();
+
+// Build per-tournament ban stats + an "All" aggregate
+interface BanEntry {
+    hero: string;
+    count: number;
+    maps: number; // total maps this hero appeared in a ban slot
+    wins: number; // maps where the banning team won
+    banRate: number; // count / totalBanSlots
+    winRate: number; // wins / count
+}
+
+interface TournamentStats {
+    tournament: string;
+    totalMaps: number;
+    totalBanSlots: number;
+    bans: BanEntry[];
+}
+
+function aggregateBans(matches: typeof rawMatches): TournamentStats {
+    const heroCounts: Record<string, { count: number; wins: number }> = {};
+    let totalMaps = 0;
+    let totalBanSlots = 0;
+
+    for (const match of matches ?? []) {
+        const maps = match.details?.maps ?? [];
+        for (const map of maps) {
+            totalMaps++;
+            const bans: string[] = map.bans ?? [];
+            // winner is "1" or "2" — we need to know which team index banned which hero.
+            // bans array is [team1ban, team2ban], winner is "1"|"2"|"0"
+            // We flag a ban as "win" if the banning team won.
+            // team1 = index 0, team2 = index 1
+            bans.forEach((hero, idx) => {
+                if (!hero) return;
+                const normalized = hero.trim();
+                if (!heroCounts[normalized])
+                    heroCounts[normalized] = { count: 0, wins: 0 };
+                heroCounts[normalized].count++;
+                totalBanSlots++;
+                // Did the team that made this ban win the map?
+                const bannerWon = map.winner === String(idx + 1);
+                if (bannerWon) heroCounts[normalized].wins++;
+            });
+        }
+    }
+
+    const bans: BanEntry[] = Object.entries(heroCounts)
+        .map(([hero, { count, wins }]) => ({
+            hero,
+            count,
+            maps: totalMaps,
+            wins,
+            banRate: totalBanSlots > 0 ? count / totalBanSlots : 0,
+            winRate: count > 0 ? wins / count : 0,
+        }))
+        .sort((a, b) => b.count - a.count);
+
+    return { tournament: "All", totalMaps, totalBanSlots, bans };
+}
+
+// Per-tournament breakdown
+const perTournament: Record<string, TournamentStats> = {};
+for (const t of tournaments) {
+    const tMatches = (rawMatches ?? []).filter((m) => m.tournament === t);
+    const stats = aggregateBans(tMatches);
+    stats.tournament = t;
+    perTournament[t] = stats;
+}
+
+const allStats = aggregateBans(rawMatches);
+
+// Top hero for the hero section callout
+const topBanned = allStats.bans[0] ?? null;
+const totalMapsPlayed = allStats.totalMaps;
+
+// Last updated
+const lastMatch = rawMatches?.[0];
+const lastUpdated = lastMatch?.date
+    ? new Date(lastMatch.date).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+      })
+    : null;
+
+// Shorten tournament names for display
+function shortenTournament(name: string): string {
+    return name
+        .replace(/Overwatch Champions Series/g, "OWCS")
+        .replace(/ 20(\d\d)/g, " '$1")
+        .replace(/Stage (\d)/g, "S$1")
+        .replace(/Season (\d)/g, "S$1")
+        .replace(/North America/g, "NA")
+        .replace(/South Korea/g, "Korea")
+        .trim();
+}
+
+const tournamentOptions = [
+    { value: "All", label: "All Tournaments" },
+    ...tournaments.map((t) => ({ value: t, label: shortenTournament(t) })),
+];
+---
+
+<BaseLayout title="Meta Report | OWCS Nexus">
+    <MetaOOBE client:only="svelte" />
+    <!-- ── HERO ── -->
+    <div
+        class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[400px] flex items-end"
+    >
+        <div class="absolute inset-0 z-0">
+            <Image
+                src={import("../content/img/owcs_stats.jpg")}
+                alt="Meta Report Background"
+                width={1920}
+                height={1080}
+                format="webp"
+                quality="mid"
+                loading="eager"
+                class="w-full h-full object-cover opacity-40 grayscale"
+            />
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"
+            >
+            </div>
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-neutral-950/80 via-transparent to-neutral-950/80"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 w-full relative z-10">
+            <div class="mb-4">
+                <p
+                    class="text-violet-400 font-mono text-xs uppercase tracking-[0.3em] mb-3 drop-shadow-md"
+                >
+                    Hero Ban Analysis
+                </p>
+                <h1
+                    class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.8] mb-8 drop-shadow-2xl"
+                >
+                    Meta <br /> Report
+                </h1>
+            </div>
+
+            <div
+                class="flex flex-wrap items-center gap-6 text-neutral-400 font-mono text-xs uppercase tracking-widest"
+            >
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"
+                    ></span>
+                    <span
+                        class="px-3 py-1 border border-neutral-800 rounded-full bg-neutral-900/80 backdrop-blur-sm text-white"
+                    >
+                        OWCS Season 3
+                    </span>
+                </div>
+                <span class="hidden md:inline text-neutral-800">•</span>
+                <span class="opacity-80">{totalMapsPlayed} Maps Analysed</span>
+                {
+                    lastUpdated && (
+                        <>
+                            <span class="hidden md:inline text-neutral-800">
+                                •
+                            </span>
+                            <span class="opacity-80">
+                                Updated {lastUpdated}
+                            </span>
+                        </>
+                    )
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ── STAT CALLOUT STRIP ── -->
+    <div class="max-w-7xl mx-auto px-4 mb-12">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Most Banned -->
+            {
+                topBanned && (
+                    <div class="col-span-2 bg-neutral-900 border border-violet-500/20 rounded-2xl p-6 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none" />
+                        <p class="text-violet-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-1">
+                            Most Banned Hero
+                        </p>
+                        <div class="flex items-end gap-4">
+                            <p class="text-5xl font-title text-white uppercase">
+                                {topBanned.hero}
+                            </p>
+                            <div class="mb-1">
+                                <p class="text-2xl font-mono font-black text-violet-400">
+                                    {topBanned.count}×
+                                </p>
+                                <p class="text-[10px] font-mono text-neutral-500 uppercase">
+                                    {(topBanned.banRate * 100).toFixed(1)}% of
+                                    ban slots
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            <!-- Total Bans -->
+            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-6">
+                <p
+                    class="text-neutral-500 font-mono text-[10px] uppercase tracking-[0.3em] mb-2"
+                >
+                    Total Bans
+                </p>
+                <p class="text-4xl font-mono font-black text-white">
+                    {allStats.totalBanSlots}
+                </p>
+                <p
+                    class="text-[10px] font-mono text-neutral-600 uppercase mt-1"
+                >
+                    across all maps
+                </p>
+            </div>
+
+            <!-- Unique Heroes Banned -->
+            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-6">
+                <p
+                    class="text-neutral-500 font-mono text-[10px] uppercase tracking-[0.3em] mb-2"
+                >
+                    Heroes Banned
+                </p>
+                <p class="text-4xl font-mono font-black text-white">
+                    {allStats.bans.length}
+                </p>
+                <p
+                    class="text-[10px] font-mono text-neutral-600 uppercase mt-1"
+                >
+                    unique heroes
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="max-w-7xl mx-auto px-4 pb-24">
+        <!-- Filter bar + interactive chart — Svelte handles all interactivity -->
+        <MetaFilters
+            allStats={allStats}
+            perTournament={perTournament}
+            tournamentOptions={tournamentOptions}
+            teamBansAll={teamBansAll}
+            teamBansPerTournament={teamBansPerTournament}
+            teamList={teamList}
+            client:load
+        />
+    </div>
+</BaseLayout>
