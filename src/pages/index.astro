@@ -42,11 +42,26 @@ const heroClipIDs = [
 ];
 
 const HERO_IMAGES = [
-    owcs1, owcs2, owcs3, owcs4, owcs5, owcs6, owcs7, owcs8, owcs9, 
-    owcs10, owcs11, owcs12, owcs13, owcs14, owcs15, owcs16, owcs17, owcs18
+    owcs1,
+    owcs2,
+    owcs3,
+    owcs4,
+    owcs5,
+    owcs6,
+    owcs7,
+    owcs8,
+    owcs9,
+    owcs10,
+    owcs11,
+    owcs12,
+    owcs13,
+    owcs14,
+    owcs15,
+    owcs16,
+    owcs17,
+    owcs18,
 ];
-// Pick a random index on the server side
-const randomImage = HERO_IMAGES[Math.floor(Math.random() * HERO_IMAGES.length)];
+// Image is picked client-side — pass all URLs as a data attribute
 
 // 1. w_1080: Cap resolution (1080p is plenty for background)
 // 2. q_auto:eco: Aggressive compression (saves bandwidth)
@@ -56,10 +71,7 @@ const videoBaseUrl = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_mp4,vc
 
 const heroClipUrls = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
 
-// ⚡ SERVER-SIDE PICK ⚡
-// Pick the first video NOW, on the server. Don't wait for the client.
-const startVideo =
-    heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)];
+// Video is picked client-side on every load
 ---
 
 <BaseLayout title="Home" fullWidth={true}>
@@ -80,9 +92,7 @@ const startVideo =
             {/* PLAYER 1 (Starts Active with Server-Side Src) */}
             <video
                 id="player-1"
-                class="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 transition-opacity duration-1000"
-                src={startVideo}
-                autoplay
+                class="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 transition-opacity duration-1000"
                 muted
                 playsinline></video>
 
@@ -179,20 +189,33 @@ const startVideo =
                 <div
                     class="relative h-full min-h-[600px] rounded-3xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl transition-all hover:border-red-500/30"
                 >
-                    <div class="absolute inset-0 z-0">
-                        <Image
-                src={randomImage}
-                alt="OWCS Action Highlight"
-                width={1200} 
-                height={800}
-                widths={[400, 800, 1200]}
-                sizes="(max-width: 1024px) 100vw, 66vw"
-                format="webp"
-                quality="mid"
-                loading="eager" 
-                class="w-full h-full object-cover object-center opacity-60"
-            />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent sm:via-black/20">
+                    <div
+                        class="absolute inset-0 z-0"
+                        id="hero-image-container"
+                        data-images={JSON.stringify(
+                            HERO_IMAGES.map((img) => img.src),
+                        )}
+                    >
+                        {
+                            HERO_IMAGES.map((img, i) => (
+                                <Image
+                                    src={img}
+                                    alt="OWCS Action Highlight"
+                                    width={1200}
+                                    height={800}
+                                    widths={[400, 800, 1200]}
+                                    sizes="(max-width: 1024px) 100vw, 66vw"
+                                    format="webp"
+                                    quality="mid"
+                                    loading={i === 0 ? "eager" : "lazy"}
+                                    class="hero-image w-full h-full object-cover object-center opacity-60 absolute inset-0"
+                                    style="display: none;"
+                                />
+                            ))
+                        }
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent sm:via-black/20"
+                        >
                         </div>
                     </div>
 
@@ -410,16 +433,26 @@ const startVideo =
         const clips = JSON.parse(container.dataset.clips || "[]");
         if (clips.length === 0) return;
 
-        // Detect which video was pre-rendered on the server
-        // (This is the video src already in the DOM)
+        // --- Randomize hero image client-side on every load ---
+        const imgContainer = document.getElementById("hero-image-container");
+        if (imgContainer) {
+            const heroImgs =
+                imgContainer.querySelectorAll<HTMLElement>(".hero-image");
+            const randomImgIdx = Math.floor(Math.random() * heroImgs.length);
+            heroImgs[randomImgIdx].style.display = "block";
+        }
+
+        // --- Randomize starting video client-side on every load ---
         let activePlayer = p1;
         let standbyPlayer = p2;
-
-        // Find current index based on the src that Astro rendered
-        let currentClipIdx = clips.findIndex(
-            (c) => c === p1.src || p1.src.endsWith(c),
-        );
-        if (currentClipIdx === -1) currentClipIdx = 0; // Fallback
+        let currentClipIdx = Math.floor(Math.random() * clips.length);
+        p1.src = clips[currentClipIdx];
+        p1.load();
+        p1.play()
+            .then(() => {
+                p1.style.opacity = "0.6";
+            })
+            .catch(() => {});
 
         // Wait a few seconds before loading the NEXT video to let the page settle
         setTimeout(() => {
