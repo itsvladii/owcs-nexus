@@ -5,7 +5,6 @@ import { supabase } from "../lib/contentScripts/supabase";
 import { Image } from "astro:assets";
 import MetaFilters from "../components/statsComps/StatsFilters.svelte";
 import MetaOOBE from "../components/statsComps/MetaOOBE.svelte";
-import { getHeroPortrait } from "../lib/stats/fetchHeroImg.ts";
 // --- DATA FETCHING ---
 const { data: rawMatches } = await supabase
     .from("processed_matches")
@@ -279,18 +278,11 @@ const tournamentOptions = [
             {
                 topBanned && (
                     <div class="col-span-2 bg-neutral-900 border border-violet-500/20 rounded-2xl p-6 relative overflow-hidden">
-                        {/* Portrait faded into right side */}
-                        <img
-                            src={getHeroPortrait(topBanned.hero)}
-                            alt={topBanned.hero}
-                            class="absolute right-0 top-0 h-full w-48 object-cover object-top opacity-20 pointer-events-none"
-                            style="mask-image: linear-gradient(to left, black 0%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);"
-                        />
                         <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none" />
-                        <p class="text-violet-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-1 relative z-10">
+                        <p class="text-violet-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-1">
                             Most Banned Hero
                         </p>
-                        <div class="flex items-end gap-4 relative z-10">
+                        <div class="flex items-end gap-4">
                             <p class="text-5xl font-title text-white uppercase">
                                 {topBanned.hero}
                             </p>
