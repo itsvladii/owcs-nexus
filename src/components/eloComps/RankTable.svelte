@@ -68,11 +68,11 @@
 
     <!-- ── TABLE HEADER ── -->
     <div
-        class="grid grid-cols-12 gap-4 px-4 pb-2 text-neutral-600 font-mono text-[10px] uppercase tracking-widest border-b border-neutral-800 mb-1"
+        class="grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-4 pb-2 text-neutral-600 font-mono text-[10px] uppercase tracking-widest border-b border-neutral-800 mb-1"
     >
-        <div class="col-span-1 text-center">#</div>
-        <div class="col-span-5">Team</div>
-        <div class="col-span-2 text-center">Rating</div>
+        <div class="text-center sm:col-span-1">#</div>
+        <div class="sm:col-span-5">Team</div>
+        <div class="text-right sm:text-center sm:col-span-2">Rating</div>
         <div class="col-span-2 text-center hidden sm:block">Record</div>
         <div class="col-span-2 text-center hidden sm:block">Form</div>
     </div>
@@ -91,7 +91,7 @@
                         e.key === "Enter" && (selectedTeam = team)}
                     role="button"
                     tabindex="0"
-                    class="group grid grid-cols-12 gap-4 px-4 py-3 rounded-xl items-center
+                    class="group grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 rounded-xl items-center
             cursor-pointer transition-all relative overflow-hidden
             border border-transparent hover:border-neutral-800
             {team.isPartner
@@ -117,17 +117,17 @@
 
                     <!-- ── RANK ── -->
                     <div
-                        class="col-span-1 text-center relative z-10 flex flex-col items-center gap-0.5"
+                        class="sm:col-span-1 text-center relative z-10 flex flex-col items-center gap-0.5"
                     >
                         <span
                             class="font-title leading-none transition-transform group-hover:scale-110
               {team.rank === 1
-                                ? 'text-amber-400 text-3xl'
+                                ? 'text-amber-400 text-2xl sm:text-3xl'
                                 : team.rank === 2
-                                  ? 'text-neutral-400 text-2xl'
+                                  ? 'text-neutral-400 text-xl sm:text-2xl'
                                   : team.rank === 3
-                                    ? 'text-orange-600 text-2xl'
-                                    : 'text-neutral-600 text-xl'}"
+                                    ? 'text-orange-600 text-xl sm:text-2xl'
+                                    : 'text-neutral-600 text-lg sm:text-xl'}"
                         >
                             #{team.rank}
                         </span>
@@ -169,10 +169,10 @@
 
                     <!-- ── TEAM ── -->
                     <div
-                        class="col-span-5 relative z-10 flex items-center gap-3"
+                        class="sm:col-span-5 relative z-10 flex items-center gap-2 sm:gap-3 min-w-0"
                     >
                         <div
-                            class="w-11 h-11 shrink-0 flex items-center justify-center relative"
+                            class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center relative"
                         >
                             <div
                                 class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-all duration-300"
@@ -186,7 +186,7 @@
                                 />
                             {:else}
                                 <span
-                                    class="font-title text-sm text-neutral-500"
+                                    class="font-title text-base text-neutral-500"
                                 >
                                     {team.name.substring(0, 2).toUpperCase()}
                                 </span>
@@ -195,7 +195,7 @@
                         <div class="flex flex-col min-w-0">
                             <div class="flex items-center gap-2">
                                 <span
-                                    class="font-title uppercase text-lg leading-tight truncate transition-colors
+                                    class="font-title uppercase text-base sm:text-lg leading-tight truncate transition-colors
                   {team.isPartner
                                         ? 'text-white'
                                         : 'text-neutral-300 group-hover:text-white'}"
@@ -233,9 +233,11 @@
                     </div>
 
                     <!-- ── RATING ── -->
-                    <div class="col-span-2 text-center relative z-10">
+                    <div
+                        class="sm:col-span-2 text-right sm:text-center relative z-10"
+                    >
                         <span
-                            class="font-mono font-black text-xl tabular-nums transition-colors
+                            class="font-mono font-black text-lg sm:text-xl tabular-nums transition-colors
               {isTop3
                                 ? 'text-white'
                                 : 'text-neutral-400 group-hover:text-white'}"
