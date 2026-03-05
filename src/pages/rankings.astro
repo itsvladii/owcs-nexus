@@ -4,40 +4,40 @@ export const prerender = false;
 import owcs_wf from "../content/img/owcs_wf.jpg";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable from "../components/eloComps/RankTable.svelte";
-import LateralTab from "../components/eloComps/LateralTab.svelte"
+import LateralTab from "../components/eloComps/LateralTab.svelte";
 import { supabase } from "../lib/contentScripts/supabase";
 import { Image } from "astro:assets";
 
 // --- DATA FETCHING ---
 const { data: rankings } = await supabase
-    .from('rankings')
-    .select('*')
-    .order('rating', { ascending: false });
+    .from("rankings")
+    .select("*")
+    .order("rating", { ascending: false });
 
 const { data: statsData } = await supabase
-    .from('global_stats')
-    .select('*')
+    .from("global_stats")
+    .select("*")
     .single();
 
 const stats = {
     biggestMover: statsData?.biggest_mover || null,
     longestReign: statsData?.longest_reign || null,
-    biggestUpsets: statsData?.biggest_upsets || [] 
+    biggestUpsets: statsData?.biggest_upsets || [],
 };
 
 // 2. KEEP PROCESSED MATCHES (For the modal)
 const { data: processedMatches } = await supabase
-    .from('processed_matches')
-    .select('*');
+    .from("processed_matches")
+    .select("*");
 
 Astro.response.headers.set(
-  'Cache-Control', 
-  'public, s-maxage=600, stale-while-revalidate=30'
+    "Cache-Control",
+    "public, s-maxage=600, stale-while-revalidate=30",
 );
 const teamMap = new Map();
 if (rankings) {
     rankings.forEach((t) => {
-        // Since the DB data might have slightly different property names, 
+        // Since the DB data might have slightly different property names,
         // adjust as needed. If 'name' is top-level:
         teamMap.set(t.name.toLowerCase(), t);
     });
@@ -51,7 +51,7 @@ function getLocalTeam(apiName: string) {
 const lastUpdated = new Date().toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
-    hour:"numeric",
+    hour: "numeric",
     timeZoneName: "short",
     year: "numeric",
 });
@@ -86,193 +86,267 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         hasPage: !!localData,
         history: team.history,
         tournaments: team.tournaments,
-        rankDelta: team.rankDelta,
-        form: team.form
+        rankDelta: team.rank_delta,
+        form: team.form,
     };
 });
 
 // src/pages/rankings.astro
 
 const regions = ["Korea", "North America", "EMEA", "China", "Japan", "Pacific"];
-const regionalAverages = regions.map(reg => {
-    const regionalTeams = rankings
-        .filter(t => t.region === reg)
-        .sort((a, b) => b.rating - a.rating)
-        .slice(0, 5);
+const regionalAverages = regions
+    .map((reg) => {
+        const regionalTeams = rankings
+            .filter((t) => t.region === reg)
+            .sort((a, b) => b.rating - a.rating)
+            .slice(0, 5);
 
-    const avg = regionalTeams.length > 0 
-        ? Math.round(regionalTeams.reduce((acc, t) => acc + t.rating, 0) / regionalTeams.length)
-        : 1200;
+        const avg =
+            regionalTeams.length > 0
+                ? Math.round(
+                      regionalTeams.reduce((acc, t) => acc + t.rating, 0) /
+                          regionalTeams.length,
+                  )
+                : 1200;
 
-    // We sum the ELO change from the last 24h of these specific top 5 teams
-    const change = regionalTeams.reduce((acc, t) => {
-        const lastMatch = processedMatches.find(m => 
-            (m.team_a === t.name || m.team_b === t.name) && 
-            (new Date().getTime() - new Date(m.date).getTime() < 86400000)
-        );
-        const change = lastMatch ? (lastMatch.team_a === t.name ? lastMatch.elo_change_a : lastMatch.elo_change_b) : 0;
-        return acc + (change || 0);
-    }, 0) / (regionalTeams.length || 1);
+        // We sum the ELO change from the last 24h of these specific top 5 teams
+        const change =
+            regionalTeams.reduce((acc, t) => {
+                const lastMatch = processedMatches.find(
+                    (m) =>
+                        (m.team_a === t.name || m.team_b === t.name) &&
+                        new Date().getTime() - new Date(m.date).getTime() <
+                            86400000,
+                );
+                const change = lastMatch
+                    ? lastMatch.team_a === t.name
+                        ? lastMatch.elo_change_a
+                        : lastMatch.elo_change_b
+                    : 0;
+                return acc + (change || 0);
+            }, 0) / (regionalTeams.length || 1);
 
-    return { name: reg, avg, trend: Math.round(change) };
-}).sort((a, b) => b.avg - a.avg);
+        return { name: reg, avg, trend: Math.round(change) };
+    })
+    .sort((a, b) => b.avg - a.avg);
 
-const headerImg=owcs_wf
+const headerImg = owcs_wf;
 ---
 
 <BaseLayout title="Global Power Rankings | OWCS Nexus">
-    
-            <div class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end">
-    <div class="absolute inset-0 z-0">
-       <Image 
-        src={headerImg}
-        alt="Header Background" 
-        width={1920} 
-        height={1080}
-        format="webp"
-        quality="mid"
-        loading="eager"
-        class="w-full h-full object-cover opacity-50 grayscale"
-    />
-        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent"></div>
-        <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/60 via-transparent to-neutral-950/60"></div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 w-full relative z-10">
-        <div class="mb-4">
-            <p class="text-red-500 font-mono text-xs uppercase tracking-[0.3em] mb-3 drop-shadow-md">
-                (Un)Official OWCS ELO Ratings 
-            </p>
-            <h1 class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.8] mb-8 drop-shadow-2xl">
-                Team Global <br/> Standings
-            </h1>
-        </div>
-
-        <div class="flex flex-col md:flex-row items-center gap-6 text-neutral-400 font-mono text-xs uppercase tracking-widest">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                <span class="px-3 py-1 border border-neutral-800 rounded-full bg-neutral-900/80 backdrop-blur-sm text-white">
-                    OWCS Season 3 
-                </span>
+    <div
+        class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end"
+    >
+        <div class="absolute inset-0 z-0">
+            <Image
+                src={headerImg}
+                alt="Header Background"
+                width={1920}
+                height={1080}
+                format="webp"
+                quality="mid"
+                loading="eager"
+                class="w-full h-full object-cover opacity-50 grayscale"
+            />
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent"
+            >
             </div>
-            <span class="hidden md:inline text-neutral-800">•</span>
-            <span class="opacity-80">Last Updated: {lastUpdated} </span>
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-neutral-950/60 via-transparent to-neutral-950/60"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 w-full relative z-10">
+            <div class="mb-4">
+                <p
+                    class="text-red-500 font-mono text-xs uppercase tracking-[0.3em] mb-3 drop-shadow-md"
+                >
+                    (Un)Official OWCS ELO Ratings
+                </p>
+                <h1
+                    class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.8] mb-8 drop-shadow-2xl"
+                >
+                    Team Global <br /> Standings
+                </h1>
+            </div>
+
+            <div
+                class="flex flex-col md:flex-row items-center gap-6 text-neutral-400 font-mono text-xs uppercase tracking-widest"
+            >
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"
+                    ></span>
+                    <span
+                        class="px-3 py-1 border border-neutral-800 rounded-full bg-neutral-900/80 backdrop-blur-sm text-white"
+                    >
+                        OWCS Season 3
+                    </span>
+                </div>
+                <span class="hidden md:inline text-neutral-800">•</span>
+                <span class="opacity-80">Last Updated: {lastUpdated} </span>
+            </div>
         </div>
     </div>
-</div>
 
     <div class="max-w-7xl mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
-    {/* CARD 1: BIGGEST MOVER (VELOCITY MODULE) */}
-    {stats.biggestMover && (() => {
-        const { logo } = getTeamProps(stats.biggestMover);
-        return (
-            <div class="bg-neutral-950/80 border-t-2 border-green-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-                <p class="text-green-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
-                    Biggest Mover
-                </p>
-                <div class="flex items-center gap-5">
-                    <div class="relative shrink-0">
-                        <div class="absolute inset-0 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition-all" />
-                        <img src={logo} class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all" />
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">{stats.biggestMover.name}</span>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-3xl font-mono font-black text-green-500">+{Math.round(stats.biggestMover.diff)}</span>
-                            <span class="text-[9px] font-mono text-neutral-500 uppercase">Pts</span>
+            {/* CARD 1: BIGGEST MOVER (VELOCITY MODULE) */}
+            {
+                stats.biggestMover &&
+                    (() => {
+                        const { logo } = getTeamProps(stats.biggestMover);
+                        return (
+                            <div class="bg-neutral-950/80 border-t-2 border-green-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
+                                <p class="text-green-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
+                                    Biggest Mover
+                                </p>
+                                <div class="flex items-center gap-5">
+                                    <div class="relative shrink-0">
+                                        <div class="absolute inset-0 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition-all" />
+                                        <img
+                                            src={logo}
+                                            class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all"
+                                        />
+                                    </div>
+                                    <div class="flex flex-col min-w-0">
+                                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">
+                                            {stats.biggestMover.name}
+                                        </span>
+                                        <div class="flex items-baseline gap-2">
+                                            <span class="text-3xl font-mono font-black text-green-500">
+                                                +
+                                                {Math.round(
+                                                    stats.biggestMover.diff,
+                                                )}
+                                            </span>
+                                            <span class="text-[9px] font-mono text-neutral-500 uppercase">
+                                                Pts
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()
+            }
+
+            {/* CARD 2: LONGEST REIGN (CHRONO MODULE) */}
+            {
+                stats.longestReign &&
+                    (() => {
+                        const { logo } = getTeamProps(stats.longestReign);
+                        return (
+                            <div class="bg-neutral-950/80 border-t-2 border-purple-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
+                                <p class="text-purple-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                                    Longest Reign
+                                </p>
+                                <div class="flex items-center gap-5">
+                                    <div class="relative shrink-0">
+                                        <div class="absolute inset-0 border-2 border-dashed border-purple-500/20 rounded-full animate-[spin_10s_linear_infinite]" />
+                                        <img
+                                            src={logo}
+                                            class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all"
+                                        />
+                                    </div>
+                                    <div class="flex flex-col min-w-0">
+                                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">
+                                            {stats.longestReign.name}
+                                        </span>
+                                        <div class="flex items-baseline gap-2">
+                                            <span class="text-3xl font-mono font-black text-purple-500">
+                                                {stats.longestReign.days}
+                                            </span>
+                                            <span class="text-[9px] font-mono text-neutral-500 uppercase">
+                                                Days
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()
+            }
+
+            {/* CARD 3 & 4: BIGGEST UPSETS (IMPACT MODULES) */}
+            {
+                stats.biggestUpsets.slice(0, 2).map((upset) => (
+                    <div class="bg-neutral-950/80 border-t-2 border-red-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
+                        <div class="absolute top-4 right-4 text-[9px] font-mono text-red-500/40 uppercase tracking-tighter">
+                            Variance: High
+                        </div>
+                        <p class="text-red-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" />
+                            System Shock
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <img
+                                        src={upset.winnerLogo}
+                                        class="w-8 h-8 object-contain"
+                                    />
+                                    <span class="text-lg font-title text-white uppercase">
+                                        {upset.winner}
+                                    </span>
+                                </div>
+                                <span class="text-[10px] font-mono text-neutral-600 font-bold italic">
+                                    DEF.
+                                </span>
+                                <img
+                                    src={upset.loserLogo}
+                                    class="w-8 h-8 object-contain opacity-40 grayscale"
+                                />
+                            </div>
+                            <div class="pt-3 border-t border-white/5 flex justify-between items-end">
+                                <span class="text-[9px] font-mono text-neutral-500 uppercase max-w-[120px] truncate">
+                                    {upset.tournament}
+                                </span>
+                                <div class="text-right">
+                                    <span class="block text-[8px] font-mono text-neutral-600 uppercase">
+                                        Win_Prob
+                                    </span>
+                                    <span class="text-xl font-mono font-black text-red-500">
+                                        {(upset.prob * 100).toFixed(1)}%
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        );
-    })()}
-
-    {/* CARD 2: LONGEST REIGN (CHRONO MODULE) */}
-    {stats.longestReign && (() => {
-        const { logo } = getTeamProps(stats.longestReign);
-        return (
-            <div class="bg-neutral-950/80 border-t-2 border-purple-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-                <p class="text-purple-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-                    Longest Reign
-                </p>
-                <div class="flex items-center gap-5">
-                    <div class="relative shrink-0">
-                        <div class="absolute inset-0 border-2 border-dashed border-purple-500/20 rounded-full animate-[spin_10s_linear_infinite]" />
-                        <img src={logo} class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all" />
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">{stats.longestReign.name}</span>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-3xl font-mono font-black text-purple-500">{stats.longestReign.days}</span>
-                            <span class="text-[9px] font-mono text-neutral-500 uppercase">Days</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    })()}
-
-    {/* CARD 3 & 4: BIGGEST UPSETS (IMPACT MODULES) */}
-    {stats.biggestUpsets.slice(0, 2).map((upset) => (
-        <div class="bg-neutral-950/80 border-t-2 border-red-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-            <div class="absolute top-4 right-4 text-[9px] font-mono text-red-500/40 uppercase tracking-tighter">
-                Variance: High
-            </div>
-            <p class="text-red-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" />
-                System Shock
-            </p>
-            <div class="flex flex-col gap-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <img src={upset.winnerLogo} class="w-8 h-8 object-contain" />
-                        <span class="text-lg font-title text-white uppercase">{upset.winner}</span>
-                    </div>
-                    <span class="text-[10px] font-mono text-neutral-600 font-bold italic">DEF.</span>
-                    <img src={upset.loserLogo} class="w-8 h-8 object-contain opacity-40 grayscale" />
-                </div>
-                <div class="pt-3 border-t border-white/5 flex justify-between items-end">
-                    <span class="text-[9px] font-mono text-neutral-500 uppercase max-w-[120px] truncate">
-                        {upset.tournament}
-                    </span>
-                    <div class="text-right">
-                        <span class="block text-[8px] font-mono text-neutral-600 uppercase">Win_Prob</span>
-                        <span class="text-xl font-mono font-black text-red-500">{(upset.prob * 100).toFixed(1)}%</span>
-                    </div>
-                </div>
-            </div>
+                ))
+            }
         </div>
-    ))}
-</div>
-
 
         {/* --- MAIN LAYOUT (Split View) --- */}
         <div class="flex flex-col lg:flex-row gap-8 relative items-start">
-            
             {/* LEFT: THE RANKINGS TABLE (Flex Grow) */}
             <div class="flex-1 min-w-0 w-full">
                 {/* THE TABLE */}
-                <div class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm">
-                    <RankingsTable teams={tableData.slice(0,30)} matches={processedMatches} client:only="svelte" />
+                <div
+                    class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm"
+                >
+                    <RankingsTable
+                        teams={tableData}
+                        matches={processedMatches}
+                        client:only="svelte"
+                    />
                 </div>
-                
-                <p class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0">
+
+                <p
+                    class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0"
+                >
                     * Click on any team to see detailed stats and match history.
                 </p>
-                
             </div>
-
 
             {/* RIGHT: THE ALGORITHM SIDEBAR (Fixed Width) */}
             {/* This will stick to the screen on Desktop */}
             <div class="w-full lg:w-80 shrink-0">
-                <LateralTab regionalAverages={regionalAverages} client:load/>
+                <LateralTab regionalAverages={regionalAverages} client:load />
             </div>
-
         </div>
-
     </div>
 </BaseLayout>
