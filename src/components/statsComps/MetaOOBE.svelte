@@ -99,17 +99,6 @@
                 ></div>
             </div>
 
-            <!-- Step pills -->
-            <div class="flex items-center gap-1.5 px-6 pt-5">
-                {#each steps as s, i}
-                    <button
-                        on:click={() => (currentStep = i)}
-                        class="flex-1 h-1 rounded-full transition-all duration-300
-              {i <= currentStep ? 'bg-violet-500' : 'bg-neutral-800'}"
-                    ></button>
-                {/each}
-            </div>
-
             <!-- Content -->
             <div class="px-6 pt-6 pb-4">
                 <!-- Icon + label -->

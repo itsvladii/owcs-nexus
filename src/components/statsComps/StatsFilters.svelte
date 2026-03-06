@@ -620,7 +620,7 @@
                         class="col-span-3 relative z-10 flex items-center gap-3"
                     >
                         <div
-                            class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden"
+                            class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden hidden sm:block"
                         >
                             <div
                                 class="h-full rounded-full transition-all duration-500 {isTop

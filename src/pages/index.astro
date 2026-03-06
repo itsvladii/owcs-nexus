@@ -1,29 +1,10 @@
 ---
-// src/pages/index.astro
-import owcs1 from "../content/img/owcs_1.jpg";
-import owcs2 from "../content/img/owcs_2.jpg";
-import owcs3 from "../content/img/owcs_3.jpg";
-import owcs4 from "../content/img/owcs_4.jpg";
-import owcs5 from "../content/img/owcs_5.jpg";
-import owcs6 from "../content/img/owcs_6.jpg";
-import owcs7 from "../content/img/owcs_7.jpg";
-import owcs8 from "../content/img/owcs_8.jpg";
-import owcs9 from "../content/img/owcs_9.jpg";
 import owcs10 from "../content/img/owcs_10.jpg";
-import owcs11 from "../content/img/owcs_11.jpg";
-import owcs12 from "../content/img/owcs_12.jpg";
-import owcs13 from "../content/img/owcs_13.jpg";
-import owcs14 from "../content/img/owcs_14.jpg";
-import owcs15 from "../content/img/owcs_15.jpg";
-import owcs16 from "../content/img/owcs_16.jpg";
-import owcs17 from "../content/img/owcs_17.jpg";
-import owcs18 from "../content/img/owcs_18.jpg";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import LiveMatchCard from "../components/homeComps/LiveMatchCard.svelte";
+import RecentMatches from "../components/eloComps/RecentMatches.svelte";
 import { Image } from "astro:assets";
 import { supabase } from "../lib/contentScripts/supabase";
-
-// --- DATA SETUP ---
 
 const { data: topTeamsRaw } = await supabase
     .from("rankings")
@@ -61,446 +42,310 @@ const lastUpdated = globalStats?.last_synced_at
     : null;
 
 const heroClipIDs = [
-    "crazy_raccoons_clip",
-    "wbg_clip",
-    "vl_clip",
-    "vp_clip",
-    "aq_clip",
-    "ntmp_clip",
-    "tm_clip",
-    "t1_clip",
-    "tl_clip",
-    "agg_clip",
-    "cc_clip",
-    "gk_clip",
-    "ssg_clip",
-    "tf_clip",
+    "crazy_raccoons_clip","wbg_clip","vl_clip","vp_clip","aq_clip",
+    "ntmp_clip","tm_clip","t1_clip","tl_clip","agg_clip",
+    "cc_clip","gk_clip","ssg_clip","tf_clip",
 ];
 
-const HERO_IMAGES = [
-    owcs1,
-    owcs2,
-    owcs3,
-    owcs4,
-    owcs5,
-    owcs6,
-    owcs7,
-    owcs8,
-    owcs9,
-    owcs10,
-    owcs11,
-    owcs12,
-    owcs13,
-    owcs14,
-    owcs15,
-    owcs16,
-    owcs17,
-    owcs18,
-];
-// Pick a random index on the server side
-const randomImage = HERO_IMAGES[Math.floor(Math.random() * HERO_IMAGES.length)];
-
-// 1. w_1080: Cap resolution (1080p is plenty for background)
-// 2. q_auto:eco: Aggressive compression (saves bandwidth)
-// 3. br_2500k: Cap bitrate to 2.5Mbps to prevent network stutter
-// 4. vc_h264: Force H.264 codec (maximum hardware compatibility)
 const videoBaseUrl = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_mp4,vc_h264,w_1080,q_auto:eco,br_2500k/v1764453427`;
-
 const heroClipUrls = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
-
-// ⚡ SERVER-SIDE PICK ⚡
-// Pick the first video NOW, on the server. Don't wait for the client.
-const startVideo =
-    heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)];
+const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)];
 ---
 
 <BaseLayout title="Home" fullWidth={true}>
-    {
-        /* ==============================================
-      1. CINEMATIC VIDEO HERO
-      ============================================== */
-    }
-    <div
-        class="relative h-screen w-full overflow-hidden bg-neutral-950 flex items-center justify-center"
-    >
-        {/* THE ENGINE */}
-        <div
-            id="video-container"
-            class="absolute inset-0 w-full h-full"
-            data-clips={JSON.stringify(heroClipUrls)}
-        >
-            {/* PLAYER 1 (Starts Active with Server-Side Src) */}
-            <video
-                id="player-1"
-                class="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 transition-opacity duration-1000"
-                src={startVideo}
-                autoplay
-                muted
-                playsinline></video>
 
-            {/* PLAYER 2 (Standby - Empty for now) */}
-            <video
-                id="player-2"
-                class="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 transition-opacity duration-1000"
-                muted
-                playsinline
-                preload="none"></video>
+  <!-- ══════════════════════════════════════════
+       HERO — full viewport, bottom-left text
+  ══════════════════════════════════════════ -->
+  <div class="relative h-screen w-full overflow-hidden bg-neutral-950">
+
+    <!-- Video background -->
+    <div id="video-container" class="absolute inset-0" data-clips={JSON.stringify(heroClipUrls)}>
+      <video id="player-1"
+        class="absolute inset-0 w-full h-full object-cover opacity-50 transition-opacity duration-1000"
+        src={startVideo} autoplay muted playsinline></video>
+      <video id="player-2"
+        class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
+        muted playsinline preload="none"></video>
+    </div>
+
+    <!-- Subtle grid overlay -->
+    <div class="absolute inset-0 z-10 pointer-events-none opacity-10"
+      style="background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 60px 60px;"></div>
+
+    <!-- Gradients: left→dark for text legibility, bottom→dark for content bleed -->
+    <div class="absolute inset-0 z-10 pointer-events-none"
+      style="background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);"></div>
+    <div class="absolute inset-0 z-10 pointer-events-none"
+      style="background: linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.6) 25%, transparent 60%);"></div>
+
+    <!-- Hero text — bottom left editorial style -->
+    <div class="absolute bottom-0 left-0 z-20 px-8 md:px-16 pb-20 max-w-3xl">
+
+      <!-- Status pill -->
+      <div class="flex items-center gap-2 mb-6">
+        <span class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          Live · OWCS Season 3
+        </span>
+        {lastUpdated && (
+          <span class="font-mono text-[10px] text-neutral-600 uppercase tracking-widest">
+            · Updated {lastUpdated}
+          </span>
+        )}
+      </div>
+
+      <!-- Main title -->
+      <h1 class="font-title text-[clamp(3.5rem,10vw,7rem)] uppercase leading-[0.9] text-white tracking-tighter mb-6"
+        style="text-shadow: 0 2px 40px rgba(0,0,0,0.8);">
+        OWCS<br/>
+        <span class="text-neutral-500">Nexus</span>
+      </h1>
+
+      <!-- Descriptor -->
+      <p class="font-mono text-sm text-neutral-400 uppercase tracking-[0.15em] max-w-sm leading-relaxed">
+        Power rankings · Ban analytics ·<br/>
+        <span class="text-white">All of OWCS, live.</span>
+      </p>
+
+      <!-- CTA row -->
+      <div class="flex items-center gap-3 mt-8">
+        <a href="/rankings"
+          class="px-5 py-2.5 bg-white text-black font-mono text-xs uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-colors font-bold">
+          View Rankings
+        </a>
+        <a href="/stats"
+          class="px-5 py-2.5 border border-neutral-700 text-neutral-300 font-mono text-xs uppercase tracking-widest rounded-lg hover:border-neutral-500 hover:text-white transition-all">
+          Meta Report
+        </a>
+      </div>
+    </div>
+
+    <!-- Top-right: live stats floating in hero -->
+    <div class="absolute top-8 right-8 z-20 hidden lg:flex flex-col items-end gap-3">
+      <div class="flex items-center gap-6 font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+        {totalMatches && (
+          <span><span class="text-white font-bold text-sm">{totalMatches}</span> Matches</span>
+        )}
+        <span><span class="text-white font-bold text-sm">{topTeams.length > 0 ? '6' : '—'}</span> Regions</span>
+        <span><span class="text-white font-bold text-sm">1</span> League</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LIVE TICKER — bleeds directly from hero
+  ══════════════════════════════════════════ -->
+  <div class="w-full bg-neutral-950">
+    <LiveMatchCard client:load />
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       MAIN EDITORIAL GRID
+  ══════════════════════════════════════════ -->
+  <div class="max-w-7xl mx-auto px-6 md:px-16 py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-px bg-neutral-900 rounded-2xl overflow-hidden border border-neutral-900">
+
+      <!-- ── LEFT: RANKINGS FEATURE CARD (col 1-7) ── -->
+      <a href="/rankings"
+        class="lg:col-span-7 relative overflow-hidden bg-neutral-950 group min-h-[520px] flex flex-col justify-end p-8 md:p-10">
+
+        <!-- Photo background -->
+        <div class="absolute inset-0 z-0">
+          <Image
+            src={owcs10}
+            alt="OWCS Match"
+            width={1200} height={800}
+            format="webp" quality="mid" loading="eager"
+            class="w-full h-full object-cover object-[center_35%] opacity-70 transition-all duration-700 group-hover:opacity-50 group-hover:scale-[1.02]"
+          />
+          <div class="absolute inset-0"
+            style="background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.7) 40%, transparent 100%);"></div>
+          <div class="absolute inset-0"
+            style="background: linear-gradient(to right, rgba(5,5,5,0.5) 0%, transparent 60%);"></div>
         </div>
 
-        {/* TECH OVERLAY (Grid) */}
-        <div
-            class="absolute inset-0 z-10 opacity-20 pointer-events-none"
-            style="background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px;"
-        >
+        <!-- Top-left category label -->
+        <div class="absolute top-8 left-8 z-10 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+          <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-red-400">Live Leaderboard</span>
         </div>
 
-        {/* VIGNETTE & GRADIENTS */}
-        <div
-            class="absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] opacity-50"
-        >
+        <!-- Content -->
+        <div class="relative z-10">
+          <div class="flex items-end justify-between mb-6">
+            <h2 class="font-title text-[clamp(2rem,5vw,3.5rem)] uppercase leading-none text-white tracking-tight">
+              Team Global<br/>Standings
+            </h2>
+            <!-- Arrow -->
+            <svg class="w-8 h-8 text-neutral-600 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300 mb-1"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </div>
+          <p class="font-mono text-xs text-neutral-500 uppercase tracking-widest max-w-sm leading-relaxed">
+            ELO-based power rankings across all six OWCS regions, constantly updated.
+          </p>
         </div>
+      </a>
 
-        <div
-            class="absolute inset-0 z-10 bg-gradient-to-b from-neutral-950 via-transparent to-neutral-950"
-        >
-        </div>
+      <!-- ── RIGHT COLUMN (col 8-12) ── -->
+      <div class="lg:col-span-5 flex flex-col divide-y divide-neutral-900">
 
-        {/* HERO CONTENT */}
-        <div
-            class="relative z-20 text-center px-4 animate-in fade-in zoom-in duration-1000"
-        >
-            <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-white/60 text-[10px] font-bold uppercase tracking-widest mb-6"
-            >
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
-                ></span>
-                System Online
-            </div>
-            <h1
-                class="text-7xl md:text-9xl font-black text-white font-title tracking-tighter uppercase"
-                style="text-shadow: 0 0 40px rgba(255,255,255,0.1);"
-            >
-                OWCS Nexus
-            </h1>
-            <p
-                class="text-xl md:text-2xl text-neutral-400 mt-4 max-w-xl mx-auto font-light tracking-wide"
-            >
-                All of OWCS, <span class="text-white font-bold"
-                    >At your fingertips.</span
-                >
-            </p>
-        </div>
-        <div
-            class="absolute bottom-0 left-0 w-full z-30 bg-gradient-to-t from-neutral-950 via-neutral-950/80 to-transparent pb-12 pt-24 px-4 flex flex-col items-center"
-        >
-            {/* Optional: 'Live' Label to tie it to the system UI */}
-            <div
-                class="mb-3 opacity-0 animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-500"
-            >
-                <span
-                    class="text-[10px] font-mono font-bold text-red-500 uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 flex items-center gap-2"
-                >
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-                        ></span>
-                        <span
-                            class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
-                        ></span>
+        <!-- TOP 5 TEAMS -->
+        <a href="/rankings"
+          class="group bg-neutral-950 p-6 md:p-8 hover:bg-neutral-900/50 transition-colors flex-1">
+          <div class="flex items-center justify-between mb-5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-500">Power Rankings</p>
+            <svg class="w-3.5 h-3.5 text-neutral-700 group-hover:text-neutral-400 transition-colors"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </div>
+
+          <div class="space-y-3">
+            {topTeams.map((team, i) => {
+              const color = REGION_COLORS[team.region] ?? '#525252';
+              const maxRating = topTeams[0]?.rating ?? 1;
+              const barWidth = Math.round((team.rating / maxRating) * 100);
+              return (
+                <div class="group/row relative">
+                  <!-- Rating bar behind row -->
+                  <div class="absolute inset-0 rounded-lg opacity-0 group-hover/row:opacity-100 transition-opacity"
+                    style={`background: ${color}08`}></div>
+                  <div class="relative flex items-center gap-3 py-1.5 px-2 rounded-lg">
+                    <!-- Rank -->
+                    <span class={`font-title text-xl leading-none w-6 shrink-0 text-right
+                      ${i === 0 ? 'text-amber-400' : i === 1 ? 'text-neutral-400' : i === 2 ? 'text-orange-700' : 'text-neutral-700'}`}>
+                      {i + 1}
                     </span>
-                    Active Uplink
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="w-full animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-300"
-    >
-        <LiveMatchCard client:load />
-    </div>
-
-    {
-        /* ==============================================
-      2. REST OF CONTENT (Unchanged)
-      ============================================== */
-    }
-    <div class="max-w-7xl mx-auto px-4 py-24 relative z-20">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-8 group">
-                <div
-                    class="relative h-full min-h-[600px] rounded-3xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl transition-all hover:border-red-500/30"
-                >
-                    <div class="absolute inset-0 z-0">
-                        <Image
-                            src={randomImage}
-                            alt="OWCS Action Highlight"
-                            width={1200}
-                            height={800}
-                            widths={[400, 800, 1200]}
-                            sizes="(max-width: 1024px) 100vw, 66vw"
-                            format="webp"
-                            quality="mid"
-                            loading="eager"
-                            class="w-full h-full object-cover object-center opacity-60"
-                        />
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent sm:via-black/20"
-                        >
-                        </div>
+                    <!-- Logo -->
+                    <div class="w-8 h-8 shrink-0 flex items-center justify-center">
+                      {(team.logo_dark || team.logo) ? (
+                        <img src={team.logo_dark || team.logo} alt={team.name}
+                          class="w-full h-full object-contain" />
+                      ) : (
+                        <span class="font-title text-xs text-neutral-600">
+                          {team.name.substring(0,2).toUpperCase()}
+                        </span>
+                      )}
                     </div>
-
-                    <div
-                        class="relative z-10 p-8 h-full flex flex-col justify-end"
-                    >
-                        <div class="flex items-center gap-2 mb-2">
-                            <span
-                                class="text-red-500 font-mono text-xs font-bold tracking-widest uppercase"
-                                >Live Leaderboard</span
-                            >
-                            <span
-                                class="text-[9px] font-mono font-bold text-amber-400 border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 rounded-full uppercase tracking-widest"
-                                >Beta</span
-                            >
-                        </div>
-                        <h2
-                            class="text-5xl font-title text-white uppercase mb-4"
-                        >
-                            Team Global Standings
-                        </h2>
-                        <p class="text-neutral-400 max-w-md mb-6">
-                            Want to know who's the apex predator in OWCS? Our
-                            customized ELO algorithm calculates ELO scores for
-                            all the teams that play in the OWCS.
-                        </p>
-                        <a
-                            href="/rankings"
-                            class="w-fit px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-colors"
-                            >View Standings</a
-                        >
+                    <!-- Name + bar -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-baseline justify-between gap-2">
+                        <span class="font-title uppercase text-sm text-neutral-200 truncate leading-none">
+                          {team.name}
+                        </span>
+                        <span class="font-mono text-xs text-neutral-500 shrink-0 tabular-nums">
+                          {Math.round(team.rating)}
+                        </span>
+                      </div>
+                      <!-- Mini rating bar -->
+                      <div class="mt-1.5 h-px bg-neutral-900 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500"
+                          style={`width: ${barWidth}%; background: ${color}; opacity: 0.6`}></div>
+                      </div>
                     </div>
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        </a>
+
+        <!-- META REPORT + COMING SOON stacked -->
+        <div class="flex flex-col sm:flex-row lg:flex-col divide-y sm:divide-y-0 sm:divide-x lg:divide-x-0 lg:divide-y divide-neutral-900">
+
+          <!-- Meta Report -->
+          <a href="/stats"
+            class="group bg-neutral-950 p-6 hover:bg-neutral-900/50 transition-colors flex-1">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.25em] text-violet-400 mb-0.5">Meta Report</p>
+                <p class="font-mono text-[9px] uppercase tracking-widest text-neutral-700">Ban rates · Win rates</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-mono text-[8px] uppercase tracking-widest text-violet-500 border border-violet-500/30 px-1.5 py-0.5 rounded">Beta</span>
+                <svg class="w-3 h-3 text-neutral-700 group-hover:text-violet-400 transition-colors"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                </svg>
+              </div>
             </div>
+            <p class="font-mono text-[11px] text-neutral-600 leading-relaxed">
+              Hero ban patterns and win rates across all regions and stages.
+            </p>
+          </a>
 
-            <div class="lg:col-span-4 flex flex-col gap-6">
-                {/* ── TOP 3 TEAMS ── */}
-                <a
-                    href="/rankings"
-                    class="group flex-1 bg-neutral-900 border border-white/10 rounded-3xl p-6 relative overflow-hidden transition-all hover:border-white/20 shadow-2xl block"
-                >
-                    <div class="flex items-center justify-between mb-5">
-                        <div>
-                            <p
-                                class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-[0.2em] mb-0.5"
-                            >
-                                Power Rankings
-                            </p>
-                            <p
-                                class="text-[9px] font-mono text-neutral-600 uppercase tracking-widest"
-                            >
-                                Top teams this week
-                            </p>
-                        </div>
-                        <svg
-                            class="w-4 h-4 text-neutral-600 group-hover:text-white transition-colors"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M7 17L17 7M17 7H7M17 7v10"></path>
-                        </svg>
-                    </div>
-                    <div class="space-y-4">
-                        {
-                            topTeams.map((team, i) => (
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class={`font-title text-2xl leading-none w-8 shrink-0 ${i === 0 ? "text-amber-400" : i === 1 ? "text-neutral-300" : i === 2 ? "text-orange-700" : "text-white"}`}
-                                    >
-                                        #{i + 1}
-                                    </span>
-                                    <div class="w-9 h-9 shrink-0 flex items-center justify-center">
-                                        {team.logo_dark || team.logo ? (
-                                            <img
-                                                src={
-                                                    team.logo_dark || team.logo
-                                                }
-                                                alt={team.name}
-                                                class="w-full h-full object-contain"
-                                            />
-                                        ) : (
-                                            <span class="text-neutral-500 text-xs font-bold">
-                                                {team.name
-                                                    .substring(0, 2)
-                                                    .toUpperCase()}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="font-title text-white uppercase text-sm leading-none truncate">
-                                            {team.name}
-                                        </p>
-                                        <p
-                                            class="text-[10px] font-mono mt-0.5"
-                                            style={`color: ${REGION_COLORS[team.region] || "#737373"}`}
-                                        >
-                                            {team.region}
-                                        </p>
-                                    </div>
-                                    <span class="font-mono font-bold text-sm text-neutral-300 shrink-0">
-                                        {Math.round(team.rating)}
-                                    </span>
-                                </div>
-                            ))
-                        }
-                    </div>
-                </a>
-
-                {/* ── OWCS STATS ── */}
-                <a
-                    href="/stats"
-                    class="bg-neutral-900 border border-violet-500/40 rounded-3xl p-6 relative overflow-hidden opacity-60 group hover:opacity-80 transition-opacity"
-                >
-                    {/* noise texture */}
-                    <div
-                        class="absolute inset-0 opacity-[0.03] pointer-events-none"
-                        style="background-image: radial-gradient(circle, #85219C 1px, transparent 1px); background-size: 20px 20px;"
-                    >
-                    </div>
-                    <div class="relative z-10">
-                        <div class="flex items-start justify-between mb-3">
-                            <div>
-                                <p
-                                    class="text-violet-300 font-mono text-[10px] font-bold tracking-[0.2em] uppercase"
-                                >
-                                    Meta Report
-                                </p>
-                                <p
-                                    class="text-neutral-600 text-[9px] font-mono uppercase tracking-widest mt-0.5"
-                                >
-                                    Stats · Teams
-                                </p>
-                            </div>
-                            <span
-                                class="text-[9px] font-mono font-bold text-violet-400 border border-violet-400/30 px-2 py-0.5 rounded-full uppercase tracking-widest"
-                                >Beta</span
-                            >
-                        </div>
-                        <p class="text-neutral-500 text-xs leading-relaxed">
-                            Visualize how teams use their bans and picks and how
-                            the meta evolves over time in OWCS.
-                        </p>
-                    </div>
-                </a>
-
-                {/* ── COMING SOON: TRANSFER WIRE ── */}
-                <div
-                    class="bg-neutral-900 border border-white/5 rounded-3xl p-6 relative overflow-hidden opacity-60 group hover:opacity-80 transition-opacity"
-                >
-                    <div class="relative z-10">
-                        <div class="flex items-start justify-between mb-3">
-                            <div>
-                                <p
-                                    class="text-blue-400 font-mono text-[10px] font-bold tracking-[0.2em] uppercase"
-                                >
-                                    Transfer Wire
-                                </p>
-                                <p
-                                    class="text-neutral-600 text-[9px] font-mono uppercase tracking-widest mt-0.5"
-                                >
-                                    Roster moves · Signings · Coming Soon
-                                </p>
-                            </div>
-                            <span
-                                class="text-[9px] font-mono font-bold text-neutral-600 border border-neutral-800 px-2 py-0.5 rounded-full uppercase tracking-widest"
-                                >Soon</span
-                            >
-                        </div>
-                        <p class="text-neutral-500 text-xs leading-relaxed">
-                            Every signing, release, and roster shuffle across
-                            all OWCS regions, tracked in real time.
-                        </p>
-                    </div>
-                </div>
+          <!-- Coming soon placeholder — minimal, intentional -->
+          <div class="bg-neutral-950 p-6 flex-1 flex flex-col justify-between opacity-40">
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-0.5">Transfer Wire</p>
+              <p class="font-mono text-[9px] uppercase tracking-widest text-neutral-800">Coming Season 3</p>
             </div>
+            <div class="mt-4 flex items-center gap-1.5">
+              <div class="h-px flex-1 bg-neutral-900"></div>
+              <span class="font-mono text-[8px] uppercase tracking-widest text-neutral-800">Soon</span>
+            </div>
+          </div>
+
         </div>
+      </div>
+
     </div>
+  </div>
+
 </BaseLayout>
 
-{/* 3. OPTIMIZED ENGINE SCRIPT */}
 <script>
-    function initVideoEngine() {
-        const container = document.getElementById("video-container");
-        const p1 = document.getElementById("player-1") as HTMLVideoElement;
-        const p2 = document.getElementById("player-2") as HTMLVideoElement;
+  function initVideoEngine() {
+    const container = document.getElementById("video-container");
+    const p1 = document.getElementById("player-1") as HTMLVideoElement;
+    const p2 = document.getElementById("player-2") as HTMLVideoElement;
+    if (!container || !p1 || !p2) return;
 
-        if (!container || !p1 || !p2) return;
+    const clips = JSON.parse(container.dataset.clips || "[]");
+    if (clips.length === 0) return;
 
-        // Load clips list
-        const clips = JSON.parse(container.dataset.clips || "[]");
-        if (clips.length === 0) return;
+    let activePlayer = p1;
+    let standbyPlayer = p2;
+    let currentClipIdx = clips.findIndex((c: string) => c === p1.src || p1.src.endsWith(c));
+    if (currentClipIdx === -1) currentClipIdx = 0;
 
-        // Detect which video was pre-rendered on the server
-        // (This is the video src already in the DOM)
-        let activePlayer = p1;
-        let standbyPlayer = p2;
+    setTimeout(() => prepareNextClip(), 3000);
 
-        // Find current index based on the src that Astro rendered
-        let currentClipIdx = clips.findIndex(
-            (c) => c === p1.src || p1.src.endsWith(c),
-        );
-        if (currentClipIdx === -1) currentClipIdx = 0; // Fallback
-
-        // Wait a few seconds before loading the NEXT video to let the page settle
-        setTimeout(() => {
-            prepareNextClip();
-        }, 3000);
-
-        function prepareNextClip() {
-            let nextIdx = currentClipIdx;
-            while (nextIdx === currentClipIdx && clips.length > 1) {
-                nextIdx = Math.floor(Math.random() * clips.length);
-            }
-
-            // Load the standby player
-            standbyPlayer.src = clips[nextIdx];
-            standbyPlayer.load();
-            currentClipIdx = nextIdx;
-        }
-
-        function switchPlayer() {
-            standbyPlayer
-                .play()
-                .then(() => {
-                    // Swap Opacity (Use 0.6 to match your design)
-                    standbyPlayer.style.opacity = "0.6";
-                    activePlayer.style.opacity = "0";
-
-                    // Swap roles
-                    const temp = activePlayer;
-                    activePlayer = standbyPlayer;
-                    standbyPlayer = temp;
-
-                    // Prepare next clip after transition
-                    setTimeout(() => {
-                        standbyPlayer.pause();
-                        prepareNextClip();
-                    }, 1000);
-                })
-                .catch((e) => console.log("Playback failed:", e));
-        }
-
-        p1.onended = () => {
-            if (activePlayer === p1) switchPlayer();
-        };
-        p2.onended = () => {
-            if (activePlayer === p2) switchPlayer();
-        };
+    function prepareNextClip() {
+      let nextIdx = currentClipIdx;
+      while (nextIdx === currentClipIdx && clips.length > 1) {
+        nextIdx = Math.floor(Math.random() * clips.length);
+      }
+      standbyPlayer.src = clips[nextIdx];
+      standbyPlayer.load();
+      currentClipIdx = nextIdx;
     }
 
-    document.addEventListener("astro:page-load", initVideoEngine);
+    function switchPlayer() {
+      standbyPlayer.play().then(() => {
+        standbyPlayer.style.opacity = "0.5";
+        activePlayer.style.opacity = "0";
+        const temp = activePlayer;
+        activePlayer = standbyPlayer;
+        standbyPlayer = temp;
+        setTimeout(() => {
+          standbyPlayer.pause();
+          prepareNextClip();
+        }, 1000);
+      }).catch((e) => console.log("Playback failed:", e));
+    }
+
+    p1.onended = () => { if (activePlayer === p1) switchPlayer(); };
+    p2.onended = () => { if (activePlayer === p2) switchPlayer(); };
+  }
+
+  document.addEventListener("astro:page-load", initVideoEngine);
 </script>
