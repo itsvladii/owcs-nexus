@@ -2,7 +2,6 @@
 import owcs10 from "../content/img/owcs_10.jpg";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import LiveMatchCard from "../components/homeComps/LiveMatchCard.svelte";
-import RecentMatches from "../components/eloComps/RecentMatches.svelte";
 import { Image } from "astro:assets";
 import { supabase } from "../lib/contentScripts/supabase";
 
@@ -47,9 +46,23 @@ const heroClipIDs = [
     "cc_clip","gk_clip","ssg_clip","tf_clip",
 ];
 
-const videoBaseUrl = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_mp4,vc_h264,w_1080,q_auto:eco,br_2500k/v1764453427`;
-const heroClipUrls = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
-const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)];
+// Desktop: 1080p h264, 2.5Mbps cap
+const videoBaseUrl    = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_mp4,vc_h264,w_1080,q_auto:eco,br_2500k/v1764453427`;
+// Mobile: 480p, 800kbps — much lighter on slow connections
+const videoBaseUrlMob = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_mp4,vc_h264,w_480,q_auto:eco,br_800k/v1764453427`;
+// Poster: first frame as a still image — shown instantly while video loads
+const posterBaseUrl   = `https://res.cloudinary.com/dm1bfprgq/video/upload/f_jpg,w_1080,q_auto:eco,so_0/v1764453427`;
+
+const heroClipUrls    = heroClipIDs.map((id) => `${videoBaseUrl}/${id}.mp4`);
+const heroClipUrlsMob = heroClipIDs.map((id) => `${videoBaseUrlMob}/${id}.mp4`);
+const posterUrls      = heroClipIDs.map((id) => `${posterBaseUrl}/${id}.jpg`);
+
+// DON'T pick a random start on the server — Vercel caches this at build time
+// so everyone gets the same video. Let the client pick randomly instead.
+// We use clip 0 as the SSR default just to avoid a blank screen on first paint.
+const ssrStartIdx = 0;
+const startVideo  = heroClipUrls[ssrStartIdx];
+const startPoster = posterUrls[ssrStartIdx];
 ---
 
 <BaseLayout title="Home" fullWidth={true}>
@@ -60,10 +73,18 @@ const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)]
   <div class="relative h-screen w-full overflow-hidden bg-neutral-950">
 
     <!-- Video background -->
-    <div id="video-container" class="absolute inset-0" data-clips={JSON.stringify(heroClipUrls)}>
+    <div
+      id="video-container"
+      class="absolute inset-0"
+      data-clips={JSON.stringify(heroClipUrls)}
+      data-clips-mob={JSON.stringify(heroClipUrlsMob)}
+      data-posters={JSON.stringify(posterUrls)}
+    >
       <video id="player-1"
         class="absolute inset-0 w-full h-full object-cover opacity-50 transition-opacity duration-1000"
-        src={startVideo} autoplay muted playsinline></video>
+        src={startVideo}
+        poster={startPoster}
+        autoplay muted playsinline></video>
       <video id="player-2"
         class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
         muted playsinline preload="none"></video>
@@ -309,38 +330,62 @@ const startVideo = heroClipUrls[Math.floor(Math.random() * heroClipUrls.length)]
     const p2 = document.getElementById("player-2") as HTMLVideoElement;
     if (!container || !p1 || !p2) return;
 
-    const clips = JSON.parse(container.dataset.clips || "[]");
+    // Pick the right resolution based on screen width
+    const isMobile = window.innerWidth < 768;
+    const clips   = JSON.parse(container.dataset[isMobile ? 'clipsMob' : 'clips'] || "[]");
+    const posters  = JSON.parse(container.dataset.posters || "[]");
     if (clips.length === 0) return;
 
-    let activePlayer = p1;
+    let activePlayer  = p1;
     let standbyPlayer = p2;
-    let currentClipIdx = clips.findIndex((c: string) => c === p1.src || p1.src.endsWith(c));
-    if (currentClipIdx === -1) currentClipIdx = 0;
 
-    setTimeout(() => prepareNextClip(), 3000);
+    // Client-side random start — fixes Vercel build-time caching issue
+    // where server-side Math.random() always returns the same value
+    const startIdx = Math.floor(Math.random() * clips.length);
+    if (startIdx !== 0) {
+      // Swap to the random clip immediately before the video has had time to play
+      p1.src    = clips[startIdx];
+      p1.poster = posters[startIdx] ?? '';
+      p1.load();
+      p1.play().catch(() => {});
+    }
+
+    let currentClipIdx = startIdx;
+
+    // Start preloading next clip after current one has had time to buffer
+    setTimeout(() => prepareNextClip(), 4000);
 
     function prepareNextClip() {
       let nextIdx = currentClipIdx;
       while (nextIdx === currentClipIdx && clips.length > 1) {
         nextIdx = Math.floor(Math.random() * clips.length);
       }
-      standbyPlayer.src = clips[nextIdx];
+      standbyPlayer.src    = clips[nextIdx];
+      standbyPlayer.poster = posters[nextIdx] ?? '';
       standbyPlayer.load();
       currentClipIdx = nextIdx;
     }
 
     function switchPlayer() {
-      standbyPlayer.play().then(() => {
-        standbyPlayer.style.opacity = "0.5";
-        activePlayer.style.opacity = "0";
-        const temp = activePlayer;
-        activePlayer = standbyPlayer;
-        standbyPlayer = temp;
-        setTimeout(() => {
-          standbyPlayer.pause();
-          prepareNextClip();
-        }, 1000);
-      }).catch((e) => console.log("Playback failed:", e));
+      standbyPlayer.play()
+        .then(() => {
+          // Crossfade
+          standbyPlayer.style.opacity = "0.5";
+          activePlayer.style.opacity  = "0";
+
+          // Swap roles
+          const temp    = activePlayer;
+          activePlayer  = standbyPlayer;
+          standbyPlayer = temp;
+
+          // Prepare next after transition settles
+          setTimeout(() => {
+            standbyPlayer.pause();
+            standbyPlayer.src = ''; // free memory
+            prepareNextClip();
+          }, 1200);
+        })
+        .catch((e) => console.log("Playback failed:", e));
     }
 
     p1.onended = () => { if (activePlayer === p1) switchPlayer(); };
