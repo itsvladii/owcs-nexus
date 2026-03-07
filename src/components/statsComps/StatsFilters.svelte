@@ -94,19 +94,16 @@
             return { stage: "Majors", region: "Midseason" };
         if (n.includes("champions clash"))
             return { stage: "Majors", region: "Champions Clash" };
-        if (n.includes("pre-season") || n.includes("preseason"))
-            return { stage: "Majors", region: "Pre-Season" };
+
         const stageMatch = n.match(/stage\s*(\d)/);
         const stage = stageMatch ? `Stage ${stageMatch[1]}` : "Other";
         let region = "Other";
         if (n.includes("na")) region = "NA";
         else if (n.includes("emea")) region = "EMEA";
-        else if (n.includes("china") || n.includes("chinese")) region = "China";
-        else if (n.includes("korea") || n.includes("south korea"))
-            region = "Korea";
+        else if (n.includes("china")) region = "China";
+        else if (n.includes("korea")) region = "Korea";
         else if (n.includes("japan")) region = "Japan";
-        else if (n.includes("pacific") || n.includes("asia"))
-            region = "Pacific";
+        else if (n.includes("pacific")) region = "Pacific";
         return { stage, region };
     }
 
