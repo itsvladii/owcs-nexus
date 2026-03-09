@@ -16,6 +16,7 @@
     "@carbon/charts-svelte": "^1.22.18",
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.1.17",
+    "@trigger.dev/sdk": "^4.4.2",
     "@vercel/speed-insights": "^1.2.0",
     "apexcharts": "^5.3.6",
     "astro": "^5.16.3",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
+    "@trigger.dev/build": "^4.4.2",
     "gray-matter": "^4.0.3"
   }
 }
