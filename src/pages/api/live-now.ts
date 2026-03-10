@@ -5,7 +5,7 @@ import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async () => {
   const apiKey = import.meta.env.LIQUIPEDIA_API_KEY;
-  const userAgent = "OWCS-Nexus (barcanvladi@gmail.com)";
+  const userAgent = "OWCS-Nexus";
 
   // --- THE OPTIMIZATION FIX ---
   // 1. &w=100: Cap width at 100px (ticker logos are tiny)

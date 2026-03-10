@@ -1,7 +1,7 @@
-import 'dotenv/config';
-import { calculateRankings } from './calcELO';
-import { fetchPastSeasons } from '../stats/fetchMatches';
-import type { ProcessedMatch, RatedTeam } from './calcELO';
+import "dotenv/config";
+import { calculateRankings } from "./calcELO";
+import { fetchPastSeasons } from "../stats/fetchMatches";
+import type { ProcessedMatch, RatedTeam } from "./calcELO";
 
 // =============================================================================
 // CONFIGURATION
@@ -41,15 +41,15 @@ function isMajorTournament(name: string): boolean {
   // Explicitly exclude qualifier/road-to events first, regardless of other keywords.
   // These can contain words like "world", "midseason", or "clash" in their name
   // but are regional qualifiers, not international major events.
-  if (n.includes('qualifier') || n.includes('last chance')) return false;
-  if (n.includes('road to')) return false;
+  if (n.includes("qualifier") || n.includes("last chance")) return false;
+  if (n.includes("road to")) return false;
 
   // Match known major event keywords only after exclusions pass
-  if (n.includes('champions clash')) return true;
-  if (n.includes('midseason championship')) return true;
-  if (n.includes('world finals')) return true;
-  if (n.includes('ewc') || n.includes('esports world cup')) return true;
-  if (n.includes('major')) return true;
+  if (n.includes("champions clash")) return true;
+  if (n.includes("midseason championship")) return true;
+  if (n.includes("world finals")) return true;
+  if (n.includes("ewc") || n.includes("esports world cup")) return true;
+  if (n.includes("major")) return true;
 
   return false;
 }
@@ -68,7 +68,7 @@ function getCalibrationRating(team: RatedTeam): number {
   if (!team.lastResetDate) return team.rating;
 
   const preResetHistory = team.history.filter(
-    (h) => h.date.split(' ')[0] < team.lastResetDate!
+    (h) => h.date.split(" ")[0] < team.lastResetDate!,
   );
 
   if (preResetHistory.length === 0) return team.rating;
@@ -78,13 +78,13 @@ function getCalibrationRating(team: RatedTeam): number {
 
   for (const candidate of sortedByElo) {
     const gamesAfterPeak = preResetHistory.filter(
-      (h) => h.date >= candidate.date
+      (h) => h.date >= candidate.date,
     ).length;
 
     if (gamesAfterPeak >= MIN_PEAK_GAMES) {
       console.log(
         `   ⚡ Reset: ${team.name} | Pre-reset peak: ${Math.round(candidate.elo)} ` +
-        `(sustained ${gamesAfterPeak} games) vs final: ${Math.round(team.rating)}`
+          `(sustained ${gamesAfterPeak} games) vs final: ${Math.round(team.rating)}`,
       );
       return candidate.elo;
     }
@@ -93,7 +93,7 @@ function getCalibrationRating(team: RatedTeam): number {
   // No sustained peak found — use the single highest pre-reset entry as fallback
   const fallback = sortedByElo[0]?.elo ?? team.rating;
   console.log(
-    `   ⚠️  Reset: ${team.name} | No sustained peak. Using best pre-reset entry: ${Math.round(fallback)}`
+    `   ⚠️  Reset: ${team.name} | No sustained peak. Using best pre-reset entry: ${Math.round(fallback)}`,
   );
   return fallback;
 }
@@ -122,18 +122,18 @@ const INTERNATIONAL_SCALE = 200;
 
 function getInternationalScore(
   entries: { team: RatedTeam; calibrationRating: number }[],
-  processedMatches: ProcessedMatch[]
+  processedMatches: ProcessedMatch[],
 ): number {
   let bestNormalizedScore = -Infinity;
-  let bestTeamName = '';
+  let bestTeamName = "";
   let bestMatchCount = 0;
-  let bestMatchDetail = '';
+  let bestMatchDetail = "";
 
   for (const { team } of entries) {
     const majorMatches = processedMatches.filter(
       (m) =>
         isMajorTournament(m.tournament) &&
-        (m.team_a === team.name || m.team_b === team.name)
+        (m.team_a === team.name || m.team_b === team.name),
     );
 
     if (majorMatches.length === 0) continue;
@@ -145,8 +145,12 @@ function getInternationalScore(
 
       // Actual result: 1 = won, 0 = lost
       const actual = isTeamA
-        ? (m.score_a > m.score_b ? 1 : 0)
-        : (m.score_b > m.score_a ? 1 : 0);
+        ? m.score_a > m.score_b
+          ? 1
+          : 0
+        : m.score_b > m.score_a
+          ? 1
+          : 0;
 
       // Recover pre-match ratings from stored post-match values
       const preRatingTeam = isTeamA
@@ -157,7 +161,8 @@ function getInternationalScore(
         : m.team_a_elo_after - m.elo_change_a;
 
       // Expected win probability going into the match
-      const expectedWinProb = 1 / (1 + Math.pow(10, (preRatingOpp - preRatingTeam) / 400));
+      const expectedWinProb =
+        1 / (1 + Math.pow(10, (preRatingOpp - preRatingTeam) / 400));
 
       // (actual - expected): positive = overperformed, negative = underperformed
       totalPerformance += actual - expectedWinProb;
@@ -171,21 +176,24 @@ function getInternationalScore(
       bestNormalizedScore = normalizedScore;
       bestTeamName = team.name;
       bestMatchCount = majorMatches.length;
-      bestMatchDetail = `${totalPerformance > 0 ? '+' : ''}${totalPerformance.toFixed(2)} over ${majorMatches.length} matches`;
+      bestMatchDetail = `${totalPerformance > 0 ? "+" : ""}${totalPerformance.toFixed(2)} over ${majorMatches.length} matches`;
     }
   }
 
   if (bestNormalizedScore === -Infinity) {
-    console.log(`   ℹ️  No major tournament data found. International score defaults to baseline.`);
+    console.log(
+      `   ℹ️  No major tournament data found. International score defaults to baseline.`,
+    );
     return BASE_BASELINE;
   }
 
-  const internationalScore = BASE_BASELINE + bestNormalizedScore * INTERNATIONAL_SCALE;
+  const internationalScore =
+    BASE_BASELINE + bestNormalizedScore * INTERNATIONAL_SCALE;
 
   console.log(
     `   🌍 International score: ${Math.round(internationalScore)} ` +
-    `(best: ${bestTeamName} | normalized: ${bestNormalizedScore > 0 ? '+' : ''}${bestNormalizedScore.toFixed(3)} | ` +
-    `raw perf: ${bestMatchDetail})`
+      `(best: ${bestTeamName} | normalized: ${bestNormalizedScore > 0 ? "+" : ""}${bestNormalizedScore.toFixed(3)} | ` +
+      `raw perf: ${bestMatchDetail})`,
   );
 
   return internationalScore;
@@ -205,7 +213,7 @@ function getInternationalScore(
 // A tight cluster at 1210 is uniform mediocrity, not genuine depth.
 // =============================================================================
 function getDepthScore(
-  entries: { team: RatedTeam; calibrationRating: number }[]
+  entries: { team: RatedTeam; calibrationRating: number }[],
 ): number {
   if (entries.length === 0) return BASE_BASELINE;
 
@@ -219,24 +227,24 @@ function getDepthScore(
 
   // Only apply a depth bonus/penalty if the average is above the threshold.
   // Below threshold: return average as-is (no bonus, no extra penalty).
-  if (avg <=  BASE_BASELINE) {
+  if (avg <= BASE_BASELINE) {
     console.log(
       `   🏠 Depth score: ${Math.round(avg)} (avg below threshold — no depth bonus applied) | ` +
-      `stdDev: ${Math.round(stdDev)}`
+        `stdDev: ${Math.round(stdDev)}`,
     );
     return avg;
   }
 
   const variancePenalty = Math.min(
     stdDev * DEPTH_VARIANCE_PENALTY_COEFF,
-    DEPTH_VARIANCE_PENALTY_CAP
+    DEPTH_VARIANCE_PENALTY_CAP,
   );
   const depthScore = avg - variancePenalty;
 
   console.log(
     `   🏠 Depth score: ${Math.round(depthScore)} | avg: ${Math.round(avg)} | ` +
-    `stdDev: ${Math.round(stdDev)} | variance penalty: -${Math.round(variancePenalty)} ` +
-    `(${entries.length} teams)`
+      `stdDev: ${Math.round(stdDev)} | variance penalty: -${Math.round(variancePenalty)} ` +
+      `(${entries.length} teams)`,
   );
 
   return depthScore;
@@ -246,47 +254,59 @@ function getDepthScore(
 // MAIN
 // =============================================================================
 async function main() {
-  console.log('🚀 STARTING SEASON CALIBRATION SCRIPT');
-  console.log('   Signals: International Ceiling (60%) + Domestic Depth (40%)');
-  console.log('====================================================================');
+  console.log("🚀 STARTING SEASON CALIBRATION SCRIPT");
+  console.log("   Signals: International Ceiling (60%) + Domestic Depth (40%)");
+  console.log(
+    "====================================================================",
+  );
 
   // 1. Fetch past season match data
-  console.log('\n🔄 Fetching Past Season Match Data...');
-  const matches = await fetchPastSeasons(API_KEY, 'OWCS-Nexus (barcanvladi@gmail.com)');
+  console.log("\n🔄 Fetching Past Season Match Data...");
+  const matches = await fetchPastSeasons(API_KEY, "OWCS-Nexus");
   console.log(`✅ Loaded ${matches.length} matches.`);
 
   // 2. Run the ELO simulation in clean-slate calibration mode.
   //    isCalibration: true forces all teams to start at 1200 regardless of region,
   //    eliminating circular bias from the previous season's STARTING_ELO values.
-  console.log('\n🧮 Running Ground Zero ELO Simulation (all teams start at 1200)...');
+  console.log(
+    "\n🧮 Running Ground Zero ELO Simulation (all teams start at 1200)...",
+  );
   const { rankings, processedMatches } = calculateRankings(matches, {
     isStartSeason: true,
     isCalibration: true,
   });
 
-  console.log('\n📋 TOURNAMENTS FETCHED');
-  console.log('--------------------------------------------------------------------');
-  const fetchedTournaments = [...new Set(matches.map((m: any) => m.tournament))].sort() as string[];
+  console.log("\n📋 TOURNAMENTS FETCHED");
+  console.log(
+    "--------------------------------------------------------------------",
+  );
+  const fetchedTournaments = [
+    ...new Set(matches.map((m: any) => m.tournament)),
+  ].sort() as string[];
   if (fetchedTournaments.length === 0) {
-    console.log('  ⚠️  No tournaments found. Check fetchPastSeasons().');
+    console.log("  ⚠️  No tournaments found. Check fetchPastSeasons().");
   } else {
     fetchedTournaments.forEach((t) => {
-      const tag = isMajorTournament(t) ? '🏆 [MAJOR]' : '📌';
+      const tag = isMajorTournament(t) ? "🏆 [MAJOR]" : "📌";
       console.log(`  ${tag} ${t}`);
     });
   }
-  console.log(`  Total: ${fetchedTournaments.length} tournament(s) across ${matches.length} matches`);
+  console.log(
+    `  Total: ${fetchedTournaments.length} tournament(s) across ${matches.length} matches`,
+  );
 
   // 4. Group teams by region, computing calibration ratings (peak-aware)
-  console.log('\n🌍 GROUPING TEAMS BY REGION');
-  console.log('--------------------------------------------------------------------');
+  console.log("\n🌍 GROUPING TEAMS BY REGION");
+  console.log(
+    "--------------------------------------------------------------------",
+  );
 
   const regionStats: Record<
     string,
     { team: RatedTeam; calibrationRating: number }[]
   > = {
     Korea: [],
-    'North America': [],
+    "North America": [],
     EMEA: [],
     China: [],
     Japan: [],
@@ -303,7 +323,7 @@ async function main() {
 
     console.log(
       `  ${team.name} | ${team.region} | Games: ${totalGames} | ` +
-      `Final: ${Math.round(team.rating)} | Calibration: ${Math.round(calibrationRating)}`
+        `Final: ${Math.round(team.rating)} | Calibration: ${Math.round(calibrationRating)}`,
     );
 
     if (regionStats[team.region] !== undefined) {
@@ -314,17 +334,21 @@ async function main() {
   });
 
   // 5. Calculate new baselines combining both signals
-  console.log('\n📊 CALCULATING REGIONAL BASELINES');
-  console.log('====================================================================');
+  console.log("\n📊 CALCULATING REGIONAL BASELINES");
+  console.log(
+    "====================================================================",
+  );
 
   const nextSeasonConfig: Record<string, number> = {};
 
   for (const region of Object.keys(regionStats)) {
     const entries = regionStats[region].sort(
-      (a, b) => b.calibrationRating - a.calibrationRating
+      (a, b) => b.calibrationRating - a.calibrationRating,
     );
 
-    console.log(`\n📍 ${region.toUpperCase()} (${entries.length} qualified teams)`);
+    console.log(
+      `\n📍 ${region.toUpperCase()} (${entries.length} qualified teams)`,
+    );
 
     if (entries.length === 0) {
       console.log(`   ⚠️  No qualified teams. Defaulting to ${BASE_BASELINE}.`);
@@ -336,7 +360,7 @@ async function main() {
     entries.slice(0, 5).forEach(({ team, calibrationRating }, i) => {
       console.log(
         `   ${i + 1}. ${team.name}: ${Math.round(calibrationRating)}` +
-        `${team.lastResetDate ? ' (peak-adjusted)' : ''}`
+          `${team.lastResetDate ? " (peak-adjusted)" : ""}`,
       );
     });
     if (entries.length > 5) {
@@ -344,15 +368,17 @@ async function main() {
     }
 
     // --- SIGNAL 1: International Ceiling ---
-    const internationalScore = getInternationalScore(entries, processedMatches ?? []);
+    const internationalScore = getInternationalScore(
+      entries,
+      processedMatches ?? [],
+    );
 
     // --- SIGNAL 2: Domestic Depth ---
     const depthScore = getDepthScore(entries);
 
     // --- COMBINE SIGNALS ---
     const combinedScore =
-      internationalScore * INTERNATIONAL_WEIGHT +
-      depthScore * DEPTH_WEIGHT;
+      internationalScore * INTERNATIONAL_WEIGHT + depthScore * DEPTH_WEIGHT;
 
     // --- SOFT RESET: Compress toward baseline ---
     // New Baseline = 1200 + (deviation from baseline * retention factor)
@@ -361,8 +387,8 @@ async function main() {
 
     console.log(
       `\n   📐 Combined: ${Math.round(combinedScore)} ` +
-      `(intl ${Math.round(internationalScore)} × ${INTERNATIONAL_WEIGHT} + ` +
-      `depth ${Math.round(depthScore)} × ${DEPTH_WEIGHT})`
+        `(intl ${Math.round(internationalScore)} × ${INTERNATIONAL_WEIGHT} + ` +
+        `depth ${Math.round(depthScore)} × ${DEPTH_WEIGHT})`,
     );
     console.log(`   👉 New Baseline: ${newBaseline}`);
 
@@ -370,15 +396,19 @@ async function main() {
   }
 
   // 6. Output config block ready to paste into calcELO.ts
-  console.log('\n\n✅ CALIBRATION COMPLETE');
-  console.log('====================================================================');
-  console.log('Paste this into calcELO.ts:\n');
+  console.log("\n\n✅ CALIBRATION COMPLETE");
   console.log(
-    'const STARTING_ELO: Record<string, number> = ' +
-    JSON.stringify({ ...nextSeasonConfig, default: BASE_BASELINE }, null, 2) +
-    ';'
+    "====================================================================",
   );
-  console.log('====================================================================');
+  console.log("Paste this into calcELO.ts:\n");
+  console.log(
+    "const STARTING_ELO: Record<string, number> = " +
+      JSON.stringify({ ...nextSeasonConfig, default: BASE_BASELINE }, null, 2) +
+      ";",
+  );
+  console.log(
+    "====================================================================",
+  );
 }
 
 main().catch((e) => console.error(e));
