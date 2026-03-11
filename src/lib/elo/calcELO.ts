@@ -143,30 +143,23 @@ function getThreePhaseKFactor(
   // Majors start at 50. Regionals start at 20.
   let k = isMajor ? 60 : 20;
 
-  // 2. REGIONAL COMPRESSION
-  // If it's a standard regional game, we dampen it slightly (20 -> 15).
-  // We skip this if it's a Major or the team is in calibration.
-  if (!isMajor && gamesInCurrentRoster >= 6 && isRegional) {
-    k = 15;
-  }
-
-  // 3. CALIBRATION (The Rocket Fuel)
-  // If new team (<6 games), ignore the above and give them high volatility.
+  // 2. CALIBRATION
+  // If new team make the k-factor start high and then linearly drop to the normal level after 6 games
   if (gamesInCurrentRoster < 6) {
     k = 50 - (50 - 20) * (gamesInCurrentRoster / 6); // Linear drop 50 -> 20
   }
 
-  // 4. THE BULLY PENALTY (Anti-Farming)
+  // 3. THE BULLY PENALTY
   // If the overwhelming favourite wins, slash the reward.
   if (winnerElo > loserElo + 250) {
     k *= 0.5;
   }
 
-  // 5. THE "STATEMENT WIN"
-  // We apply a multiplier based on the Margin of Victory of the winner, rewarding dominant victories
+  // 4. MARGIN OF VICTORY
+  // We apply a multiplier based on the Margin of Victory of the winner.
   k *= getMovMultiplier(scoreA, scoreB);
 
-  // 6. SAFETY FLOOR
+  // 5. SAFETY FLOOR
   // Ensure a match is always worth something
   return Math.max(k, 5);
 }
