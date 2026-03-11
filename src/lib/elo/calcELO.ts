@@ -150,8 +150,8 @@ function getThreePhaseKFactor(
   }
 
   // 3. THE BULLY PENALTY
-  // If the overwhelming favourite wins, slash the reward.
-  if (winnerElo > loserElo + 250) {
+  // If the overwhelming favourite wins in a regional match, slash the reward.
+  if (winnerElo > loserElo + 250 && !isMajor) {
     k *= 0.5;
   }
 
