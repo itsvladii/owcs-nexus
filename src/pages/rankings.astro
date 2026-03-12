@@ -1,12 +1,12 @@
 ---
 export const prerender = false;
-import imgWF from "../content/img/owcs_wf.jpg";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RankingsTable from "../components/eloComps/RankTable.svelte";
 import LateralTab from "../components/eloComps/LateralTab.svelte";
 import RankingOOBE from "../components/eloComps/OOBEComp.svelte";
 import RecentMatches from "../components/eloComps/RecentMatches.svelte";
 import { supabase } from "../lib/contentScripts/supabase";
+import ShareButton from "../components/eloComps/ShareButton.svelte";
 import { Image } from "astro:assets";
 
 //1. fetch data from Supabase
@@ -190,7 +190,9 @@ const regionalAverages = regions
                     </span>
                 </div>
                 <span class="hidden md:inline text-neutral-800">•</span>
-                <span class="opacity-80">Last Updated: {lastUpdated} </span>
+                <span class="opacity-80">Last Updated: {lastUpdated}</span>
+                <span class="hidden md:inline text-neutral-800">•</span>
+                <ShareButton client:only="svelte" />
             </div>
         </div>
     </div>
