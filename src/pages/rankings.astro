@@ -6,7 +6,6 @@ import LateralTab from "../components/eloComps/LateralTab.svelte";
 import RankingOOBE from "../components/eloComps/OOBEComp.svelte";
 import RecentMatches from "../components/eloComps/RecentMatches.svelte";
 import { supabase } from "../lib/contentScripts/supabase";
-import ShareButton from "../components/eloComps/ShareButton.svelte";
 import { Image } from "astro:assets";
 
 //1. fetch data from Supabase
@@ -138,9 +137,8 @@ const regionalAverages = regions
 ---
 
 <BaseLayout title="Team Global Standings | OWCS Nexus">
-    <!--HEADER SECTION-->
-    <div
-        class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[450px] flex items-end"
+    <header
+        class="relative w-full h-[60vh] overflow-hidden bg-[#080808] flex items-end pb-20"
     >
         <div class="absolute inset-0 z-0">
             <Image
@@ -149,218 +147,108 @@ const regionalAverages = regions
                 width={1920}
                 height={1080}
                 format="webp"
-                quality="mid"
-                loading="eager"
-                class="w-full h-full object-cover opacity-50 grayscale"
+                quality="high"
+                class="w-full h-full object-cover opacity-20 grayscale parallax-video"
             />
             <div
-                class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent"
-            >
-            </div>
-            <div
-                class="absolute inset-0 bg-gradient-to-r from-neutral-950/60 via-transparent to-neutral-950/60"
+                class="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent"
             >
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 w-full relative z-10">
-            <div class="mb-4">
-                <p
-                    class="text-red-500 font-mono text-xs uppercase tracking-[0.3em] mb-3 drop-shadow-md"
+        <div class="max-w-[1600px] mx-auto px-6 w-full relative z-10">
+            <!-- Eyebrow: monospace metadata, no heavy badge -->
+            <div class="flex items-center gap-4 mb-5">
+                <span
+                    class="w-1.5 h-1.5 rounded-full bg-[#085FFF] shadow-[0_0_8px_#085FFF]"
+                ></span>
+                <span
+                    class="font-mono text-[10px] text-white/40 uppercase tracking-[0.4em]"
                 >
-                    (Un)Official OWCS ELO Ratings
-                </p>
-                <h1
-                    class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.8] mb-8 drop-shadow-2xl"
+                    OWCS Season 3
+                </span>
+                <span
+                    class="font-mono text-[10px] text-white/20 uppercase tracking-[0.3em]"
+                    >·</span
                 >
-                    Team Global <br /> Standings
-                </h1>
+                <span
+                    class="font-mono text-[10px] text-white/25 uppercase tracking-[0.3em]"
+                >
+                    Last updated: {lastUpdated}
+                </span>
             </div>
 
-            <div
-                class="flex flex-col md:flex-row items-center gap-6 text-neutral-400 font-mono text-xs uppercase tracking-widest"
+            <!-- Title: white, no blue fill on "STANDINGS" — use weight/size contrast instead -->
+            <h1
+                class="text-[clamp(4rem,12vw,10rem)] font-title uppercase italic text-white leading-[0.75] tracking-tighter"
             >
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"
-                    ></span>
-                    <span
-                        class="px-3 py-1 border border-neutral-800 rounded-full bg-neutral-900/80 backdrop-blur-sm text-white"
-                    >
-                        OWCS Season 3
-                    </span>
-                </div>
-                <span class="hidden md:inline text-neutral-800">•</span>
-                <span class="opacity-80">Last Updated: {lastUpdated}</span>
-                <span class="hidden md:inline text-neutral-800">•</span>
-                <ShareButton client:only="svelte" />
-            </div>
+                Team Global <br />
+                <span class="text-[#085FFF]">Standings</span>
+            </h1>
         </div>
-    </div>
+    </header>
 
-    <!-- OOBE COMPONENT (for new users)-->
-    <RankingOOBE client:only="svelte" />
+    <RankingOOBE client:load />
 
-    <!-- FIRST ROW CARDS -->
-    <div class="max-w-7xl mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
-            {/* CARD 1: BIGGEST MOVER OF THE DAY */}
-            {
-                stats.biggestMover &&
-                    (() => {
-                        const { logo } = getTeamProps(stats.biggestMover);
-                        return (
-                            <div class="bg-neutral-950/80 border-t-2 border-green-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-                                <p class="text-green-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
+    <RecentMatches
+        matches={processedMatches ?? []}
+        teamInfo={teamInfoMap}
+        client:load
+    />
+
+    <main class="max-w-[1600px] mx-auto px-6 py-20 bg-[#080808]">
+        <!-- Stat highlight cards: Biggest Mover + Longest Reign -->
+        {
+            (stats.biggestMover || stats.longestReign) && (
+                <div class="flex flex-wrap gap-4 mb-12">
+                    {stats.biggestMover && (
+                        <div class="flex items-center gap-4 border border-white/5 bg-white/[0.02] px-5 py-4 min-w-[220px]">
+                            <div class="w-[2px] self-stretch bg-[#085FFF]" />
+                            <div class="flex flex-col gap-1">
+                                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-[#085FFF]">
                                     Biggest Mover
-                                </p>
-                                <div class="flex items-center gap-5">
-                                    <div class="relative shrink-0">
-                                        <div class="absolute inset-0 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition-all" />
-                                        <img
-                                            src={logo}
-                                            class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all"
-                                        />
-                                    </div>
-                                    <div class="flex flex-col min-w-0">
-                                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">
-                                            {stats.biggestMover.name}
-                                        </span>
-                                        <div class="flex items-baseline gap-2">
-                                            <span class="text-3xl font-mono font-black text-green-500">
-                                                +
-                                                {Math.round(
-                                                    stats.biggestMover.diff,
-                                                )}
-                                            </span>
-                                            <span class="text-[9px] font-mono text-neutral-500 uppercase">
-                                                Pts
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()
-            }
-
-            {/* CARD 2: LONGEST REIGN */}
-            {
-                stats.longestReign &&
-                    (() => {
-                        const { logo } = getTeamProps(stats.longestReign);
-                        return (
-                            <div class="bg-neutral-950/80 border-t-2 border-purple-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-                                <p class="text-purple-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-                                    Longest Reign
-                                </p>
-                                <div class="flex items-center gap-5">
-                                    <div class="relative shrink-0">
-                                        <div class="absolute inset-0 border-2 border-dashed border-purple-500/20 rounded-full animate-[spin_10s_linear_infinite]" />
-                                        <img
-                                            src={logo}
-                                            class="w-16 h-16 object-contain relative z-10 grayscale group-hover:grayscale-0 transition-all"
-                                        />
-                                    </div>
-                                    <div class="flex flex-col min-w-0">
-                                        <span class="text-2xl font-title text-white uppercase leading-none mb-1 truncate">
-                                            {stats.longestReign.name}
-                                        </span>
-                                        <div class="flex items-baseline gap-2">
-                                            <span class="text-3xl font-mono font-black text-purple-500">
-                                                {stats.longestReign.days}
-                                            </span>
-                                            <span class="text-[9px] font-mono text-neutral-500 uppercase">
-                                                Days
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()
-            }
-
-            {/* CARD 3 & 4: BIGGEST UPSETS */}
-            {
-                stats.biggestUpsets.slice(0, 2).map((upset) => (
-                    <div class="bg-neutral-950/80 border-t-2 border-red-500/50 p-6 rounded-xl relative overflow-hidden group transition-all hover:bg-neutral-900 shadow-2xl">
-                        <p class="text-red-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" />
-                            Biggest Upsets
-                        </p>
-                        <div class="flex flex-col gap-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <img
-                                        src={upset.winnerLogo}
-                                        class="w-8 h-8 object-contain"
-                                    />
-                                    <span class="text-lg font-title text-white uppercase">
-                                        {upset.winner}
-                                    </span>
-                                </div>
-                                <span class="text-[10px] font-mono text-neutral-600 font-bold italic">
-                                    DEF.
                                 </span>
-                                <img
-                                    src={upset.loserLogo}
-                                    class="w-8 h-8 object-contain opacity-40 grayscale"
-                                />
-                            </div>
-                            <div class="pt-3 border-t border-white/5 flex justify-between items-end">
-                                <span class="text-[9px] font-mono text-neutral-500 uppercase max-w-[120px] truncate">
-                                    {upset.tournament}
+                                <span class="font-title uppercase italic text-white text-lg leading-none tracking-tight">
+                                    {stats.biggestMover.name}
                                 </span>
-                                <div class="text-right">
-                                    <span class="block text-[8px] font-mono text-neutral-600 uppercase">
-                                        Win Prob.
-                                    </span>
-                                    <span class="text-xl font-mono font-black text-red-500">
-                                        {(upset.prob * 100).toFixed(1)}%
-                                    </span>
-                                </div>
+                                <span class="font-mono text-xs text-[#085FFF]">
+                                    + {stats.biggestMover.gain} pts
+                                </span>
                             </div>
                         </div>
-                    </div>
-                ))
-            }
-        </div>
-
-        {/*RECENT MATCHES COMPONENT*/}
-        <RecentMatches
-            matches={processedMatches ?? []}
-            teamInfo={teamInfoMap}
-            client:load
-        />
-
-        {/* MAIN BODY*/}
-        <div class="flex flex-col lg:flex-row gap-8 relative items-start">
-            {/* LEFT: THE TABLE COMPONENT */}
-            <div class="flex-1 min-w-0 w-full">
-                <div
-                    class="bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm"
-                >
-                    <RankingsTable
-                        teams={tableData}
-                        matches={processedMatches}
-                        client:only="svelte"
-                    />
+                    )}
+                    {stats.longestReign && (
+                        <div class="flex items-center gap-4 border border-white/5 bg-white/[0.02] px-5 py-4 min-w-[220px]">
+                            <div class="w-[2px] self-stretch bg-[#FF7FDE]" />
+                            <div class="flex flex-col gap-1">
+                                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-[#FF7FDE]">
+                                    Longest Reign
+                                </span>
+                                <span class="font-title uppercase italic text-white text-lg leading-none tracking-tight">
+                                    {stats.longestReign.name}
+                                </span>
+                                <span class="font-mono text-xs text-[#FF7FDE]">
+                                    {stats.longestReign.days} days at #1
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
+            )
+        }
 
-                <p
-                    class="text-center text-neutral-600 text-sm mt-8 mb-12 lg:mb-0"
-                >
-                    * Click on any team to see detailed stats and match history.
-                </p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="lg:col-span-8 space-y-2">
+                <RankingsTable
+                    teams={tableData}
+                    matches={processedMatches}
+                    client:only="svelte"
+                />
             </div>
 
-            {/* RIGHT: THE SIDEBAR COMPONENT */}
-            {/* This will stick to the screen on Desktop */}
-            <div class="w-full lg:w-80 shrink-0">
+            <aside class="lg:col-span-4 space-y-8">
                 <LateralTab regionalAverages={regionalAverages} client:load />
-            </div>
+            </aside>
         </div>
-    </div>
+    </main>
 </BaseLayout>

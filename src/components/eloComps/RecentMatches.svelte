@@ -52,14 +52,11 @@
             .trim();
     }
 
-    // Shorten team names for tight mobile displays
     function shortenTeam(name: string): string {
         if (!name) return "";
-        // If name is long, try to use acronym or first word
         if (name.length <= 10) return name;
         const words = name.split(" ");
         if (words.length >= 2) {
-            // "Anyone's Legend" → "AL", "Lunex Gaming" → "Lunex"
             return words.length >= 3
                 ? words
                       .map((w) => w[0])
@@ -85,165 +82,172 @@
 
 {#if recent.length > 0}
     <div
-        class="w-full border-t border-b border-neutral-800 bg-neutral-950/60 backdrop-blur-sm mb-12"
-        style="height:56px; overflow:hidden;"
+        class="w-full bg-[#0d0d0d] border-b border-white/5"
+        style="height:64px; overflow:hidden;"
     >
-        <div class="flex items-stretch h-full">
-            <!-- Left label -->
-            <div
-                class="flex items-center gap-2 px-3 border-r border-neutral-800 shrink-0"
-            >
-                <span
-                    class="w-1.5 h-1.5 rounded-full bg-neutral-500 animate-pulse"
-                ></span>
-                <span
-                    class="text-[10px] font-mono text-neutral-400 uppercase tracking-[0.3em] whitespace-nowrap hidden sm:inline"
-                    >Recent Results</span
-                >
-                <span
-                    class="text-[10px] font-mono text-neutral-400 uppercase tracking-[0.2em] whitespace-nowrap sm:hidden"
-                    >Results</span
-                >
-            </div>
-
-            <!-- Sliding window -->
-            <div class="flex-1 relative overflow-hidden min-w-0">
+        <!-- Max-width wrapper — tighter padding on mobile -->
+        <div class="max-w-[1600px] mx-auto px-2 sm:px-6 h-full">
+            <div class="flex items-stretch h-full">
+                <!-- Left label — dot always visible, text hidden on xs -->
                 <div
-                    class="flex flex-col transition-transform"
-                    style="
-          height: 112px;
-          transform: translateY({animating ? '-50%' : '0%'});
-          transition-duration: {animating ? '400ms' : '0ms'};
-          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        "
+                    class="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-4 border-r border-white/5 shrink-0"
                 >
-                    {#each [current, next] as match}
-                        {@const teamA = getTeam(match?.team_a ?? "")}
-                        {@const teamB = getTeam(match?.team_b ?? "")}
-                        {@const aWon =
-                            (match?.score_a ?? 0) > (match?.score_b ?? 0)}
+                    <span
+                        class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shadow-[0_0_6px_#085FFF] shrink-0"
+                    ></span>
+                    <span
+                        class="text-[10px] font-mono text-white/30 uppercase tracking-[0.35em] whitespace-nowrap hidden sm:inline"
+                    >
+                        Recent Results
+                    </span>
+                </div>
 
-                        <div
-                            class="flex items-center gap-2 sm:gap-4 px-3 sm:px-5 shrink-0 min-w-0"
-                            style="height:56px;"
-                        >
-                            <!-- Tournament — desktop only -->
-                            <span
-                                class="text-[10px] font-mono text-neutral-500 uppercase tracking-wider whitespace-nowrap hidden md:inline shrink-0"
-                            >
-                                {shortenTournament(match?.tournament ?? "")}
-                            </span>
-                            <div
-                                class="w-px h-3 bg-neutral-800 hidden md:inline-block shrink-0"
-                            ></div>
+                <!-- Sliding window -->
+                <div class="flex-1 relative overflow-hidden min-w-0">
+                    <div
+                        class="flex flex-col transition-transform"
+                        style="
+                        height: 128px;
+                        transform: translateY({animating ? '-50%' : '0%'});
+                        transition-duration: {animating ? '400ms' : '0ms'};
+                        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                    "
+                    >
+                        {#each [current, next] as match}
+                            {@const teamA = getTeam(match?.team_a ?? "")}
+                            {@const teamB = getTeam(match?.team_b ?? "")}
+                            {@const aWon =
+                                (match?.score_a ?? 0) > (match?.score_b ?? 0)}
+                            {@const winner_elo = aWon
+                                ? (match?.elo_change_a ?? 0)
+                                : (match?.elo_change_b ?? 0)}
 
-                            <!-- Team A -->
                             <div
-                                class="flex items-center gap-1.5 min-w-0 shrink-0"
+                                class="flex items-center justify-center gap-2 sm:gap-5 md:gap-6 shrink-0 min-w-0 px-1"
+                                style="height:64px;"
                             >
-                                {#if teamA.logo}
-                                    <img
-                                        src={teamA.logo}
-                                        alt={match?.team_a}
-                                        class="h-7 w-7 sm:h-8 sm:w-8 object-contain shrink-0 {aWon
-                                            ? ''
-                                            : 'opacity-25 grayscale'}"
-                                    />
-                                {/if}
-                                <!-- Full name on sm+, short on mobile -->
+                                <!-- Tournament label — md+ only -->
                                 <span
-                                    class="font-title text-sm uppercase tracking-wide whitespace-nowrap {aWon
-                                        ? 'text-white'
-                                        : 'text-neutral-600'} hidden sm:inline"
+                                    class="text-[10px] font-mono text-white/20 uppercase tracking-wider whitespace-nowrap hidden md:inline shrink-0"
                                 >
-                                    {match?.team_a}
+                                    {shortenTournament(match?.tournament ?? "")}
                                 </span>
-                                <span
-                                    class="font-title text-xs uppercase tracking-wide whitespace-nowrap {aWon
-                                        ? 'text-white'
-                                        : 'text-neutral-600'} sm:hidden"
+                                <div
+                                    class="w-px h-3 bg-white/5 hidden md:block shrink-0"
+                                ></div>
+
+                                <!-- Team A -->
+                                <div
+                                    class="flex items-center gap-1.5 sm:gap-2 shrink-0"
                                 >
-                                    {shortenTeam(match?.team_a ?? "")}
+                                    {#if teamA.logo}
+                                        <img
+                                            src={teamA.logo}
+                                            alt={match?.team_a}
+                                            class="h-6 w-6 sm:h-8 sm:w-8 object-contain shrink-0 transition-opacity {aWon
+                                                ? 'opacity-100'
+                                                : 'opacity-20 grayscale'}"
+                                        />
+                                    {/if}
+                                    <!-- Full name: sm+ | Abbreviated: xs only -->
+                                    <span
+                                        class="font-title text-[13px] sm:text-base uppercase tracking-wide whitespace-nowrap {aWon
+                                            ? 'text-white'
+                                            : 'text-white/25'} hidden sm:inline"
+                                    >
+                                        {match?.team_a}
+                                    </span>
+                                    <span
+                                        class="font-title text-[11px] uppercase tracking-wide whitespace-nowrap {aWon
+                                            ? 'text-white'
+                                            : 'text-white/25'} sm:hidden"
+                                    >
+                                        {shortenTeam(match?.team_a ?? "")}
+                                    </span>
+                                </div>
+
+                                <!-- Score — compact on mobile -->
+                                <div
+                                    class="flex items-center gap-1.5 sm:gap-2 font-mono font-black tabular-nums shrink-0
+                                        text-sm sm:text-base
+                                        px-2.5 sm:px-4 py-1
+                                        bg-white/[0.04] border border-white/[0.06]"
+                                >
+                                    <span
+                                        class={aWon
+                                            ? "text-white"
+                                            : "text-white/25"}
+                                        >{match?.score_a}</span
+                                    >
+                                    <span class="text-white/15">–</span>
+                                    <span
+                                        class={!aWon
+                                            ? "text-white"
+                                            : "text-white/25"}
+                                        >{match?.score_b}</span
+                                    >
+                                </div>
+
+                                <!-- Team B -->
+                                <div
+                                    class="flex items-center gap-1.5 sm:gap-2 shrink-0"
+                                >
+                                    {#if teamB.logo}
+                                        <img
+                                            src={teamB.logo}
+                                            alt={match?.team_b}
+                                            class="h-6 w-6 sm:h-8 sm:w-8 object-contain shrink-0 transition-opacity {!aWon
+                                                ? 'opacity-100'
+                                                : 'opacity-20 grayscale'}"
+                                        />
+                                    {/if}
+                                    <span
+                                        class="font-title text-[13px] sm:text-base uppercase tracking-wide whitespace-nowrap {!aWon
+                                            ? 'text-white'
+                                            : 'text-white/25'} hidden sm:inline"
+                                    >
+                                        {match?.team_b}
+                                    </span>
+                                    <span
+                                        class="font-title text-[11px] uppercase tracking-wide whitespace-nowrap {!aWon
+                                            ? 'text-white'
+                                            : 'text-white/25'} sm:hidden"
+                                    >
+                                        {shortenTeam(match?.team_b ?? "")}
+                                    </span>
+                                </div>
+
+                                <!-- ELO change — shorter label on mobile -->
+                                <span
+                                    class="font-mono font-bold text-[#085FFF] whitespace-nowrap shrink-0 text-[11px] sm:text-xs"
+                                >
+                                    <span class="hidden sm:inline"
+                                        >{eloLabel(winner_elo)} pts</span
+                                    >
+                                    <span class="sm:hidden"
+                                        >{eloLabel(winner_elo)}</span
+                                    >
                                 </span>
                             </div>
+                        {/each}
+                    </div>
+                </div>
 
-                            <!-- Score -->
-                            <div
-                                class="flex items-center gap-1.5 font-mono font-black text-sm sm:text-base tabular-nums shrink-0 px-2.5 sm:px-3 py-1 bg-neutral-900 border border-neutral-800 rounded"
-                            >
-                                <span
-                                    class={aWon
-                                        ? "text-white"
-                                        : "text-neutral-500"}
-                                    >{match?.score_a}</span
-                                >
-                                <span class="text-neutral-700">–</span>
-                                <span
-                                    class={!aWon
-                                        ? "text-white"
-                                        : "text-neutral-500"}
-                                    >{match?.score_b}</span
-                                >
-                            </div>
-
-                            <!-- Team B -->
-                            <div
-                                class="flex items-center gap-1.5 min-w-0 shrink-0"
-                            >
-                                {#if teamB.logo}
-                                    <img
-                                        src={teamB.logo}
-                                        alt={match?.team_b}
-                                        class="h-7 w-7 sm:h-8 sm:w-8 object-contain shrink-0 {!aWon
-                                            ? ''
-                                            : 'opacity-25 grayscale'}"
-                                    />
-                                {/if}
-                                <span
-                                    class="font-title text-sm uppercase tracking-wide whitespace-nowrap {!aWon
-                                        ? 'text-white'
-                                        : 'text-neutral-600'} hidden sm:inline"
-                                >
-                                    {match?.team_b}
-                                </span>
-                                <span
-                                    class="font-title text-xs uppercase tracking-wide whitespace-nowrap {!aWon
-                                        ? 'text-white'
-                                        : 'text-neutral-600'} sm:hidden"
-                                >
-                                    {shortenTeam(match?.team_b ?? "")}
-                                </span>
-                            </div>
-
-                            <!-- ELO change -->
-                            <span
-                                class="text-[10px] sm:text-xs font-mono font-bold text-emerald-400 whitespace-nowrap ml-auto shrink-0"
-                            >
-                                {eloLabel(
-                                    aWon
-                                        ? (match?.elo_change_a ?? 0)
-                                        : (match?.elo_change_b ?? 0),
-                                )} pts
-                            </span>
-                        </div>
+                <!-- Progress dots — hidden on mobile, shown sm+ -->
+                <div
+                    class="hidden sm:flex items-center gap-1 px-4 border-l border-white/5 shrink-0"
+                >
+                    {#each recent as _, i}
+                        <span
+                            class="transition-all duration-300 {i ===
+                            currentIndex
+                                ? 'w-3 h-[3px] bg-[#085FFF] shadow-[0_0_4px_#085FFF]'
+                                : 'w-[5px] h-[3px] bg-white/10'}"
+                        ></span>
                     {/each}
                 </div>
             </div>
-
-            <!-- Progress dots — desktop only -->
-            <div
-                class="hidden sm:flex items-center gap-1 px-3 border-l border-neutral-800 shrink-0"
-            >
-                {#each recent as _, i}
-                    <span
-                        class="rounded-full transition-all duration-300
-          {i === currentIndex
-                            ? 'w-3 h-1.5 bg-neutral-400'
-                            : 'w-1.5 h-1.5 bg-neutral-700'}"
-                    >
-                    </span>
-                {/each}
-            </div>
         </div>
+        <!-- end max-width wrapper -->
     </div>
 {/if}

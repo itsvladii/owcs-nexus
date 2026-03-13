@@ -7,7 +7,7 @@
         ArrowUp,
         ArrowDown,
     } from "lucide-svelte";
-    import { fade, fly } from "svelte/transition";
+    import { fade } from "svelte/transition";
 
     export let regionalAverages: {
         name: string;
@@ -15,266 +15,275 @@
         trend: number;
     }[] = [];
 
+    // LFP-aligned: Bleu Électrique as the unified region signal color
     const REGION_COLORS: Record<string, string> = {
-        Korea: "#6eff18",
-        "North America": "#823bf2",
-        EMEA: "#d4e800",
-        Pacific: "#58cdff",
-        China: "#f7c525",
-        Japan: "#ec0201",
+        Korea: "#085FFF",
+        "North America": "#085FFF",
+        EMEA: "#085FFF",
+        Pacific: "#085FFF",
+        China: "#085FFF",
+        Japan: "#085FFF",
     };
 
     const SECTIONS = [
         {
             title: "The Engine",
             icon: Scale,
-            color: "text-amber-500",
             desc: "A custom ELO system where points transfer from loser to winner based on tournament context and margin of victory.",
         },
         {
             title: "Dynamic K-Factor",
             icon: Activity,
-            color: "text-blue-500",
             desc: "Not all matches tell the same story. The K-Factor varies based on the context of the team playing, where they play and how they play.",
         },
         {
             title: "Region Strength",
             icon: Globe,
-            color: "text-emerald-500",
             desc: "Teams start with different regional baselines based on historical performance of their respective regions.",
         },
         {
             title: "Inactivity Fallback",
             icon: Zap,
-            color: "text-red-500",
-            desc: "Rosters that change >3 players trigger a hard reset. Teams that have not played official OWCS matches for a while (>90 days) are removed from the leaderboard.",
+            desc: "Rosters that change >3 players trigger a hard reset. Teams inactive for >90 days are removed from the leaderboard.",
         },
     ];
 
     let activeTab: "algorithm" | "regions" = "regions";
 
-    // Reactive maxWidth for bar scaling
     $: maxWidth = regionalAverages[0]?.avg || 1200;
 </script>
 
 <aside class="w-full lg:w-80 shrink-0 space-y-8">
-    <div class="sticky top-24 space-y-6">
-        <div
-            class="flex gap-2 p-1.5 bg-neutral-900/80 border border-white/5 rounded-xl backdrop-blur-md"
-        >
+    <div class="sticky top-24 space-y-5">
+        <!-- ── TAB SWITCHER ── sharp corners, Bleu Électrique active state -->
+        <div class="flex gap-0 border border-white/8">
             <button
                 type="button"
                 on:click={() => (activeTab = "algorithm")}
-                class="flex-1 py-2 text-[10px] font-mono font-bold uppercase tracking-[0.2em] transition-all rounded-lg {activeTab ===
-                'algorithm'
-                    ? 'bg-white/10 text-white shadow-inner'
-                    : 'text-neutral-500 hover:text-neutral-300'}"
+                class="flex-1 py-2.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] transition-all border-r border-white/8
+                {activeTab === 'algorithm'
+                    ? 'bg-[#085FFF] text-white'
+                    : 'bg-transparent text-white/25 hover:text-white/60 hover:bg-white/[0.03]'}"
             >
                 Algorithm
             </button>
             <button
                 type="button"
                 on:click={() => (activeTab = "regions")}
-                class="flex-1 py-2 text-[10px] font-mono font-bold uppercase tracking-[0.2em] transition-all rounded-lg {activeTab ===
-                'regions'
-                    ? 'bg-white/10 text-white shadow-inner'
-                    : 'text-neutral-500 hover:text-neutral-300'}"
+                class="flex-1 py-2.5 text-[10px] font-mono font-bold uppercase tracking-[0.2em] transition-all
+                {activeTab === 'regions'
+                    ? 'bg-[#085FFF] text-white'
+                    : 'bg-transparent text-white/25 hover:text-white/60 hover:bg-white/[0.03]'}"
             >
                 Avg. Region Power
             </button>
         </div>
 
         <div class="min-h-[480px]">
+            <!-- ── ALGORITHM TAB ── -->
             {#if activeTab === "algorithm"}
-                <div in:fade={{ duration: 300 }} class="space-y-6">
-                    <div>
+                <div in:fade={{ duration: 250 }} class="space-y-5">
+                    <!-- Section heading -->
+                    <div class="space-y-1">
                         <h3
-                            class="font-title font-bold text-2xl uppercase text-white mb-1"
+                            class="font-title font-black text-2xl uppercase text-white leading-tight"
                         >
                             How It Works
                         </h3>
                         <p
-                            class="text-xs text-neutral-500 uppercase tracking-widest font-mono"
+                            class="text-[9px] text-white/20 uppercase tracking-widest font-mono"
                         >
-                            Algorithm v1.0 (2026)
+                            Algorithm v1.0 · 2026
                         </p>
                     </div>
 
-                    <div class="space-y-4">
+                    <!-- Algorithm cards — sharp, flat, LFP block style -->
+                    <div class="space-y-px">
                         {#each SECTIONS as s}
                             <div
-                                class="group bg-neutral-900/50 border border-white/5 rounded-xl p-4 hover:bg-white/5 transition-colors"
+                                class="group flex items-start gap-3 border border-white/5 bg-white/[0.01] px-4 py-4
+                                hover:bg-white/[0.03] hover:border-white/10 transition-all"
                             >
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="mt-1 p-2 rounded bg-neutral-950 border border-white/5 {s.color} group-hover:text-white transition-colors"
+                                <!-- Icon container — sharp, Bleu Électrique -->
+                                <div
+                                    class="mt-0.5 p-1.5 border border-[rgba(8,95,255,0.25)] bg-[rgba(8,95,255,0.08)] text-[#085FFF] shrink-0 transition-colors group-hover:border-[rgba(8,95,255,0.5)]"
+                                >
+                                    <svelte:component this={s.icon} size={14} />
+                                </div>
+                                <div class="space-y-1 min-w-0">
+                                    <h4
+                                        class="text-[11px] font-bold text-white uppercase tracking-wide"
                                     >
-                                        <svelte:component
-                                            this={s.icon}
-                                            size={16}
-                                        />
-                                    </div>
-                                    <div>
-                                        <h4
-                                            class="text-sm font-bold text-white uppercase mb-1.5"
-                                        >
-                                            {s.title}
-                                        </h4>
-                                        <p
-                                            class="text-xs text-neutral-400 leading-relaxed"
-                                        >
-                                            {s.desc}
-                                        </p>
-                                    </div>
+                                        {s.title}
+                                    </h4>
+                                    <p
+                                        class="text-[11px] text-white/35 leading-relaxed"
+                                    >
+                                        {s.desc}
+                                    </p>
                                 </div>
                             </div>
                         {/each}
                     </div>
+
+                    <!-- Doc link — sharp, blue hover -->
                     <a
                         href="/algorithm"
-                        class="block w-full py-3 text-center border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider text-neutral-500 hover:text-white hover:border-white hover:bg-white/5 transition-all"
+                        class="block w-full py-3 text-center border border-white/8
+                        text-[10px] font-mono font-bold uppercase tracking-wider text-white/25
+                        hover:text-[#085FFF] hover:border-[#085FFF] hover:bg-[rgba(8,95,255,0.05)] transition-all"
                     >
                         Read Full ELO Documentation
                     </a>
                 </div>
+
+                <!-- ── REGIONS TAB ── -->
             {:else}
-                <div in:fade={{ duration: 300 }} class="space-y-6">
-                    <div>
+                <div in:fade={{ duration: 250 }} class="space-y-5">
+                    <!-- Section heading -->
+                    <div class="space-y-1">
                         <h3
-                            class="font-title font-bold text-2xl uppercase text-white mb-1 text-emerald-500"
+                            class="font-title font-black text-2xl uppercase text-white leading-tight"
                         >
                             Regional Average Power
                         </h3>
                         <p
-                            class="text-xs text-neutral-500 uppercase tracking-widest font-mono"
+                            class="text-[9px] text-white/20 uppercase tracking-widest font-mono"
                         >
                             Real-Time Regional Strength
                         </p>
                     </div>
 
-                    <div class="space-y-5 px-1">
+                    <!-- Region bars -->
+                    <div class="space-y-5">
                         {#each regionalAverages as reg, idx (reg.name)}
-                            {@const regionColor =
-                                REGION_COLORS[reg.name] || "#737373"}
-                            <div class="group">
-                                <div
-                                    class="flex justify-between items-end mb-2"
-                                >
+                            <div class="group space-y-2">
+                                <div class="flex justify-between items-center">
                                     <div class="flex items-center gap-2">
                                         <span
-                                            class="text-[10px] font-mono text-neutral-500 uppercase tracking-widest"
+                                            class="text-[10px] font-mono text-white/35 uppercase tracking-widest"
                                         >
                                             {idx + 1}. {reg.name}
                                         </span>
+                                        <!-- Trend indicator — LFP functional palette -->
                                         {#if reg.trend !== 0}
                                             <span
-                                                class="flex items-center text-[8px] font-mono font-bold {reg.trend >
-                                                0
-                                                    ? 'text-emerald-500'
-                                                    : 'text-red-500'}"
+                                                class="text-[8px] font-mono font-bold
+                                                {reg.trend > 0
+                                                    ? 'text-[#0CD905]'
+                                                    : 'text-[#D90000]'}"
                                             >
-                                                {reg.trend > 0 ? "▲" : "▼"}
-                                                {Math.abs(reg.trend)}
+                                                {reg.trend > 0
+                                                    ? "▲"
+                                                    : "▼"}{Math.abs(reg.trend)}
                                             </span>
                                         {/if}
                                     </div>
-
+                                    <!-- Avg number — Bleu Électrique, no text-shadow glow -->
                                     <span
-                                        class="text-sm font-mono font-black"
-                                        style="color: {regionColor}; text-shadow: 0 0 10px {regionColor}44"
+                                        class="text-sm font-mono font-black text-[#085FFF]"
                                     >
                                         {reg.avg}
                                     </span>
                                 </div>
 
+                                <!-- Bar — sharp, unified blue gradient -->
                                 <div
-                                    class="w-full bg-neutral-900/40 h-1.5 rounded-full overflow-hidden border border-white/5"
+                                    class="w-full bg-white/[0.04] h-[3px] overflow-hidden"
                                 >
                                     <div
                                         class="h-full transition-all duration-1000 ease-out"
                                         style="width: {(reg.avg / maxWidth) *
-                                            100}%; background: linear-gradient(90deg, {regionColor}88 0%, {regionColor} 100%); box-shadow: 0 0 12px {regionColor}33"
+                                            100}%;
+                                               background: linear-gradient(90deg, rgba(8,95,255,0.4) 0%, #085FFF 100%)"
                                     ></div>
                                 </div>
                             </div>
                         {/each}
                     </div>
+
+                    <!-- Footnote -->
                     <p
-                        class="text-[9px] font-mono text-neutral-600 uppercase leading-relaxed pt-4 border-t border-white/5 italic"
+                        class="text-[9px] font-mono text-white/15 uppercase leading-relaxed pt-3 border-t border-white/5 italic"
                     >
                         * Based on mean rating of top 5 active rosters per
                         region.
                     </p>
 
-                    <div class="mt-10 pt-6 border-t border-white/5 space-y-6">
-                        <h4
-                            class="text-[10px] font-mono text-neutral-500 uppercase tracking-[0.2em] mb-4"
+                    <!-- Legend section -->
+                    <div class="pt-4 border-t border-white/5 space-y-5">
+                        <span
+                            class="text-[9px] font-mono text-white/20 uppercase tracking-[0.2em]"
                         >
                             Legend & Status
-                        </h4>
+                        </span>
 
+                        <!-- Rank climb legend -->
                         <div class="space-y-2">
                             <span
-                                class="text-[9px] font-mono text-neutral-600 uppercase tracking-widest"
-                                >Rank Climb (7D)</span
+                                class="text-[9px] font-mono text-white/20 uppercase tracking-widest block"
                             >
+                                Rank Climb (7D)
+                            </span>
                             <div class="flex items-center gap-6">
                                 <div
-                                    class="flex items-center gap-2 text-emerald-500 font-bold text-[10px] font-mono"
+                                    class="flex items-center gap-1.5 text-[#0CD905] font-bold text-[10px] font-mono"
                                 >
-                                    <ArrowUp size={15} />
-                                    <span>CLIMB</span>
+                                    <ArrowUp size={13} />
+                                    <span>Climb</span>
                                 </div>
                                 <div
-                                    class="flex items-center gap-2 text-red-500 font-bold text-[10px] font-mono"
+                                    class="flex items-center gap-1.5 text-[#D90000] font-bold text-[10px] font-mono"
                                 >
-                                    <ArrowDown size={15} />
-                                    <span>DROP</span>
+                                    <ArrowDown size={13} />
+                                    <span>Drop</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-2">
+                        <!-- Calibration + Partner status -->
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="space-y-1.5">
                                 <span
-                                    class="text-[9px] font-mono text-neutral-600 uppercase tracking-widest"
-                                    >Calibration</span
+                                    class="text-[9px] font-mono text-white/20 uppercase tracking-widest block"
                                 >
+                                    Calibration
+                                </span>
                                 <div class="flex items-center gap-2">
+                                    <!-- Dot matches RankTable calibration dot exactly -->
                                     <span
-                                        class="text-[10px] font-mono text-white uppercase tracking-wider"
+                                        class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shadow-[0_0_6px_rgba(8,95,255,0.5)]"
+                                    ></span>
+                                    <span
+                                        class="text-[10px] font-mono text-white/50 uppercase tracking-wider"
                                         >New Team</span
                                     >
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                                    ></span>
                                 </div>
                             </div>
 
-                            <div class="space-y-2 text-right">
+                            <div class="space-y-1.5 text-right">
                                 <span
-                                    class="text-[9px] font-mono text-neutral-600 uppercase tracking-widest"
-                                    >Partner Status</span
+                                    class="text-[9px] font-mono text-white/20 uppercase tracking-widest block"
                                 >
+                                    Partner Status
+                                </span>
                                 <div
-                                    class="flex items-center justify-end gap-3"
+                                    class="flex items-center justify-end gap-2"
                                 >
-                                    <div class="flex items-center gap-0.5">
-                                        <svg
-                                            class="w-3.5 h-3.5 shrink-0"
-                                            viewBox="0 0 24 24"
-                                            fill="currentColor"
-                                            style="color: blue88"
-                                            title="Official OWCS Partner"
-                                        >
-                                            <path
-                                                d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.44 3.814 3.745 3.745 0 01-3.814.44A3.745 3.745 0 0112 21a3.745 3.745 0 01-3.153-1.593 3.745 3.745 0 01-3.814-.44 3.745 3.745 0 01-.44-3.814A3.745 3.745 0 013 12a3.745 3.745 0 011.593-3.153 3.745 3.745 0 01.44-3.814 3.745 3.745 0 013.814-.44A3.742 3.742 0 0112 3a3.745 3.745 0 013.153 1.593 3.745 3.745 0 013.814.44 3.745 3.745 0 01.44 3.814A3.745 3.745 0 0121 12z"
-                                            />
-                                        </svg>
-                                    </div>
+                                    <!-- Fixed: was `color: blue88` (a literal string bug) — now correct -->
+                                    <svg
+                                        class="w-3.5 h-3.5 shrink-0 text-[#085FFF] opacity-70"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        title="Official OWCS Partner"
+                                    >
+                                        <path
+                                            d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.44 3.814 3.745 3.745 0 01-3.814.44A3.745 3.745 0 0112 21a3.745 3.745 0 01-3.153-1.593 3.745 3.745 0 01-3.814-.44 3.745 3.745 0 01-.44-3.814A3.745 3.745 0 013 12a3.745 3.745 0 011.593-3.153 3.745 3.745 0 01.44-3.814 3.745 3.745 0 013.814-.44A3.742 3.742 0 0112 3a3.745 3.745 0 013.153 1.593 3.745 3.745 0 013.814.44 3.745 3.745 0 01.44 3.814A3.745 3.745 0 0121 12z"
+                                        />
+                                    </svg>
                                     <span
-                                        class="text-[10px] font-mono text-white uppercase tracking-wider"
-                                        >Official OWCS Partner Team</span
+                                        class="text-[10px] font-mono text-white/50 uppercase tracking-wider"
+                                        >OWCS Partner</span
                                     >
                                 </div>
                             </div>

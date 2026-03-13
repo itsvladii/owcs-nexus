@@ -20,13 +20,15 @@
         "Pacific",
         "Japan",
     ];
+
+    // LFP-aligned — Bleu Électrique as the unified region signal color
     const REGION_COLORS: Record<string, string> = {
-        Korea: "#6eff18",
-        "North America": "#823bf2",
-        EMEA: "#d4e800",
-        Pacific: "#58cdff",
-        China: "#f7c525",
-        Japan: "#ec0201",
+        Korea: "#085FFF",
+        "North America": "#085FFF",
+        EMEA: "#085FFF",
+        Pacific: "#085FFF",
+        China: "#085FFF",
+        Japan: "#085FFF",
     };
 
     $: allFiltered = teams.filter(
@@ -56,10 +58,10 @@
         {#each REGION_FILTERS as r}
             <button
                 on:click={() => (regionFilter = r)}
-                class="px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-widest border transition-all
+                class="px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border transition-all
           {regionFilter === r
-                    ? 'bg-neutral-700 border-neutral-600 text-white'
-                    : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-neutral-300'}"
+                    ? 'bg-[#085FFF] border-[#085FFF] text-white'
+                    : 'bg-transparent border-white/10 text-white/30 hover:border-white/25 hover:text-white/60'}"
             >
                 {r === "All Regions" ? "All" : r}
             </button>
@@ -68,7 +70,7 @@
 
     <!-- ── TABLE HEADER ── -->
     <div
-        class="grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-4 pb-2 text-neutral-600 font-mono text-[10px] uppercase tracking-widest border-b border-neutral-800 mb-1"
+        class="grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-4 pb-3 text-white/20 font-mono text-[10px] uppercase tracking-widest border-b border-white/5"
     >
         <div class="text-center sm:col-span-1">#</div>
         <div class="sm:col-span-5">Team</div>
@@ -79,9 +81,8 @@
 
     <!-- ── ROWS ── -->
     {#if filteredTeams.length > 0}
-        <div class="flex flex-col gap-0.5">
+        <div class="flex flex-col">
             {#each filteredTeams as team (team.name)}
-                {@const color = regionColor(team.region)}
                 {@const isTop3 = team.rank <= 3}
 
                 <div
@@ -91,29 +92,18 @@
                         e.key === "Enter" && (selectedTeam = team)}
                     role="button"
                     tabindex="0"
-                    class="group grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 rounded-xl items-center
-            cursor-pointer transition-all relative overflow-hidden
-            border border-transparent hover:border-neutral-800
-            {team.isPartner
-                        ? 'bg-neutral-900/80'
-                        : 'bg-neutral-900/30 hover:bg-neutral-900/80'}"
+                    class="group grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 items-center
+                    cursor-pointer transition-all relative overflow-hidden
+                    border-b border-white/[0.04] hover:bg-white/[0.025]
+                    {team.rank === 1 ? 'bg-[rgba(8,95,255,0.05)]' : ''}"
                 >
-                    <!-- Region color left accent bar -->
+                    <!-- Left accent bar — Bleu Électrique, always on for rank 1, hover-reveal for rest -->
                     <div
-                        class="absolute left-0 top-2 bottom-2 w-0.5 rounded-full opacity-50 transition-opacity group-hover:opacity-100"
+                        class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#085FFF] transition-opacity duration-200
+                        {team.rank === 1
+                            ? 'opacity-50'
+                            : 'opacity-0 group-hover:opacity-100'}"
                     ></div>
-
-                    <!-- Subtle top-3 background glow -->
-                    {#if isTop3}
-                        <div
-                            class="absolute inset-0 rounded-xl opacity-[0.03] pointer-events-none"
-                            style="background: {team.rank === 1
-                                ? '#f59e0b'
-                                : team.rank === 2
-                                  ? '#9ca3af'
-                                  : '#b45309'}"
-                        ></div>
-                    {/if}
 
                     <!-- ── RANK ── -->
                     <div
@@ -121,22 +111,22 @@
                     >
                         <span
                             class="font-title leading-none transition-transform group-hover:scale-110
-              {team.rank === 1
-                                ? 'text-amber-400 text-2xl sm:text-3xl'
+                            {team.rank === 1
+                                ? 'text-[#FF7FDE] text-2xl sm:text-3xl'
                                 : team.rank === 2
-                                  ? 'text-neutral-400 text-xl sm:text-2xl'
+                                  ? 'text-[#085FFF] text-xl sm:text-2xl'
                                   : team.rank === 3
-                                    ? 'text-orange-600 text-xl sm:text-2xl'
-                                    : 'text-neutral-600 text-lg sm:text-xl'}"
+                                    ? 'text-[#085FFF] text-xl sm:text-2xl'
+                                    : 'text-white/25 text-lg sm:text-xl'}"
                         >
                             #{team.rank}
                         </span>
                         {#if team.rankDelta && team.rankDelta !== 0}
                             <div
-                                class="flex items-center gap-0.5 {team.rankDelta >
-                                0
-                                    ? 'text-emerald-500'
-                                    : 'text-red-500'}"
+                                class="flex items-center gap-0.5
+                                {team.rankDelta > 0
+                                    ? 'text-[#0CD905]'
+                                    : 'text-[#D90000]'}"
                             >
                                 <svg
                                     class="w-2.5 h-2.5"
@@ -171,12 +161,13 @@
                     <div
                         class="sm:col-span-5 relative z-10 flex items-center gap-2 sm:gap-3 min-w-0"
                     >
+                        <!-- Logo container -->
                         <div
                             class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center relative"
                         >
+                            <!-- Subtle blue glow on hover, unified across all regions -->
                             <div
-                                class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-all duration-300"
-                                style="background: {color}"
+                                class="absolute inset-0 opacity-0 group-hover:opacity-15 blur-md transition-all duration-300 bg-[#085FFF]"
                             ></div>
                             {#if team.logo}
                                 <img
@@ -186,42 +177,42 @@
                                 />
                             {:else}
                                 <span
-                                    class="font-title text-base text-neutral-500"
+                                    class="font-title text-base text-white/30"
                                 >
                                     {team.name.substring(0, 2).toUpperCase()}
                                 </span>
                             {/if}
                         </div>
+
                         <div class="flex flex-col min-w-0">
                             <div class="flex items-center gap-2">
                                 <span
                                     class="font-title uppercase text-base sm:text-lg leading-tight truncate transition-colors
-                  {team.isPartner
+                                    {isTop3
                                         ? 'text-white'
-                                        : 'text-neutral-300 group-hover:text-white'}"
+                                        : 'text-white/60 group-hover:text-white'}"
                                 >
                                     {team.name}
                                 </span>
+                                <!-- Calibration dot: few matches played, still settling -->
                                 {#if team.wins + team.losses < 6}
                                     <span
-                                        class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse shrink-0"
+                                        class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shrink-0"
                                     ></span>
                                 {/if}
                             </div>
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <span
-                                    class="font-mono text-[10px] uppercase tracking-widest"
-                                    style="color: {color}99"
+                                    class="font-mono text-[10px] uppercase tracking-widest text-[#3b80ff] opacity-50"
                                 >
                                     {team.region}
                                 </span>
                                 {#if team.isPartner}
                                     <svg
-                                        class="w-3.5 h-3.5 shrink-0"
+                                        class="w-3.5 h-3.5 shrink-0 text-[#085FFF] opacity-60"
                                         viewBox="0 0 24 24"
                                         fill="currentColor"
-                                        style="color: {color}88"
-                                        title="Official OWCS Partner"
+                                        title="OWCS Partner Team"
                                     >
                                         <path
                                             d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.44 3.814 3.745 3.745 0 01-3.814.44A3.745 3.745 0 0112 21a3.745 3.745 0 01-3.153-1.593 3.745 3.745 0 01-3.814-.44 3.745 3.745 0 01-.44-3.814A3.745 3.745 0 013 12a3.745 3.745 0 011.593-3.153 3.745 3.745 0 01.44-3.814 3.745 3.745 0 013.814-.44A3.742 3.742 0 0112 3a3.745 3.745 0 013.153 1.593 3.745 3.745 0 013.814.44 3.745 3.745 0 01.44 3.814A3.745 3.745 0 0121 12z"
@@ -238,9 +229,9 @@
                     >
                         <span
                             class="font-mono font-black text-lg sm:text-xl tabular-nums transition-colors
-              {isTop3
+                            {isTop3
                                 ? 'text-white'
-                                : 'text-neutral-400 group-hover:text-white'}"
+                                : 'text-white/40 group-hover:text-white/80'}"
                         >
                             {Math.round(team.rating)}
                         </span>
@@ -251,9 +242,9 @@
                         class="col-span-2 text-center relative z-10 hidden sm:block"
                     >
                         <span class="font-mono text-sm tabular-nums">
-                            <span class="text-neutral-300">{team.wins}W</span>
-                            <span class="text-neutral-700 mx-1">—</span>
-                            <span class="text-neutral-500">{team.losses}L</span>
+                            <span class="text-white/70">{team.wins}W</span>
+                            <span class="text-white/20 mx-1">—</span>
+                            <span class="text-white/30">{team.losses}L</span>
                         </span>
                     </div>
 
@@ -264,10 +255,10 @@
                         {#if team.form?.length > 0}
                             {#each team.form.slice(-5) as result}
                                 <div
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center font-mono text-[10px] font-bold border transition-all
-                  {result === 'W'
-                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                        : 'bg-red-500/10 border-red-500/30 text-red-500'}"
+                                    class="w-7 h-7 flex items-center justify-center font-mono text-[10px] font-bold border transition-all
+                                    {result === 'W'
+                                        ? 'bg-[rgba(0,217,133,0.08)] border-[rgba(0,217,133,0.25)] text-[#0CD905]'
+                                        : 'bg-[rgba(217,0,0,0.08)] border-[rgba(217,0,0,0.25)] text-[#D90000]'}"
                                 >
                                     {result}
                                 </div>
@@ -279,7 +270,7 @@
         </div>
     {:else}
         <div
-            class="flex items-center justify-center h-32 text-neutral-600 font-mono text-xs uppercase tracking-widest"
+            class="flex items-center justify-center h-32 text-white/20 font-mono text-xs uppercase tracking-widest"
         >
             No teams found
         </div>
@@ -287,12 +278,12 @@
 
     <!-- ── SHOW MORE ── -->
     {#if allFiltered.length > PREVIEW_ROWS}
-        <div class="mt-3 flex justify-center">
+        <div class="mt-4 flex justify-center">
             <button
                 on:click={() => (showAll = !showAll)}
-                class="flex items-center gap-2 px-5 py-2.5 bg-neutral-900 border border-neutral-800
-          hover:border-neutral-600 text-neutral-500 hover:text-neutral-300
-          font-mono text-[10px] uppercase tracking-widest rounded-lg transition-all"
+                class="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-white/10
+                hover:border-[#085FFF] hover:text-[#085FFF] text-white/30
+                font-mono text-[10px] uppercase tracking-widest transition-all"
             >
                 {#if showAll}
                     <svg

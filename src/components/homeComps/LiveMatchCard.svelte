@@ -46,71 +46,57 @@
         href={match.stream}
         target="_blank"
         rel="noreferrer"
-        class="block w-full h-16 relative overflow-hidden group cursor-pointer bg-neutral-900/80 backdrop-blur-md border-t border-white/10"
+        class="block w-full h-14 md:h-16 bg-[#080808] border-y border-white/10 relative group overflow-hidden"
     >
-        <div
-            class="absolute inset-0 pointer-events-none opacity-20"
-            style="background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%;"
-        />
-
-        <div
-            class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-20 pointer-events-none"
-        ></div>
-        <div
-            class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-neutral-950 to-transparent z-20 pointer-events-none"
-        ></div>
-
         <div class="flex items-center h-full animate-ticker w-max">
-            {#each Array(5) as _}
+            {#each Array(10) as _}
                 <div
-                    class="flex items-center h-full px-8 gap-8 group-hover:opacity-100 transition-opacity"
+                    class="flex items-center h-full px-6 md:px-12 gap-6 md:gap-10 border-r border-white/5"
                 >
-                    <div class="h-8 w-[2px] bg-white/10 skew-x-[-20deg]"></div>
-
-                    <div
-                        class="flex flex-col justify-center items-end opacity-60"
-                    >
+                    <div class="flex items-center gap-2">
                         <span
-                            class="text-[10px] font-bold tracking-widest text-emerald-400 uppercase leading-none mb-1"
-                        >
-                            Live Event
-                        </span>
+                            class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shadow-[0_0_8px_#085FFF]"
+                        ></span>
                         <span
-                            class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap"
+                            class="text-[9px] font-black uppercase tracking-[0.2em] text-[#085FFF]"
+                            >Live Now</span
                         >
-                            {match.tournament}
-                        </span>
                     </div>
 
-                    <div class="flex items-center gap-4">
+                    <span
+                        class="hidden sm:block text-[10px] font-bold uppercase tracking-tight text-white/30 italic whitespace-nowrap"
+                    >
+                        {match.tournament}
+                    </span>
+
+                    <div class="flex items-center gap-4 md:gap-8">
                         <div class="flex items-center gap-3">
                             <span
-                                class="text-2xl font-title uppercase text-white tracking-wide"
-                                >{match.teamA.name}</span
+                                class="font-title text-sm md:text-lg uppercase italic text-white tracking-tighter whitespace-nowrap"
                             >
-                            {#if match.teamA.logo}
-                                <img
-                                    src={match.teamA.logo}
-                                    alt={match.teamA.name}
-                                    class="h-8 w-8 object-contain"
-                                />
-                            {/if}
+                                {match.teamA.name}
+                            </span>
+                            <img
+                                src={match.teamA.logo}
+                                alt=""
+                                class="h-6 w-6 md:h-8 md:w-8 object-contain"
+                            />
                         </div>
 
                         <div
-                            class="relative px-4 py-1 bg-white skew-x-[-10deg] border-2 border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                            class="bg-white px-3 md:px-6 py-0.5 md:py-1 skew-x-[-15deg] shadow-[0_0_15px_rgba(8,95,255,0.2)]"
                         >
                             <div
-                                class="skew-x-[10deg] flex gap-1 font-title font-black text-xl text-black leading-none"
+                                class="skew-x-[15deg] flex items-center gap-2 md:gap-3 font-title text-sm md:text-xl font-black text-black"
                             >
                                 <span
-                                    >{match.teamA.score === -1
+                                    >{match.teamA.score < 0
                                         ? 0
                                         : match.teamA.score}</span
                                 >
-                                <span class="text-neutral-400">-</span>
+                                <span class="opacity-20">-</span>
                                 <span
-                                    >{match.teamB.score === -1
+                                    >{match.teamB.score < 0
                                         ? 0
                                         : match.teamB.score}</span
                                 >
@@ -118,34 +104,29 @@
                         </div>
 
                         <div class="flex items-center gap-3">
-                            {#if match.teamB.logo}
-                                <img
-                                    src={match.teamB.logo}
-                                    alt={match.teamB.name}
-                                    class="h-8 w-8 object-contain"
-                                />
-                            {/if}
+                            <img
+                                src={match.teamB.logo}
+                                alt=""
+                                class="h-6 w-6 md:h-8 md:w-8 object-contain"
+                            />
                             <span
-                                class="text-2xl font-title uppercase text-white tracking-wide"
-                                >{match.teamB.name}</span
+                                class="font-title text-sm md:text-lg uppercase italic text-white tracking-tighter whitespace-nowrap"
                             >
+                                {match.teamB.name}
+                            </span>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 pl-4">
-                        <span class="relative flex h-2 w-2">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"
-                            ></span>
-                            <span
-                                class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
-                            ></span>
-                        </span>
+                    <div
+                        class="flex items-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity"
+                    >
                         <span
-                            class="text-xs font-bold text-red-400 uppercase tracking-widest group-hover:text-white transition-colors"
+                            class="text-[10px] font-black text-white uppercase tracking-widest italic"
+                            >See The Match</span
                         >
-                            Watch Stream
-                        </span>
+                        <svg class="w-2 h-2 fill-[#085FFF]" viewBox="0 0 24 24"
+                            ><path d="M21 12l-18 12v-24z" /></svg
+                        >
                     </div>
                 </div>
             {/each}
@@ -154,9 +135,9 @@
 {/if}
 
 <style>
-    /* Ensure the ticker animation is defined in your global CSS or here */
     :global(.animate-ticker) {
-        animation: ticker 30s linear infinite;
+        /* Faster speed for a more energetic sports feel */
+        animation: ticker 40s linear infinite;
     }
 
     @keyframes ticker {
@@ -164,7 +145,7 @@
             transform: translateX(0);
         }
         100% {
-            transform: translateX(-20%);
-        } /* Adjust based on content width */
+            transform: translateX(-50%);
+        }
     }
 </style>
