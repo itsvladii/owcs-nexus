@@ -27,10 +27,9 @@ for (const t of rankingsRaw ?? []) {
 interface TeamBanEntry {
     hero: string;
     count: number;
-    pct: number; //hero ban percentage
+    pct: number;
 }
 
-// format team overall ban data
 interface TeamBanData {
     team: string;
     logo: string;
@@ -39,7 +38,6 @@ interface TeamBanData {
     bans: TeamBanEntry[];
 }
 
-//
 function buildTeamBans(
     matches: typeof rawMatches,
 ): Record<string, TeamBanData> {
@@ -96,21 +94,17 @@ Astro.response.headers.set(
     "public, s-maxage=600, stale-while-revalidate=60",
 );
 
-// --- BAN AGGREGATION (server-side, so the client gets clean data) ---
-
-// Collect all distinct tournaments for the filter dropdown
 const tournaments = [
     ...new Set((rawMatches ?? []).map((m) => m.tournament).filter(Boolean)),
 ].sort();
 
-// Build per-tournament ban stats + an "All" aggregate
 interface BanEntry {
     hero: string;
     count: number;
-    maps: number; // total maps this hero appeared in a ban slot
-    wins: number; // maps where the banning team won
-    banRate: number; // count / totalBanSlots
-    winRate: number; // wins / count
+    maps: number;
+    wins: number;
+    banRate: number;
+    winRate: number;
 }
 
 interface TournamentStats {
@@ -130,10 +124,6 @@ function aggregateBans(matches: typeof rawMatches): TournamentStats {
         for (const map of maps) {
             totalMaps++;
             const bans: string[] = map.bans ?? [];
-            // winner is "1" or "2" — we need to know which team index banned which hero.
-            // bans array is [team1ban, team2ban], winner is "1"|"2"|"0"
-            // We flag a ban as "win" if the banning team won.
-            // team1 = index 0, team2 = index 1
             bans.forEach((hero, idx) => {
                 if (!hero) return;
                 const normalized = hero.trim();
@@ -141,7 +131,6 @@ function aggregateBans(matches: typeof rawMatches): TournamentStats {
                     heroCounts[normalized] = { count: 0, wins: 0 };
                 heroCounts[normalized].count++;
                 totalBanSlots++;
-                // Did the team that made this ban win the map?
                 const bannerWon = map.winner === String(idx + 1);
                 if (bannerWon) heroCounts[normalized].wins++;
             });
@@ -162,7 +151,6 @@ function aggregateBans(matches: typeof rawMatches): TournamentStats {
     return { tournament: "All", totalMaps, totalBanSlots, bans };
 }
 
-// Per-tournament breakdown
 const perTournament: Record<string, TournamentStats> = {};
 for (const t of tournaments) {
     const tMatches = (rawMatches ?? []).filter((m) => m.tournament === t);
@@ -172,18 +160,13 @@ for (const t of tournaments) {
 }
 
 const allStats = aggregateBans(rawMatches);
-
-// Top hero for the hero section callout
 const topBanned = allStats.bans[0] ?? null;
-
-// Most effective ban: highest win rate with >= 10 bans minimum
 const mostEffectiveBan =
     [...allStats.bans]
         .filter((b) => b.count >= 10)
         .sort((a, b) => b.winRate - a.winRate)[0] ?? null;
 const totalMapsPlayed = allStats.totalMaps;
 
-// Last updated
 const lastMatch = rawMatches?.[0];
 const lastUpdated = lastMatch?.date
     ? new Date(lastMatch.date).toLocaleDateString("en-US", {
@@ -193,7 +176,6 @@ const lastUpdated = lastMatch?.date
       })
     : null;
 
-// Shorten tournament names for display
 function shortenTournament(name: string): string {
     return name
         .replace(/Overwatch Champions Series/g, "OWCS")
@@ -216,8 +198,9 @@ const tournamentOptions = [
 
     {/* ── HERO ── */}
     <div
-        class="relative w-full overflow-hidden bg-neutral-950 pt-32 pb-16 mb-12 min-h-[400px] flex items-end"
+        class="relative w-full overflow-hidden bg-[#0d0d0d] pt-32 pb-16 mb-12 min-h-[400px] flex items-end"
     >
+        {/* Background image */}
         <div class="absolute inset-0 z-0">
             <Image
                 src="https://live.staticflickr.com/65535/54698568446_b067ac6d1a_k.jpg"
@@ -227,93 +210,98 @@ const tournamentOptions = [
                 format="webp"
                 quality="mid"
                 loading="eager"
-                class="w-full h-full object-cover opacity-50 grayscale"
+                class="w-full h-full object-cover opacity-40 grayscale"
             />
+            {/* Bottom fade — matches Charbon bg */}
             <div
-                class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"
+                class="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/60 to-transparent"
             >
             </div>
+            {/* Side vignettes */}
             <div
-                class="absolute inset-0 bg-gradient-to-r from-neutral-950/80 via-transparent to-neutral-950/80"
+                class="absolute inset-0 bg-gradient-to-r from-[#0d0d0d]/70 via-transparent to-[#0d0d0d]/70"
             >
             </div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 w-full relative z-10">
-            <div class="mb-4">
-                <p
-                    class="text-violet-400 font-mono text-xs uppercase tracking-[0.3em] mb-3 drop-shadow-md"
+            {/* Eyebrow — same pattern as rankings page */}
+            <div class="flex items-center gap-2.5 mb-4">
+                <span
+                    class="w-1.5 h-1.5 rounded-full bg-[#7B2FFF] animate-pulse shadow-[0_0_6px_#7B2FFF]"
+                ></span>
+                <span
+                    class="font-mono text-[10px] uppercase tracking-[0.35em] text-white/40"
                 >
-                    Hero Ban Analysis
-                </p>
-                <h1
-                    class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.8] mb-8 drop-shadow-2xl"
-                >
-                    Meta <br /> Report
-                </h1>
+                    OWCS Season 3 · Hero Ban Analysis
+                </span>
             </div>
 
-            <div
-                class="flex flex-wrap items-center gap-6 text-neutral-400 font-mono text-xs uppercase tracking-widest"
+            {/* Title */}
+            <h1
+                class="text-6xl md:text-8xl lg:text-[8rem] font-title uppercase text-white leading-[0.85] mb-8 drop-shadow-2xl"
             >
-                <div class="flex items-center gap-2">
-                    <span
-                        class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"
-                    ></span>
-                    <span
-                        class="px-3 py-1 border border-neutral-800 rounded-full bg-neutral-900/80 backdrop-blur-sm text-white"
-                    >
-                        OWCS Season 3
-                    </span>
-                </div>
-                <span class="hidden md:inline text-neutral-800">•</span>
-                <span class="opacity-80">{totalMapsPlayed} Maps Analysed</span>
+                Meta <br />
+                <span class="text-[#7B2FFF]">Report</span>
+            </h1>
+
+            {/* Meta strip */}
+            <div
+                class="flex flex-wrap items-center gap-4 font-mono text-[10px] uppercase tracking-widest text-white/30"
+            >
+                {/* Stats as outlined tags — matches rankings eyebrow style */}
+                <span class="px-2.5 py-1 border border-white/10 text-white/50">
+                    {totalMapsPlayed} Maps Analysed
+                </span>
                 {
                     lastUpdated && (
-                        <>
-                            <span class="hidden md:inline text-neutral-800">
-                                •
-                            </span>
-                            <span class="opacity-80">
-                                Updated {lastUpdated}
-                            </span>
-                        </>
+                        <span class="px-2.5 py-1 border border-white/10 text-white/50">
+                            Updated {lastUpdated}
+                        </span>
                     )
                 }
             </div>
         </div>
     </div>
 
-    {/* ── STAT CALLOUT STRIP ── */}
+    {/* ── CALLOUT STRIP ── */}
     <div class="max-w-7xl mx-auto px-4 mb-12">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Most Banned */}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5">
+            {/* Most Banned — spans 2 cols, Bleu Électrique accent */}
             {
                 topBanned && (
-                    <div class="col-span-2 bg-neutral-900 border border-violet-500/20 rounded-2xl p-6 relative overflow-hidden">
-                        {/* Portrait faded into right side */}
+                    <div class="col-span-2 bg-[#0d0d0d] p-6 relative overflow-hidden">
+                        {/* Hero portrait bleed — same technique as stat cards */}
                         <img
                             src={getHeroPortrait(topBanned.hero)}
                             alt={topBanned.hero}
-                            class="absolute right-0 top-0 h-full w-48 object-cover object-top opacity-20 pointer-events-none"
-                            style="mask-image: linear-gradient(to left, black 0%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);"
+                            class="absolute right-0 top-0 h-full w-56 object-cover object-top pointer-events-none"
+                            style="opacity: 0.15; mask-image: linear-gradient(to left, black 0%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);"
                         />
-                        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none" />
-                        <p class="text-violet-400 font-mono text-[10px] uppercase tracking-[0.3em] mb-1 relative z-10">
-                            Most Banned Hero
-                        </p>
-                        <div class="flex items-end gap-4 relative z-10">
-                            <p class="text-5xl font-title text-white uppercase">
-                                {topBanned.hero}
+                        {/* Blue left accent bar */}
+                        <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-[#7B2FFF] shadow-[2px_0_12px_rgba(123,47,255,0.4)]" />
+                        <div
+                            class="absolute inset-0 pointer-events-none"
+                            style="background: radial-gradient(ellipse at 0% 50%, rgba(123,47,255,0.05) 0%, transparent 55%)"
+                        ></div>
+
+                        <div class="relative z-10 pl-3">
+                            <p class="font-mono text-[9px] uppercase tracking-[0.35em] text-[#7B2FFF] mb-2">
+                                Most Banned Hero
                             </p>
-                            <div class="mb-1">
-                                <p class="text-2xl font-mono font-black text-violet-400">
-                                    {topBanned.count}×
+                            <div class="flex items-end gap-4">
+                                <p class="font-title text-4xl sm:text-5xl text-white uppercase leading-none">
+                                    {topBanned.hero}
                                 </p>
-                                <p class="text-[10px] font-mono text-neutral-500 uppercase">
-                                    {(topBanned.banRate * 100).toFixed(1)}% of
-                                    ban slots
-                                </p>
+                                <div class="mb-0.5">
+                                    <p class="font-mono font-black text-2xl text-[#7B2FFF] tabular-nums leading-none">
+                                        {topBanned.count}×
+                                    </p>
+                                    <p class="font-mono text-[9px] text-white/25 uppercase tracking-widest mt-1">
+                                        {(topBanned.banRate * 100).toFixed(1)}%
+                                        of ban slots
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -321,55 +309,61 @@ const tournamentOptions = [
             }
 
             {/* Total Bans */}
-            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-6">
-                <p
-                    class="text-neutral-500 font-mono text-[10px] uppercase tracking-[0.3em] mb-2"
-                >
-                    Total Bans
-                </p>
-                <p class="text-4xl font-mono font-black text-white">
-                    {allStats.totalBanSlots}
-                </p>
-                <p
-                    class="text-[10px] font-mono text-neutral-600 uppercase mt-1"
-                >
-                    across all maps
-                </p>
+            <div class="bg-[#0d0d0d] p-6 relative">
+                <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-white/8">
+                </div>
+                <div class="pl-3">
+                    <p
+                        class="font-mono text-[9px] uppercase tracking-[0.35em] text-white/25 mb-2"
+                    >
+                        Total Bans
+                    </p>
+                    <p
+                        class="font-mono font-black text-4xl text-white tabular-nums leading-none"
+                    >
+                        {allStats.totalBanSlots}
+                    </p>
+                    <p
+                        class="font-mono text-[9px] text-white/20 uppercase tracking-widest mt-2"
+                    >
+                        across all maps
+                    </p>
+                </div>
             </div>
 
             {/* Most Effective Ban */}
             {
                 mostEffectiveBan && (
-                    <div class="bg-neutral-900 border border-white/10 rounded-2xl p-6 relative overflow-hidden">
+                    <div class="bg-[#0d0d0d] p-6 relative overflow-hidden">
                         <img
                             src={getHeroPortrait(mostEffectiveBan.hero)}
                             alt={mostEffectiveBan.hero}
-                            class="absolute right-0 top-0 h-full w-20 object-cover object-top opacity-10 pointer-events-none"
-                            style="mask-image: linear-gradient(to left, black 0%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);"
+                            class="absolute right-0 top-0 h-full w-24 object-cover object-top pointer-events-none"
+                            style="opacity: 0.10; mask-image: linear-gradient(to left, black 0%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);"
                         />
-                        <p class="text-neutral-500 font-mono text-[10px] uppercase tracking-[0.3em] mb-2 relative z-10">
-                            Most Effective Ban
-                        </p>
-                        <div class="flex items-end gap-3 relative z-10">
-                            <div>
-                                <p class="text-4xl font-mono font-black text-white">
-                                    {(mostEffectiveBan.winRate * 100).toFixed(
-                                        0,
-                                    )}
-                                    %
-                                </p>
-                                <p class="text-[10px] font-mono text-neutral-600 uppercase mt-1">
-                                    win rate
-                                </p>
-                            </div>
-                            <div class="mb-1">
-                                <p class="text-sm font-title uppercase text-emerald-400">
-                                    {mostEffectiveBan.hero}
-                                </p>
-                                <p class="text-[10px] font-mono text-neutral-600">
-                                    {mostEffectiveBan.count} bans
-                                </p>
-                            </div>
+                        {/* Rose Lumineux accent — effective = standout stat */}
+                        <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-[#FF7FDE] shadow-[2px_0_10px_rgba(255,127,222,0.25)]" />
+                        <div
+                            class="absolute inset-0 pointer-events-none"
+                            style="background: radial-gradient(ellipse at 0% 50%, rgba(255,127,222,0.04) 0%, transparent 55%)"
+                        ></div>
+
+                        <div class="relative z-10 pl-3">
+                            <p class="font-mono text-[9px] uppercase tracking-[0.35em] text-[#FF7FDE] mb-2">
+                                Most Effective Ban
+                            </p>
+                            <p class="font-mono font-black text-4xl text-white tabular-nums leading-none">
+                                {(mostEffectiveBan.winRate * 100).toFixed(0)}%
+                            </p>
+                            <p class="font-mono text-[9px] text-white/25 uppercase tracking-widest mt-1">
+                                win rate
+                            </p>
+                            <p class="font-title uppercase text-[#FF7FDE] text-sm mt-2 leading-none">
+                                {mostEffectiveBan.hero}
+                            </p>
+                            <p class="font-mono text-[9px] text-white/20 mt-0.5">
+                                {mostEffectiveBan.count} bans
+                            </p>
                         </div>
                     </div>
                 )
@@ -379,9 +373,6 @@ const tournamentOptions = [
 
     {/* ── MAIN CONTENT ── */}
     <div class="max-w-7xl mx-auto px-4 pb-24">
-        {
-            /* Filter bar + interactive chart — Svelte handles all interactivity */
-        }
         <StatsFilters
             allStats={allStats}
             perTournament={perTournament}

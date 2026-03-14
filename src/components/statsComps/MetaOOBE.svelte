@@ -79,7 +79,6 @@
 </script>
 
 {#if visible}
-    <!-- Backdrop -->
     <div
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         style="background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);"
@@ -87,11 +86,10 @@
         role="dialog"
         aria-modal="true"
     >
-        <!-- Modal -->
         <div
             class="w-full max-w-lg bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden"
         >
-            <!-- Progress bar -->
+            <!-- progress bar -->
             <div class="h-0.5 bg-neutral-800">
                 <div
                     class="h-full bg-violet-500 transition-all duration-500"
@@ -99,9 +97,8 @@
                 ></div>
             </div>
 
-            <!-- Content -->
             <div class="px-6 pt-6 pb-4">
-                <!-- Icon + label -->
+                <!-- icon + label -->
                 <div class="flex items-center gap-3 mb-5">
                     <div
                         class="p-2.5 rounded-xl {step.bg} border {step.border}"
@@ -115,19 +112,19 @@
                     </span>
                 </div>
 
-                <!-- Title -->
+                <!-- title -->
                 <h2
                     class="font-title uppercase text-3xl text-white leading-tight mb-3"
                 >
                     {step.title}
                 </h2>
 
-                <!-- Body -->
+                <!-- body -->
                 <p class="text-neutral-400 text-sm leading-relaxed mb-4">
                     {step.body}
                 </p>
 
-                <!-- Optional note -->
+                <!-- note -->
                 {#if step.note}
                     <div
                         class="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-800"
@@ -140,7 +137,7 @@
                 {/if}
             </div>
 
-            <!-- Footer -->
+            <!-- footer -->
             <div
                 class="flex items-center justify-between px-6 py-4 border-t border-neutral-800"
             >

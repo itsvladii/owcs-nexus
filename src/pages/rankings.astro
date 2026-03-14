@@ -6,6 +6,7 @@ import LateralTab from "../components/eloComps/LateralTab.svelte";
 import RankingOOBE from "../components/eloComps/OOBEComp.svelte";
 import RecentMatches from "../components/eloComps/RecentMatches.svelte";
 import { supabase } from "../lib/contentScripts/supabase";
+import StatHighlightCards from "../components/eloComps/StatHighlightCards.svelte";
 import { Image } from "astro:assets";
 
 //1. fetch data from Supabase
@@ -198,44 +199,11 @@ const regionalAverages = regions
 
     <main class="max-w-[1600px] mx-auto px-6 py-20 bg-[#080808]">
         <!-- Stat highlight cards: Biggest Mover + Longest Reign -->
-        {
-            (stats.biggestMover || stats.longestReign) && (
-                <div class="flex flex-wrap gap-4 mb-12">
-                    {stats.biggestMover && (
-                        <div class="flex items-center gap-4 border border-white/5 bg-white/[0.02] px-5 py-4 min-w-[220px]">
-                            <div class="w-[2px] self-stretch bg-[#085FFF]" />
-                            <div class="flex flex-col gap-1">
-                                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-[#085FFF]">
-                                    Biggest Mover
-                                </span>
-                                <span class="font-title uppercase italic text-white text-lg leading-none tracking-tight">
-                                    {stats.biggestMover.name}
-                                </span>
-                                <span class="font-mono text-xs text-[#085FFF]">
-                                    + {stats.biggestMover.gain} pts
-                                </span>
-                            </div>
-                        </div>
-                    )}
-                    {stats.longestReign && (
-                        <div class="flex items-center gap-4 border border-white/5 bg-white/[0.02] px-5 py-4 min-w-[220px]">
-                            <div class="w-[2px] self-stretch bg-[#FF7FDE]" />
-                            <div class="flex flex-col gap-1">
-                                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-[#FF7FDE]">
-                                    Longest Reign
-                                </span>
-                                <span class="font-title uppercase italic text-white text-lg leading-none tracking-tight">
-                                    {stats.longestReign.name}
-                                </span>
-                                <span class="font-mono text-xs text-[#FF7FDE]">
-                                    {stats.longestReign.days} days at #1
-                                </span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )
-        }
+        <StatHighlightCards
+            biggestMover={stats.biggestMover}
+            longestReign={stats.longestReign}
+            client:only="svelte"
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div class="lg:col-span-8 space-y-2">
@@ -246,7 +214,7 @@ const regionalAverages = regions
                 />
             </div>
 
-            <aside class="lg:col-span-4 space-y-8">
+            <aside class="lg:col-span-4 lg:pt-[104px]">
                 <LateralTab regionalAverages={regionalAverages} client:load />
             </aside>
         </div>

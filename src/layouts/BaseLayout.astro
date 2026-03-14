@@ -70,39 +70,47 @@ const { title } = Astro.props;
             <slot />
         </main>
 
-        <footer
-            class="mt-10 py-12 border-t border-white/5 bg-neutral-950/50 backdrop-blur-sm"
-        >
+        <footer class="mt-10 py-10 border-t border-white/5">
             <div
-                class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between gap-8 opacity-30 hover:opacity-100 transition-opacity duration-500"
+                class="max-w-[1600px] mx-auto px-6 opacity-30 hover:opacity-100 transition-opacity duration-500"
             >
-                <div class="max-w-xs">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    <!-- Col 1: Project disclaimer + contact -->
                     <p
-                        class="font-mono text-[9px] uppercase tracking-tighter leading-relaxed"
+                        class="font-mono text-[9px] uppercase tracking-tighter leading-relaxed text-white/70"
                     >
                         OWCS Nexus is an unofficial fan project. Not affiliated
                         with Blizzard Entertainment or the Overwatch Champions
-                        Series.
+                        Series. For inquiries and questions, find me on Twitter
+                        at
+                        <a
+                            href="https://twitter.com/asheonetrick"
+                            class="underline decoration-[#085FFF] hover:text-white transition-colors"
+                        >
+                            @asheonetrick
+                        </a>
                     </p>
-                </div>
 
-                <div class="max-w-md">
+                    <!-- Col 2: Copyright -->
                     <p
-                        class="font-mono text-[9px] uppercase tracking-tighter leading-relaxed"
+                        class="font-mono text-[9px] uppercase tracking-tighter leading-relaxed text-white/70 md:text-center"
                     >
                         All Overwatch content, trademarks, and logos are ©
-                        Blizzard Entertainment, Inc. Hero imagery via
-                        Flickr/Creative Commons.
+                        Blizzard Entertainment, Inc. Player imagery via Flickr /
+                        Creative Commons and official OWCS media.
                     </p>
-                </div>
 
-                <div class="text-right whitespace-nowrap">
-                    <p class="font-mono text-[9px] uppercase tracking-tighter">
-                        Data provided by <a
+                    <!-- Col 3: Data attribution -->
+                    <p
+                        class="font-mono text-[9px] uppercase tracking-tighter leading-relaxed text-white/70 md:text-right"
+                    >
+                        Data provided by
+                        <a
                             href="#"
-                            class="underline decoration-[#085FFF]"
-                            >Official Liquipedia API</a
+                            class="underline decoration-[#085FFF] hover:text-white transition-colors"
                         >
+                            Official Liquipedia API
+                        </a>
                         <br />CC-BY-SA 3.0 License
                     </p>
                 </div>

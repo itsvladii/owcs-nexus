@@ -58,7 +58,6 @@
     const PREVIEW_ROWS = 12;
     $: visibleHeroes = showAllHeroes ? heroes : heroes.slice(0, PREVIEW_ROWS);
 
-    // Tooltip — use clientX/Y (viewport-relative) with fixed positioning
     let hovered: {
         hero: string;
         tournament: string;
@@ -83,59 +82,63 @@
         };
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         tooltipX = rect.left + rect.width / 2;
-        tooltipY = rect.top - 8; // just above the cell
+        tooltipY = rect.top - 8;
     }
 
     function onCellLeave() {
         hovered = null;
     }
 
-    function cellColor(norm: number): string {
-        if (norm === 0) return "bg-neutral-900 border-neutral-800";
-        if (norm < 0.25) return "bg-violet-950/60 border-violet-900/40";
-        if (norm < 0.5) return "bg-violet-900/60 border-violet-800/50";
-        if (norm < 0.75) return "bg-violet-700/70 border-violet-600/60";
-        return "bg-violet-500/80 border-violet-400/70";
+    function cellBg(norm: number): string {
+        if (norm === 0)
+            return "background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04)";
+        if (norm < 0.25)
+            return "background: rgba(123,47,255,0.12); border-color: rgba(123,47,255,0.20)";
+        if (norm < 0.5)
+            return "background: rgba(123,47,255,0.28); border-color: rgba(123,47,255,0.35)";
+        if (norm < 0.75)
+            return "background: rgba(123,47,255,0.50); border-color: rgba(123,47,255,0.55)";
+        return "background: rgba(123,47,255,0.80); border-color: rgba(123,47,255,0.90)";
     }
 
-    function textColor(norm: number): string {
-        if (norm === 0) return "text-neutral-700";
-        if (norm < 0.25) return "text-violet-400/70";
-        if (norm < 0.5) return "text-violet-300/80";
-        return "text-white";
+    function cellTextColor(norm: number): string {
+        if (norm === 0) return "color: rgba(255,255,255,0.12)";
+        if (norm < 0.25) return "color: rgba(255,255,255,0.45)";
+        if (norm < 0.5) return "color: rgba(255,255,255,0.70)";
+        return "color: rgba(255,255,255,1)";
     }
 </script>
 
 <div class="mt-8">
-    <!-- ── SECTION HEADER ── -->
+    <!--header-->
     <div class="flex items-center gap-3 mb-6">
         <p
-            class="text-neutral-500 font-mono text-xs uppercase tracking-[0.3em] shrink-0"
+            class="text-white/30 font-mono text-xs uppercase tracking-[0.3em] shrink-0"
         >
-            Regional Meta Heatmap
+            Meta Heatmap
         </p>
-        <div class="flex-1 h-px bg-neutral-800"></div>
+        <div class="flex-1 h-px bg-white/5"></div>
         <p
-            class="text-neutral-600 font-mono text-[10px] uppercase tracking-widest shrink-0"
+            class="text-white/15 font-mono text-[10px] uppercase tracking-widest shrink-0"
         >
-            ban frequency per tournament
+            Ban frequency per tournament
         </p>
     </div>
 
+    <!-- fallback for no data -->
     {#if tournaments.length === 0}
         <div
-            class="flex items-center justify-center h-40 bg-neutral-900 rounded-2xl border border-neutral-800"
+            class="flex items-center justify-center h-40 bg-white/[0.02] border border-white/5"
         >
             <p
-                class="text-neutral-600 font-mono text-sm uppercase tracking-widest"
+                class="text-white/20 font-mono text-sm uppercase tracking-widest"
             >
                 No tournament data yet
             </p>
         </div>
     {:else}
-        <div
-            class="overflow-x-auto rounded-2xl border border-neutral-800 bg-neutral-950"
-        >
+        <!-- TABLE -->
+        <div class="overflow-x-auto border border-white/5 bg-[#0d0d0d]">
             <table
                 class="w-full border-collapse"
                 style="min-width: {160 + tournaments.length * 90}px"
@@ -144,33 +147,35 @@
                 <thead>
                     <tr>
                         <th
-                            class="sticky left-0 z-20 bg-neutral-950 border-b border-r border-neutral-800 px-4 py-3 text-left w-44"
+                            class="sticky left-0 z-20 bg-[#0d0d0d] border-b border-r border-white/5 px-4 py-3 text-left w-44"
                         >
                             <span
-                                class="text-xs font-mono text-neutral-500 uppercase tracking-widest"
-                                >Hero</span
+                                class="text-[10px] font-mono text-white/20 uppercase tracking-widest"
                             >
+                                Hero
+                            </span>
                         </th>
                         {#each tournaments as t}
                             <th
-                                class="border-b border-neutral-800 px-2 py-3 text-center"
+                                class="border-b border-white/5 px-2 py-3 text-center"
                                 style="min-width: 90px"
                             >
                                 <span
-                                    class="text-[10px] font-mono text-neutral-400 uppercase tracking-widest leading-tight block"
+                                    class="text-[10px] font-mono text-white/25 uppercase tracking-widest leading-tight block"
                                 >
                                     {t.label}
                                 </span>
                             </th>
                         {/each}
                         <th
-                            class="border-b border-l border-neutral-800 px-4 py-3 text-center"
+                            class="border-b border-l border-white/5 px-4 py-3 text-center"
                             style="min-width: 64px"
                         >
                             <span
-                                class="text-xs font-mono text-neutral-500 uppercase tracking-widest"
-                                >Total</span
+                                class="text-[10px] font-mono text-white/20 uppercase tracking-widest"
                             >
+                                Total
+                            </span>
                         </th>
                     </tr>
                 </thead>
@@ -181,14 +186,17 @@
                         {@const totalBans =
                             allStats.bans.find((b) => b.hero === hero)?.count ??
                             0}
-                        <tr class="group">
-                            <!-- Hero name — sticky left -->
+                        <tr
+                            class="group border-b border-white/[0.04] last:border-0"
+                        >
+                            <!-- hero name-->
                             <td
-                                class="sticky left-0 z-10 bg-neutral-950 border-b border-r border-neutral-800 px-3 py-2.5 group-hover:bg-neutral-900 transition-colors"
+                                class="sticky left-0 z-10 bg-[#0d0d0d] border-r border-white/5 px-3 py-2 group-hover:bg-white/[0.02] transition-colors"
                             >
                                 <div class="flex items-center gap-3">
+                                    <!-- hero img-->
                                     <div
-                                        class="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-neutral-800 border border-neutral-700/50"
+                                        class="w-9 h-9 overflow-hidden shrink-0 bg-white/[0.04] border border-white/5"
                                     >
                                         <img
                                             src={getHeroPortrait(hero)}
@@ -198,52 +206,57 @@
                                         />
                                     </div>
                                     <span
-                                        class="font-title uppercase text-base text-neutral-300 group-hover:text-white transition-colors tracking-wide whitespace-nowrap"
+                                        class="font-title uppercase text-sm text-white/50 group-hover:text-white/80 transition-colors tracking-wide whitespace-nowrap"
                                     >
                                         {hero}
                                     </span>
                                 </div>
                             </td>
 
-                            <!-- Heatmap cells -->
+                            <!-- heatmap cells -->
                             {#each tournaments as t}
                                 {@const count = matrix[hero]?.[t.value] ?? 0}
                                 {@const norm = count / colMax[t.value]}
                                 <td
-                                    class="border-b border-neutral-800/50 p-1.5 text-center cursor-default"
+                                    class="border-white/[0.03] p-1 text-center cursor-default"
                                     on:mouseenter={(e) =>
                                         onCellEnter(e, hero, t)}
                                     on:mouseleave={onCellLeave}
                                 >
+                                    <!-- cells -->
                                     <div
-                                        class="mx-auto w-full rounded-lg border transition-all duration-200 flex items-center justify-center py-2.5
-                    {cellColor(norm)} hover:scale-105 relative"
-                                        style="min-height: 40px"
+                                        class="mx-auto w-full border transition-colors duration-200 flex items-center justify-center py-2.5"
+                                        style="{cellBg(norm)}; min-height: 38px"
                                     >
                                         {#if count > 0}
                                             <span
-                                                class="font-mono font-bold text-sm {textColor(
-                                                    norm,
-                                                )}">{count}</span
+                                                class="font-mono font-bold text-sm"
+                                                style={cellTextColor(norm)}
+                                                >{count}</span
                                             >
                                         {:else}
                                             <span
-                                                class="text-neutral-800 text-sm"
-                                                >—</span
+                                                style="color: rgba(255,255,255,0.08)"
+                                                class="text-sm">—</span
                                             >
                                         {/if}
                                     </div>
                                 </td>
                             {/each}
 
-                            <!-- Total -->
+                            <!--total number of bans-->
                             <td
-                                class="border-b border-l border-neutral-800 px-4 py-2.5 text-center"
+                                class="border-l border-white/5 px-4 py-2 text-center"
                             >
                                 <span
-                                    class="font-mono font-bold text-base text-violet-400"
-                                    >{totalBans}</span
+                                    class="font-mono font-bold text-sm"
+                                    style="color: rgba(123,47,255,{0.5 +
+                                        (totalBans /
+                                            (allStats.bans[0]?.count ?? 1)) *
+                                            0.5})"
                                 >
+                                    {totalBans}
+                                </span>
                             </td>
                         </tr>
                     {/each}
@@ -251,81 +264,114 @@
             </table>
         </div>
 
-        <!-- ── SHOW MORE ── -->
+        <!-- SHOW MORE HEROES-->
         {#if heroes.length > PREVIEW_ROWS}
             <div class="mt-4 flex justify-center">
                 <button
                     on:click={() => (showAllHeroes = !showAllHeroes)}
-                    class="px-6 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-neutral-600
-            text-neutral-400 hover:text-white font-mono text-xs uppercase tracking-widest
-            rounded-lg transition-all"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-white/10
+                    hover:border-[#7B2FFF] hover:text-[#7B2FFF] text-white/30
+                    font-mono text-[10px] uppercase tracking-widest transition-all"
                 >
-                    {showAllHeroes
-                        ? "Show Less"
-                        : `Show All ${heroes.length} Heroes`}
+                    {#if showAllHeroes}
+                        <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 15l7-7 7 7"
+                            />
+                        </svg>
+                        Show Less
+                    {:else}
+                        <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                        Show All {heroes.length} Heroes
+                    {/if}
                 </button>
             </div>
         {/if}
 
         <!-- ── COLOUR LEGEND ── -->
-        <div class="mt-6 flex flex-wrap items-center gap-3">
+        <div class="mt-5 flex flex-wrap items-center gap-3">
             <p
-                class="text-neutral-600 font-mono text-xs uppercase tracking-widest shrink-0"
+                class="text-white/20 font-mono text-[10px] uppercase tracking-widest shrink-0"
             >
                 Intensity
             </p>
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1">
                 <div
-                    class="w-7 h-5 rounded bg-neutral-900 border border-neutral-800"
+                    class="w-6 h-4 border"
+                    style="background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04)"
                 ></div>
                 <div
-                    class="w-7 h-5 rounded bg-violet-950/60 border border-violet-900/40"
+                    class="w-6 h-4 border"
+                    style="background: rgba(123,47,255,0.12); border-color: rgba(123,47,255,0.20)"
                 ></div>
                 <div
-                    class="w-7 h-5 rounded bg-violet-900/60 border border-violet-800/50"
+                    class="w-6 h-4 border"
+                    style="background: rgba(123,47,255,0.28); border-color: rgba(123,47,255,0.35)"
                 ></div>
                 <div
-                    class="w-7 h-5 rounded bg-violet-700/70 border border-violet-600/60"
+                    class="w-6 h-4 border"
+                    style="background: rgba(123,47,255,0.50); border-color: rgba(123,47,255,0.55)"
                 ></div>
                 <div
-                    class="w-7 h-5 rounded bg-violet-500/80 border border-violet-400/70"
+                    class="w-6 h-4 border"
+                    style="background: rgba(123,47,255,0.80); border-color: rgba(123,47,255,0.90)"
                 ></div>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-mono text-neutral-500"
-                    >Never banned</span
-                >
-                <span class="text-neutral-600">→</span>
-                <span class="text-xs font-mono text-violet-400"
-                    >Most banned</span
-                >
+            <div class="flex items-center gap-2 text-[10px] font-mono">
+                <span class="text-white/20">Never banned</span>
+                <span class="text-white/10">→</span>
+                <span style="color: rgba(123,47,255,0.9)">Most banned</span>
             </div>
             <p
-                class="text-neutral-600 font-mono text-[10px] ml-auto hidden md:block"
+                class="text-white/10 font-mono text-[9px] ml-auto hidden md:block italic"
             >
-                * intensity is normalised per tournament column
+                * intensity normalised per tournament column
             </p>
         </div>
     {/if}
 </div>
 
-<!-- ── TOOLTIP — fixed to viewport so it always appears near the cell ── -->
+<!-- TOOLTIP WHEN HOVERING ON REGION HEATMAP CELLS -->
 {#if hovered}
     <div
-        class="fixed z-[9999] pointer-events-none px-3 py-2.5 bg-neutral-900 border border-neutral-700
-      rounded-xl shadow-2xl"
+        class="fixed z-[9999] pointer-events-none px-3 py-2.5 bg-[#0d0d0d] border border-white/10 shadow-2xl"
         style="left: {tooltipX}px; top: {tooltipY}px; transform: translate(-50%, -100%)"
     >
         <p class="font-title uppercase text-white text-base leading-tight">
             {hovered.hero}
         </p>
-        <p class="text-xs font-mono text-neutral-400 mt-0.5">
+        <p
+            class="text-[10px] font-mono text-white/30 mt-0.5 uppercase tracking-widest"
+        >
             {hovered.tournament}
         </p>
-        <p class="text-xs font-mono text-violet-400 mt-1">
+        <p
+            class="text-[11px] font-mono mt-1.5"
+            style="color: rgba(123,47,255,0.9)"
+        >
             {hovered.count === 0
                 ? "Not banned"
-                : `Banned ${hovered.count}× across ${hovered.totalMaps} maps`}
+                : `Banned ${hovered.count}× · ${hovered.totalMaps} maps`}
         </p>
     </div>
 {/if}

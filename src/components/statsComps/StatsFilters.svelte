@@ -51,14 +51,13 @@
     type SortMode = "count" | "winRate";
     type ViewMode = "hero" | "team" | "region";
 
-    // ── SHARED FILTER STATE ──
     let viewMode: ViewMode = "hero";
     let selectedStage = "All";
     let selectedTournament = "All";
     let sortMode: SortMode = "count";
     let showAll = false;
 
-    // ── TEAM VIEW STATE ──
+    // Team filter state
     let selectedTeam: string = "";
     $: if (teamList.length && !selectedTeam) selectedTeam = teamList[0];
     let dropdownOpen = false;
@@ -67,7 +66,6 @@
         t.toLowerCase().includes(teamSearch.toLowerCase()),
     );
 
-    // Click-outside action
     function clickOutside(node: HTMLElement, handler: () => void) {
         const onClick = (e: MouseEvent) => {
             if (!node.contains(e.target as Node)) handler();
@@ -82,7 +80,7 @@
 
     const PREVIEW_COUNT = 10;
 
-    // ── TOURNAMENT CLASSIFICATION ──
+    // Basic tournament classifier based on name keywords
     function classifyTournament(name: string): {
         stage: string;
         region: string;
@@ -94,7 +92,6 @@
             return { stage: "Majors", region: "Midseason" };
         if (n.includes("champions clash"))
             return { stage: "Majors", region: "Champions Clash" };
-
         const stageMatch = n.match(/stage\s*(\d)/);
         const stage = stageMatch ? `Stage ${stageMatch[1]}` : "Other";
         let region = "Other";
@@ -196,8 +193,8 @@
 
     function mergeTeamStats(keys: string[], team: string): TeamBanData | null {
         const heroCounts: Record<string, number> = {};
-        let totalBans = 0;
-        let logo = "",
+        let totalBans = 0,
+            logo = "",
             logoDark = "";
         for (const k of keys) {
             const td = teamBansPerTournament[k]?.[team];
@@ -231,7 +228,7 @@
                 const group = stageGroups[selectedStage];
                 return group ? Object.values(group).flat() : null;
             }
-            return null; // null = use "All"
+            return null;
         }
         if (selectedTournament.startsWith("__multi__"))
             return selectedTournament.replace("__multi__", "").split("|");
@@ -285,28 +282,22 @@
                 : (tournamentOptions.find((o) => o.value === selectedTournament)
                       ?.label ?? "");
 
-    // ── PIE CHART HELPERS ──
-    const PIE_OTHER_COLOR = "#2a2a2a";
+    const PIE_OTHER_COLOR = "rgba(255,255,255,0.08)";
 
-    // Generate a luminance scale from bright violet (most bans) to dim (least)
-    // Returns hex colors from high to low brightness for N slices
+    // #7B2FFF bright → #2a1660 dark
     function buildColorScale(n: number): string[] {
         if (n === 0) return [];
         return Array.from({ length: n }, (_, i) => {
-            // i=0 is the most banned → brightest; i=n-1 → dimmest
-            const t = n === 1 ? 0 : i / (n - 1); // 0 = brightest, 1 = dimmest
-            // Interpolate: bright violet #a855f7 → dim #3b1f5e
-            const r = Math.round(168 - t * (168 - 59));
-            const g = Math.round(85 - t * (85 - 31));
-            const b = Math.round(247 - t * (247 - 94));
+            const t = n === 1 ? 0 : i / (n - 1);
+            const r = Math.round(123 - t * (123 - 42));
+            const g = Math.round(47 - t * (47 - 22));
+            const b = Math.round(255 - t * (255 - 96));
             return `rgb(${r},${g},${b})`;
         });
     }
 
-    // Only top N heroes in the pie, rest go to "Other"
     const PIE_MAX = 8;
 
-    // Single source of truth: hero → color, used by BOTH pie and list
     $: colorMap = (() => {
         if (!activeTeamData) return {} as Record<string, string>;
         const top = activeTeamData.bans.slice(0, PIE_MAX);
@@ -315,7 +306,6 @@
         top.forEach((b, i) => {
             map[b.hero] = scale[i];
         });
-        // remaining heroes beyond PIE_MAX
         activeTeamData.bans.slice(PIE_MAX).forEach((b) => {
             map[b.hero] = PIE_OTHER_COLOR;
         });
@@ -342,7 +332,6 @@
         return slices;
     })();
 
-    // SVG donut chart path generation
     function polarToCartesian(
         cx: number,
         cy: number,
@@ -394,7 +383,6 @@
 
     let hoveredSlice: string | null = null;
 
-    // Role breakdown: count bans by Tank / Damage / Support
     $: roleSplit = (() => {
         if (!activeTeamData) return { Tank: 0, Damage: 0, Support: 0 };
         const counts = { Tank: 0, Damage: 0, Support: 0 };
@@ -419,6 +407,7 @@
         };
     })();
 
+    // Role colors on team view
     const ROLE_COLORS = {
         Tank: "#60a5fa",
         Damage: "#f87171",
@@ -427,74 +416,50 @@
 </script>
 
 <div>
-    <!-- ── VIEW MODE TOGGLE ── -->
+    <!-- View Mode Toggle -->
     <div class="flex items-center justify-between mb-6">
-        <div
-            class="flex items-center gap-1 bg-neutral-900 border border-neutral-800 rounded-xl p-1"
-        >
-            <button
-                on:click={() => {
-                    viewMode = "hero";
-                    showAll = false;
-                }}
-                class="px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-widest transition-all
-          {viewMode === 'hero'
-                    ? 'bg-neutral-700 text-white'
-                    : 'text-neutral-500 hover:text-neutral-300'}"
-            >
-                By Hero
-            </button>
-            <button
-                on:click={() => {
-                    viewMode = "team";
-                    showAll = false;
-                }}
-                class="px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-widest transition-all
-          {viewMode === 'team'
-                    ? 'bg-neutral-700 text-white'
-                    : 'text-neutral-500 hover:text-neutral-300'}"
-            >
-                By Team
-            </button>
-            <button
-                on:click={() => {
-                    viewMode = "region";
-                    showAll = false;
-                }}
-                class="px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-widest transition-all
-          {viewMode === 'region'
-                    ? 'bg-neutral-700 text-white'
-                    : 'text-neutral-500 hover:text-neutral-300'}"
-            >
-                By Region
-            </button>
+        <div class="flex items-center gap-0 border border-white/8">
+            {#each [["hero", "By Hero"], ["team", "By Team"], ["region", "By Region"]] as [mode, label]}
+                <button
+                    on:click={() => {
+                        viewMode = mode;
+                        showAll = false;
+                    }}
+                    class="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest transition-all border-r border-white/8 last:border-r-0
+                    {viewMode === mode
+                        ? 'bg-[#7B2FFF] text-white'
+                        : 'bg-transparent text-white/25 hover:text-white/60 hover:bg-white/[0.03]'}"
+                >
+                    {label}
+                </button>
+            {/each}
         </div>
     </div>
 
-    <!-- ── SHARED: STAGE TABS ── -->
+    <!-- stage tabs -->
     {#if viewMode !== "region"}
-        <div class="flex items-center gap-1 border-b border-neutral-800 mb-0">
+        <div class="flex items-center gap-0 border-b border-white/5 mb-0">
             <button
                 on:click={() => selectStage("All")}
                 class="px-4 py-3 font-mono text-[10px] uppercase tracking-widest border-b-2 transition-all -mb-px
-        {selectedStage === 'All'
-                    ? 'border-violet-500 text-violet-300'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-300'}"
+                {selectedStage === 'All'
+                    ? 'border-[#7B2FFF] text-[#7B2FFF]'
+                    : 'border-transparent text-white/25 hover:text-white/50'}"
                 >All</button
             >
             {#each availableStages as stage}
                 <button
                     on:click={() => selectStage(stage)}
                     class="px-4 py-3 font-mono text-[10px] uppercase tracking-widest border-b-2 transition-all -mb-px
-          {selectedStage === stage
-                        ? 'border-violet-500 text-violet-300'
-                        : 'border-transparent text-neutral-500 hover:text-neutral-300'}"
+                    {selectedStage === stage
+                        ? 'border-[#7B2FFF] text-[#7B2FFF]'
+                        : 'border-transparent text-white/25 hover:text-white/50'}"
                     >{stage}</button
                 >
             {/each}
         </div>
 
-        <!-- ── SHARED: REGION PILLS ── -->
+        <!-- region tabs -->
         <div class="min-h-[48px] flex items-center mt-3 mb-6">
             {#if selectedStage !== "All" && regionOptions.length > 0}
                 <div class="flex flex-wrap items-center gap-2">
@@ -503,19 +468,19 @@
                             selectedTournament = "All";
                             showAll = false;
                         }}
-                        class="px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-widest border transition-all
-            {selectedTournament === 'All'
-                            ? 'bg-neutral-700 border-neutral-600 text-white'
-                            : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-neutral-300'}"
+                        class="px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border transition-all
+                        {selectedTournament === 'All'
+                            ? 'bg-[#7B2FFF] border-[#7B2FFF] text-white'
+                            : 'bg-transparent border-white/10 text-white/30 hover:border-white/25 hover:text-white/60'}"
                         >All</button
                     >
                     {#each regionOptions as ro}
                         <button
                             on:click={() => selectRegion(ro.tournaments)}
-                            class="px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-widest border transition-all
-              {activeRegion === ro.region
-                                ? 'bg-neutral-700 border-neutral-600 text-white'
-                                : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:border-neutral-600 hover:text-neutral-300'}"
+                            class="px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border transition-all
+                            {activeRegion === ro.region
+                                ? 'bg-[#7B2FFF] border-[#7B2FFF] text-white'
+                                : 'bg-transparent border-white/10 text-white/30 hover:border-white/25 hover:text-white/60'}"
                             >{ro.region}</button
                         >
                     {/each}
@@ -526,39 +491,39 @@
 
     <!-- ════════════════════════════════════════
       VIEW: BY HERO
-  ════════════════════════════════════════ -->
+    ════════════════════════════════════════ -->
     {#if viewMode === "hero"}
         <div class="flex items-center justify-between gap-4 mb-6">
             <p
-                class="text-neutral-500 font-mono text-xs uppercase tracking-widest"
+                class="text-white/20 font-mono text-[10px] uppercase tracking-widest"
             >
                 {activeStats.totalBanSlots} bans · {activeStats.totalMaps} maps ·
                 {contextLabel}
             </p>
-            <div
-                class="flex items-center gap-1 bg-neutral-900 border border-neutral-800 rounded-lg p-1 shrink-0"
-            >
+            <!-- Sort toggle — square, #7B2FFF active -->
+            <div class="flex items-center gap-0 border border-white/8 shrink-0">
                 <button
                     on:click={() => (sortMode = "count")}
-                    class="px-3 py-1 rounded-md font-mono text-[10px] uppercase tracking-widest transition-all
-            {sortMode === 'count'
-                        ? 'bg-neutral-700 text-white'
-                        : 'text-neutral-500 hover:text-neutral-300'}"
+                    class="px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-all border-r border-white/8
+                    {sortMode === 'count'
+                        ? 'bg-[#7B2FFF] text-white'
+                        : 'bg-transparent text-white/25 hover:text-white/60'}"
                     >Ban Count</button
                 >
                 <button
                     on:click={() => (sortMode = "winRate")}
-                    class="px-3 py-1 rounded-md font-mono text-[10px] uppercase tracking-widest transition-all
-            {sortMode === 'winRate'
-                        ? 'bg-neutral-700 text-white'
-                        : 'text-neutral-500 hover:text-neutral-300'}"
+                    class="px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-all
+                    {sortMode === 'winRate'
+                        ? 'bg-[#7B2FFF] text-white'
+                        : 'bg-transparent text-white/25 hover:text-white/60'}"
                     >Win Rate</button
                 >
             </div>
         </div>
 
+        <!-- Table header -->
         <div
-            class="grid grid-cols-12 gap-4 px-4 mb-2 text-neutral-500 font-mono text-xs uppercase tracking-widest mb-1"
+            class="grid grid-cols-12 gap-4 px-4 pb-3 text-white/20 font-mono text-[10px] uppercase tracking-widest border-b border-white/5"
         >
             <div class="col-span-1 text-center">#</div>
             <div class="col-span-4">Hero</div>
@@ -567,38 +532,44 @@
             <div class="col-span-2 text-center">Win Rate</div>
         </div>
 
-        <div class="flex flex-col gap-1">
+        <!-- Hero rows — flat list, sharp, no rounded -->
+        <div class="flex flex-col">
             {#each displayed as ban, i (ban.hero)}
                 {@const isTop = i === 0 && sortMode === "count"}
                 {@const barWidth = (ban.count / maxCount) * 100}
                 {@const winPct = (ban.winRate * 100).toFixed(0)}
                 {@const banPct = (ban.banRate * 100).toFixed(1)}
                 <div
-                    class="group grid grid-cols-12 gap-4 px-4 py-2 rounded-xl items-center
-          bg-neutral-900/50 hover:bg-neutral-900 border border-transparent hover:border-neutral-800
-          transition-all relative overflow-hidden py-1"
+                    class="group grid grid-cols-12 gap-4 px-4 py-4 items-center
+                    border-b border-white/[0.04] hover:bg-white/[0.02]
+                    transition-all relative overflow-hidden"
                 >
+                    <!-- Background bar fill -->
                     <div
-                        class="absolute left-0 top-0 bottom-0 bg-violet-500/5 rounded-xl pointer-events-none transition-all duration-500"
-                        style="width: {barWidth}%"
+                        class="absolute left-0 top-0 bottom-0 pointer-events-none transition-all duration-500"
+                        style="width: {barWidth}%; background: rgba(123,47,255,0.04)"
                     ></div>
+
+                    <!-- Rank -->
                     <div class="col-span-1 text-center relative z-10">
                         {#if isTop}
                             <span
-                                class="text-violet-400 font-title text-xl leading-none"
-                                >#1</span
+                                class="font-title text-2xl leading-none"
+                                style="color: #7B2FFF">#1</span
                             >
                         {:else}
-                            <span class="text-neutral-500 font-mono text-base"
+                            <span class="text-white/20 font-mono text-base"
                                 >{i + 1}</span
                             >
                         {/if}
                     </div>
+
+                    <!-- Portrait + name -->
                     <div
-                        class="col-span-4 relative z-10 flex items-center gap-3"
+                        class="col-span-4 relative z-10 flex items-center gap-4"
                     >
                         <div
-                            class="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-neutral-800 border border-neutral-700"
+                            class="w-12 h-12 overflow-hidden shrink-0 bg-white/[0.04] border border-white/5"
                         >
                             <img
                                 src={getHeroPortrait(ban.hero)}
@@ -608,44 +579,56 @@
                             />
                         </div>
                         <span
-                            class="font-title uppercase text-lg leading-tight tracking-wide {isTop
+                            class="font-title uppercase text-lg leading-tight tracking-wide
+                            {isTop
                                 ? 'text-white'
-                                : 'text-neutral-300'}">{ban.hero}</span
+                                : 'text-white/60 group-hover:text-white/90'} transition-colors"
                         >
+                            {ban.hero}
+                        </span>
                     </div>
+
+                    <!-- Ban rate bar + pct -->
                     <div
                         class="col-span-3 relative z-10 flex items-center gap-3"
                     >
                         <div
-                            class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden hidden sm:block"
+                            class="flex-1 h-[2px] bg-white/[0.06] overflow-hidden hidden sm:block"
                         >
                             <div
-                                class="h-full rounded-full transition-all duration-500 {isTop
-                                    ? 'bg-violet-400'
-                                    : 'bg-neutral-500'}"
-                                style="width: {barWidth}%"
+                                class="h-full transition-all duration-500"
+                                style="width: {barWidth}%; background: {isTop
+                                    ? '#7B2FFF'
+                                    : 'rgba(255,255,255,0.2)'}"
                             ></div>
                         </div>
                         <span
-                            class="text-sm font-mono text-neutral-400 w-12 text-right shrink-0"
+                            class="text-base font-mono text-white/35 w-14 text-right shrink-0"
                             >{banPct}%</span
                         >
                     </div>
+
+                    <!-- Ban count -->
                     <div class="col-span-2 text-center relative z-10">
                         <span
-                            class="font-mono font-bold text-lg {isTop
-                                ? 'text-violet-400'
-                                : 'text-neutral-300'}">{ban.count}</span
+                            class="font-mono font-bold text-xl"
+                            style="color: {isTop
+                                ? '#7B2FFF'
+                                : 'rgba(255,255,255,0.5)'}"
                         >
+                            {ban.count}
+                        </span>
                     </div>
+
+                    <!-- Win rate — LFP functional palette -->
                     <div class="col-span-2 text-center relative z-10">
                         <span
-                            class="font-mono text-lg
-              {Number(winPct) >= 60
-                                ? 'text-emerald-400'
+                            class="font-mono text-xl"
+                            style="color: {Number(winPct) >= 60
+                                ? '#0CD905'
                                 : Number(winPct) <= 40
-                                  ? 'text-red-400'
-                                  : 'text-neutral-400'}"
+                                  ? '#D90000'
+                                  : 'rgba(255,255,255,0.35)'}"
                         >
                             {winPct}%
                         </span>
@@ -654,46 +637,81 @@
             {/each}
         </div>
 
+        <!-- Show more -->
         {#if sorted.length > PREVIEW_COUNT}
-            <div class="mt-6 flex justify-center">
+            <div class="mt-4 flex justify-center">
                 <button
                     on:click={() => (showAll = !showAll)}
-                    class="px-6 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-neutral-600
-            text-neutral-400 hover:text-white font-mono text-xs uppercase tracking-widest rounded-lg transition-all"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-white/10
+                    hover:border-[#7B2FFF] hover:text-[#7B2FFF] text-white/30
+                    font-mono text-[10px] uppercase tracking-widest transition-all"
                 >
-                    {showAll ? "Show Less" : `Show All ${sorted.length} Heroes`}
+                    {#if showAll}
+                        <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 15l7-7 7 7"
+                            />
+                        </svg>
+                        Show Less
+                    {:else}
+                        <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                        Show All {sorted.length} Heroes
+                    {/if}
                 </button>
             </div>
         {/if}
 
+        <!-- Win rate legend -->
         <div
-            class="mt-8 pt-6 border-t border-neutral-800 flex flex-wrap items-center gap-6"
+            class="mt-8 pt-5 border-t border-white/5 flex flex-wrap items-center gap-5"
         >
             <p
-                class="text-neutral-700 font-mono text-[9px] uppercase tracking-widest"
+                class="text-white/15 font-mono text-[9px] uppercase tracking-widest shrink-0"
             >
                 Win rate key
             </p>
             <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span><span
-                    class="text-xs font-mono text-neutral-400"
+                <span class="w-2 h-2 shrink-0" style="background: #0CD905"
+                ></span>
+                <span class="text-[10px] font-mono text-white/30"
                     >≥ 60% — banning team usually wins</span
                 >
             </div>
             <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-neutral-400"></span><span
-                    class="text-xs font-mono text-neutral-400"
+                <span class="w-2 h-2 shrink-0 bg-white/25"></span>
+                <span class="text-[10px] font-mono text-white/30"
                     >40–60% — neutral</span
                 >
             </div>
             <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-red-400"></span><span
-                    class="text-xs font-mono text-neutral-400"
+                <span class="w-2 h-2 shrink-0" style="background: #D90000"
+                ></span>
+                <span class="text-[10px] font-mono text-white/30"
                     >≤ 40% — banning team usually loses</span
                 >
             </div>
             <p
-                class="text-neutral-700 font-mono text-[9px] ml-auto hidden md:block"
+                class="text-white/10 font-mono text-[9px] ml-auto hidden md:block italic"
             >
                 * win rate = did the banning team win that map
             </p>
@@ -702,23 +720,23 @@
 
     <!-- ════════════════════════════════════════
       VIEW: BY TEAM
-  ════════════════════════════════════════ -->
+    ════════════════════════════════════════ -->
     {#if viewMode === "team"}
-        <div class="flex items-center justify-between gap-4 mb-8">
+        <div class="flex items-center justify-between gap-4 mb-6">
             <p
-                class="text-neutral-600 font-mono text-[10px] uppercase tracking-widest truncate"
+                class="text-white/20 font-mono text-[10px] uppercase tracking-widest truncate"
             >
                 {contextLabel}
             </p>
         </div>
 
-        <!-- ── TEAM SELECTOR DROPDOWN ── -->
+        <!-- ── TEAM SELECTOR ── sharp, purple hover/focus -->
         <div
             class="mb-8 relative"
             use:clickOutside={() => (dropdownOpen = false)}
         >
             <p
-                class="text-neutral-500 font-mono text-xs uppercase tracking-widest mb-3"
+                class="text-white/25 font-mono text-[10px] uppercase tracking-widest mb-3"
             >
                 Select Team
             </p>
@@ -726,8 +744,8 @@
             <!-- Trigger -->
             <button
                 on:click={() => (dropdownOpen = !dropdownOpen)}
-                class="flex items-center gap-3 px-4 py-3 bg-neutral-900 border border-neutral-700 hover:border-neutral-500
-          rounded-xl transition-all w-full md:w-80 text-left"
+                class="flex items-center gap-3 px-4 py-3 bg-white/[0.02] border border-white/10
+                hover:border-[#7B2FFF] transition-all w-full md:w-80 text-left"
             >
                 {#if activeTeamData?.logo}
                     <img
@@ -738,10 +756,11 @@
                 {/if}
                 <span
                     class="font-title uppercase text-sm text-white tracking-wide flex-1"
-                    >{selectedTeam || "Choose a team"}</span
                 >
+                    {selectedTeam || "Choose a team"}
+                </span>
                 <svg
-                    class="w-4 h-4 text-neutral-500 transition-transform {dropdownOpen
+                    class="w-4 h-4 text-white/25 transition-transform {dropdownOpen
                         ? 'rotate-180'
                         : ''}"
                     fill="none"
@@ -757,20 +776,19 @@
                 </svg>
             </button>
 
-            <!-- Dropdown -->
+            <!-- Dropdown — sharp, no rounded -->
             {#if dropdownOpen}
                 <div
-                    class="absolute top-full left-0 mt-2 w-full md:w-80 bg-neutral-900 border border-neutral-700
-          rounded-xl shadow-2xl z-50 overflow-hidden"
+                    class="absolute top-full left-0 mt-1 w-full md:w-80 bg-[#0d0d0d] border border-white/10 shadow-2xl z-50 overflow-hidden"
                 >
                     <!-- Search -->
-                    <div class="p-2 border-b border-neutral-800">
+                    <div class="p-2 border-b border-white/5">
                         <input
                             bind:value={teamSearch}
                             placeholder="Search team..."
-                            class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2
-                text-sm text-white placeholder-neutral-500 font-mono outline-none
-                focus:border-violet-500 transition-colors"
+                            class="w-full bg-white/[0.04] border border-white/8 px-3 py-2
+                            text-sm text-white placeholder-white/20 font-mono outline-none
+                            focus:border-[#7B2FFF] transition-colors"
                         />
                     </div>
                     <!-- List -->
@@ -784,9 +802,9 @@
                                     teamSearch = "";
                                 }}
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all
-                  {selectedTeam === team
-                                    ? 'bg-violet-500/20 text-violet-300'
-                                    : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'}"
+                                {selectedTeam === team
+                                    ? 'bg-[rgba(123,47,255,0.15)] text-[#7B2FFF]'
+                                    : 'text-white/50 hover:bg-white/[0.03] hover:text-white/80'}"
                             >
                                 {#if td?.logo}
                                     <img
@@ -805,7 +823,7 @@
                         {/each}
                         {#if filteredTeams.length === 0}
                             <p
-                                class="px-4 py-3 text-neutral-600 font-mono text-xs"
+                                class="px-4 py-3 text-white/20 font-mono text-xs"
                             >
                                 No teams found
                             </p>
@@ -818,10 +836,11 @@
         <!-- Team ban breakdown -->
         {#if activeTeamData}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- ── DONUT CHART ── -->
+                <!-- ── DONUT CHART CARD ── sharp, no rounded -->
                 <div
-                    class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 self-start"
+                    class="bg-white/[0.02] border border-white/5 p-6 self-start"
                 >
+                    <!-- Team header -->
                     <div class="flex items-center gap-3 mb-6">
                         {#if activeTeamData.logo}
                             <img
@@ -837,14 +856,15 @@
                             >
                                 {activeTeamData.team}
                             </p>
-                            <p class="text-xs font-mono text-neutral-400">
-                                {activeTeamData.totalBans} bans total · {contextLabel}
+                            <p class="text-[10px] font-mono text-white/30">
+                                {activeTeamData.totalBans} bans · {contextLabel}
                             </p>
                         </div>
                     </div>
 
+                    <!-- SVG Donut -->
                     <div class="relative flex items-center justify-center">
-                        <svg viewBox="0 0 200 200" class="w-56 h-56">
+                        <svg viewBox="0 0 200 200" class="w-52 h-52">
                             {#each pieSlices as slice}
                                 <path
                                     d={slice.path}
@@ -870,8 +890,7 @@
                                         x="100"
                                         y="93"
                                         text-anchor="middle"
-                                        class="fill-white font-bold"
-                                        style="font-size: 11px; font-family: inherit;"
+                                        style="font-size: 11px; font-family: inherit; fill: rgba(255,255,255,0.8); font-weight: bold"
                                     >
                                         {hs.hero}
                                     </text>
@@ -879,8 +898,7 @@
                                         x="100"
                                         y="113"
                                         text-anchor="middle"
-                                        class="fill-violet-400 font-black"
-                                        style="font-size: 20px; font-family: monospace;"
+                                        style="font-size: 20px; font-family: monospace; fill: #7B2FFF; font-weight: 900"
                                     >
                                         {(hs.pct * 100).toFixed(0)}%
                                     </text>
@@ -888,8 +906,7 @@
                                         x="100"
                                         y="128"
                                         text-anchor="middle"
-                                        class="fill-neutral-500"
-                                        style="font-size: 9px; font-family: monospace;"
+                                        style="font-size: 9px; font-family: monospace; fill: rgba(255,255,255,0.2)"
                                     >
                                         {hs.count} ban{hs.count !== 1
                                             ? "s"
@@ -901,8 +918,7 @@
                                     x="100"
                                     y="97"
                                     text-anchor="middle"
-                                    class="fill-neutral-500"
-                                    style="font-size: 9px; font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em;"
+                                    style="font-size: 9px; font-family: monospace; fill: rgba(255,255,255,0.2); text-transform: uppercase; letter-spacing: 0.1em"
                                 >
                                     BAN SPLIT
                                 </text>
@@ -910,56 +926,54 @@
                                     x="100"
                                     y="116"
                                     text-anchor="middle"
-                                    class="fill-white font-black"
-                                    style="font-size: 18px; font-family: monospace;"
+                                    style="font-size: 18px; font-family: monospace; fill: white; font-weight: 900"
                                 >
                                     {activeTeamData.totalBans}
                                 </text>
                             {/if}
                         </svg>
                     </div>
-                    <!--/* ── ROLE BREAKDOWN ── */-->
-                    {#if activeTeamData}
-                        <div class="mt-5 pt-4 border-t border-neutral-800">
-                            <p
-                                class="text-[10px] font-mono text-neutral-600 uppercase tracking-widest mb-3"
-                            >
-                                Role Split
-                            </p>
-                            <div class="flex flex-col gap-2">
-                                {#each Object.entries(roleSplit) as [role, data]}
-                                    <div class="flex items-center gap-3">
-                                        <span
-                                            class="font-mono text-[10px] uppercase tracking-widest w-16 shrink-0"
-                                            style="color: {ROLE_COLORS[role]}"
-                                            >{role}</span
-                                        >
+
+                    <!-- Role breakdown -->
+                    <div class="mt-5 pt-4 border-t border-white/5">
+                        <p
+                            class="text-[9px] font-mono text-white/20 uppercase tracking-widest mb-3"
+                        >
+                            Role Split
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            {#each Object.entries(roleSplit) as [role, data]}
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="font-mono text-[10px] uppercase tracking-widest w-16 shrink-0"
+                                        style="color: {ROLE_COLORS[role]}"
+                                        >{role}</span
+                                    >
+                                    <div
+                                        class="flex-1 h-[2px] bg-white/[0.06] overflow-hidden"
+                                    >
                                         <div
-                                            class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden"
-                                        >
-                                            <div
-                                                class="h-full rounded-full transition-all duration-500"
-                                                style="width: {data.pct}%; background: {ROLE_COLORS[
-                                                    role
-                                                ]}"
-                                            ></div>
-                                        </div>
-                                        <span
-                                            class="font-mono text-sm font-bold text-neutral-300 w-10 text-right shrink-0"
-                                        >
-                                            {data.pct}%
-                                        </span>
+                                            class="h-full transition-all duration-500"
+                                            style="width: {data.pct}%; background: {ROLE_COLORS[
+                                                role
+                                            ]}"
+                                        ></div>
                                     </div>
-                                {/each}
-                            </div>
+                                    <span
+                                        class="font-mono text-sm font-bold text-white/40 w-10 text-right shrink-0"
+                                    >
+                                        {data.pct}%
+                                    </span>
+                                </div>
+                            {/each}
                         </div>
-                    {/if}
+                    </div>
                 </div>
 
-                <!-- ── BAN LIST ── -->
-                <div class="flex flex-col gap-1">
+                <!-- ── BAN LIST ── flat rows, sharp -->
+                <div class="flex flex-col">
                     <div
-                        class="grid grid-cols-12 gap-3 px-3 mb-2 text-neutral-500 font-mono text-[10px] uppercase tracking-widest"
+                        class="grid grid-cols-12 gap-3 px-3 pb-3 text-white/20 font-mono text-[10px] uppercase tracking-widest border-b border-white/5"
                     >
                         <div class="col-span-1"></div>
                         <div class="col-span-5">Hero</div>
@@ -972,24 +986,25 @@
                             (ban.count / (activeTeamData.bans[0]?.count ?? 1)) *
                             100}
                         <div
-                            class="grid grid-cols-12 gap-3 px-3 py-2 rounded-xl items-center transition-all cursor-default
-                {hoveredSlice === ban.hero
-                                ? 'bg-neutral-800 border border-neutral-700'
-                                : 'bg-neutral-900/50 border border-transparent'}"
+                            class="grid grid-cols-12 gap-3 px-3 py-2.5 items-center transition-all cursor-default
+                            border-b border-white/[0.04]
+                            {hoveredSlice === ban.hero
+                                ? 'bg-white/[0.04]'
+                                : 'hover:bg-white/[0.02]'}"
                             on:mouseenter={() => (hoveredSlice = ban.hero)}
                             on:mouseleave={() => (hoveredSlice = null)}
                         >
-                            <!-- Color dot -->
+                            <!-- Color square (not dot) -->
                             <div class="col-span-1 flex justify-center">
                                 <span
-                                    class="w-2.5 h-2.5 rounded-full shrink-0"
+                                    class="w-2.5 h-2.5 shrink-0"
                                     style="background: {color}"
                                 ></span>
                             </div>
                             <!-- Portrait + name -->
                             <div class="col-span-5 flex items-center gap-2.5">
                                 <div
-                                    class="w-10 h-10 rounded-md overflow-hidden shrink-0 bg-neutral-800 border border-neutral-700"
+                                    class="w-9 h-9 overflow-hidden shrink-0 bg-white/[0.04] border border-white/5"
                                 >
                                     <img
                                         src={getHeroPortrait(ban.hero)}
@@ -999,29 +1014,34 @@
                                     />
                                 </div>
                                 <span
-                                    class="font-title uppercase text-base text-neutral-300 tracking-wide leading-tight"
-                                    >{ban.hero}</span
+                                    class="font-title uppercase text-sm text-white/60 tracking-wide leading-tight
+                                    {hoveredSlice === ban.hero
+                                        ? 'text-white/90'
+                                        : ''}"
                                 >
+                                    {ban.hero}
+                                </span>
                             </div>
                             <!-- Bar + pct -->
                             <div class="col-span-4 flex items-center gap-2">
                                 <div
-                                    class="flex-1 h-1 bg-neutral-800 rounded-full overflow-hidden"
+                                    class="flex-1 h-[2px] bg-white/[0.06] overflow-hidden"
                                 >
                                     <div
-                                        class="h-full rounded-full"
+                                        class="h-full transition-all duration-300"
                                         style="width: {barWidth}%; background: {color}"
                                     ></div>
                                 </div>
                                 <span
-                                    class="text-sm font-mono text-neutral-400 w-10 text-right shrink-0"
-                                    >{(ban.pct * 100).toFixed(0)}%</span
+                                    class="text-sm font-mono text-white/30 w-10 text-right shrink-0"
                                 >
+                                    {(ban.pct * 100).toFixed(0)}%
+                                </span>
                             </div>
                             <!-- Count -->
                             <div class="col-span-2 text-right">
                                 <span
-                                    class="font-mono font-bold text-lg text-neutral-300"
+                                    class="font-mono font-bold text-base text-white/50"
                                     >{ban.count}</span
                                 >
                             </div>
@@ -1031,10 +1051,10 @@
             </div>
         {:else}
             <div
-                class="flex items-center justify-center h-40 bg-neutral-900 rounded-2xl border border-neutral-800"
+                class="flex items-center justify-center h-40 bg-white/[0.02] border border-white/5"
             >
                 <p
-                    class="text-neutral-600 font-mono text-xs uppercase tracking-widest"
+                    class="text-white/20 font-mono text-xs uppercase tracking-widest"
                 >
                     No ban data for {selectedTeam} in this tournament
                 </p>
@@ -1044,7 +1064,7 @@
 
     <!-- ════════════════════════════════════════
       VIEW: BY REGION
-  ════════════════════════════════════════ -->
+    ════════════════════════════════════════ -->
     {#if viewMode === "region"}
         <MetaBanChart {allStats} {perTournament} {tournamentOptions} />
     {/if}

@@ -157,15 +157,20 @@
                     <!-- Region bars -->
                     <div class="space-y-5">
                         {#each regionalAverages as reg, idx (reg.name)}
+                            <!-- Opacity scales from 1.0 (rank 1) down to 0.35 (rank 6) -->
+                            {@const rankOpacity =
+                                1 -
+                                (idx / (regionalAverages.length - 1)) * 0.65}
                             <div class="group space-y-2">
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center gap-2">
                                         <span
-                                            class="text-[10px] font-mono text-white/35 uppercase tracking-widest"
+                                            class="text-[10px] font-mono uppercase tracking-widest"
+                                            style="color: rgba(255,255,255,{0.2 +
+                                                rankOpacity * 0.35})"
                                         >
                                             {idx + 1}. {reg.name}
                                         </span>
-                                        <!-- Trend indicator — LFP functional palette -->
                                         {#if reg.trend !== 0}
                                             <span
                                                 class="text-[8px] font-mono font-bold
@@ -179,15 +184,16 @@
                                             </span>
                                         {/if}
                                     </div>
-                                    <!-- Avg number — Bleu Électrique, no text-shadow glow -->
+                                    <!-- Number fades with rank too -->
                                     <span
-                                        class="text-sm font-mono font-black text-[#085FFF]"
+                                        class="text-sm font-mono font-black"
+                                        style="color: rgba(8,95,255,{rankOpacity})"
                                     >
                                         {reg.avg}
                                     </span>
                                 </div>
 
-                                <!-- Bar — sharp, unified blue gradient -->
+                                <!-- Bar — width + opacity both encode rank -->
                                 <div
                                     class="w-full bg-white/[0.04] h-[3px] overflow-hidden"
                                 >
@@ -195,7 +201,8 @@
                                         class="h-full transition-all duration-1000 ease-out"
                                         style="width: {(reg.avg / maxWidth) *
                                             100}%;
-                                               background: linear-gradient(90deg, rgba(8,95,255,0.4) 0%, #085FFF 100%)"
+                                               background: linear-gradient(90deg, rgba(8,95,255,{rankOpacity *
+                                            0.4}) 0%, rgba(8,95,255,{rankOpacity}) 100%)"
                                     ></div>
                                 </div>
                             </div>

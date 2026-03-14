@@ -122,7 +122,7 @@
                     >
                         <span
                             class="text-[10px] font-black text-white uppercase tracking-widest italic"
-                            >See The Match</span
+                            >Watch The Match</span
                         >
                         <svg class="w-2 h-2 fill-[#085FFF]" viewBox="0 0 24 24"
                             ><path d="M21 12l-18 12v-24z" /></svg

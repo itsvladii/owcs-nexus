@@ -46,10 +46,6 @@
             },
         };
     }
-
-    function regionColor(region: string): string {
-        return REGION_COLORS[region] ?? "#525252";
-    }
 </script>
 
 <div class="relative">
@@ -203,7 +199,7 @@
                             </div>
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <span
-                                    class="font-mono text-[10px] uppercase tracking-widest text-[#3b80ff] opacity-50"
+                                    class="font-mono text-[10px] uppercase tracking-widest text-white/35 opacity-50"
                                 >
                                     {team.region}
                                 </span>

@@ -62,7 +62,7 @@ export const GET: APIRoute = async () => {
 
     endpoint.searchParams.set(
       "conditions",
-      `[[finished::0]] AND [[date::<${now}]] AND [[date::>${yesterday}]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]])`,
+      `[[finished::0]] AND [[date::<${now}]] AND [[date::>${yesterday}]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])`,
     );
 
     const response = await fetch(endpoint.toString(), {
