@@ -86,12 +86,16 @@ export const GET: APIRoute = async () => {
       tournament: shortenTournamentName(match.tournament),
       teamA: {
         name: op1.name,
-        logo: getLogo(op1.teamtemplate?.imageurl || op1.iconurl),
+        logo: getLogo(
+          op1.teamtemplate?.imagedarkurl || op1.teamtemplate?.iconurl,
+        ),
         score: op1.score ?? 0,
       },
       teamB: {
         name: op2.name,
-        logo: getLogo(op2.teamtemplate?.imageurl || op2.iconurl),
+        logo: getLogo(
+          op2.teamtemplate?.imagedarkurl || op2.teamtemplate?.iconurl,
+        ),
         score: op2.score ?? 0,
       },
       stream: getStreamUrl(match.tournament),

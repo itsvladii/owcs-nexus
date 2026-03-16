@@ -30,7 +30,7 @@ export async function fetchAllSeasonMatches(
 
   // Use the provided `since` date if doing an incremental sync, otherwise fall
   // back to the season start date.
-  const afterDate = since ?? "2026-02-20";
+  const afterDate = since ?? "2026-03-15";
 
   try {
     const endpoint = new URL("https://api.liquipedia.net/api/v3/match");
