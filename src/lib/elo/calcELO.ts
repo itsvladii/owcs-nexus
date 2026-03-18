@@ -665,7 +665,8 @@ export function calculateRankings(
   cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
 
   const filteredRankings = currentRankings.filter((t: any) => {
-    if (t.rating < 1000 || t.wins === 0) return false;
+    // Include them if they have played at least one game (wins + losses > 0)
+    if (t.rating < 1000 || t.wins + t.losses === 0) return false;
     const lastPlayed = t.history[t.history.length - 1];
     return lastPlayed && new Date(lastPlayed.date) >= cutoffDate;
   });

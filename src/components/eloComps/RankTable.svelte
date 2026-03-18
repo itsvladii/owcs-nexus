@@ -31,9 +31,18 @@
         Japan: "#085FFF",
     };
 
-    $: allFiltered = teams.filter(
-        (t) => regionFilter === "All Regions" || t.region === regionFilter,
-    );
+    // RankTable.svelte
+    $: allFiltered = teams.filter((t) => {
+        // 1. Must match the selected region (if not "All")
+        const matchesRegion =
+            regionFilter === "All Regions" || t.region === regionFilter;
+
+        // 2. Must have at least one win to be shown on the public table
+        const hasWonMatch = t.wins > 0;
+
+        return matchesRegion && hasWonMatch;
+    });
+
     $: filteredTeams = showAll
         ? allFiltered
         : allFiltered.slice(0, PREVIEW_ROWS);

@@ -37,6 +37,7 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "satori": "^0.25.0",
+    "supabase": "^2.81.2",
     "svelte": "^5.53.5",
     "tailwind-merge": "^3.4.1",
     "tailwindcss": "^4.1.17",
