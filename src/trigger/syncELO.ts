@@ -4,10 +4,10 @@ import { calculateRankings } from "../lib/elo/calcELO";
 import { supabase } from "../lib/contentScripts/supabase";
 import type { RatedTeam } from "../lib/elo/calcELO";
 
-// ── Runs every 3 hours, same cadence as the old GitHub Action ──
+// ── Runs every hour for fetching finished matches as quick as possible ──
 export const syncELOTask = schedules.task({
   id: "sync-elo-rankings",
-  cron: "0 */3 * * *",
+  cron: "0 * * * *",
 
   retry: {
     maxAttempts: 2,

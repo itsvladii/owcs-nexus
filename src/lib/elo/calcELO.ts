@@ -666,7 +666,7 @@ export function calculateRankings(
 
   const filteredRankings = currentRankings.filter((t: any) => {
     // Include them if they have played at least one game (wins + losses > 0)
-    if (t.rating < 1000 || t.wins + t.losses === 0) return false;
+    if (t.rating < 1000) return false;
     const lastPlayed = t.history[t.history.length - 1];
     return lastPlayed && new Date(lastPlayed.date) >= cutoffDate;
   });
