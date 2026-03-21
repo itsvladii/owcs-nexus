@@ -38,7 +38,7 @@
             regionFilter === "All Regions" || t.region === regionFilter;
 
         // 2. Must have at least one win to be shown on the public table
-        const hasWonMatch = t.wins > 0;
+        const hasWonMatch = t.wins + t.losses > 0;
 
         return matchesRegion && hasWonMatch;
     });
