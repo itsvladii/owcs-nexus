@@ -95,9 +95,9 @@
         const stageMatch = n.match(/stage\s*(\d)/);
         const stage = stageMatch ? `Stage ${stageMatch[1]}` : "Other";
         let region = "Other";
-        if (n.includes("na")) region = "NA";
+        if (n.includes("china")) region = "China";
         else if (n.includes("emea")) region = "EMEA";
-        else if (n.includes("china")) region = "China";
+        else if (n.includes("na")) region = "NA";
         else if (n.includes("korea")) region = "Korea";
         else if (n.includes("japan")) region = "Japan";
         else if (n.includes("pacific")) region = "Pacific";
