@@ -39,6 +39,19 @@ export interface ProcessedMatch {
       winner: string; // "1" or "2"
       bans: string[]; // ["Ana", "Echo"]
     }[];
+    debug?: {
+      k_a: number;
+      k_b: number;
+      expected_a: number;
+      expected_b: number;
+      mov_multiplier: number;
+      bully_penalty: boolean;
+      is_major: boolean;
+      is_regional: boolean;
+      games_in_roster_a: number;
+      games_in_roster_b: number;
+      base_k: number;
+    };
   };
 }
 
@@ -143,23 +156,30 @@ function getThreePhaseKFactor(
   // Majors start at 50. Regionals start at 20.
   let k = isMajor ? 60 : 20;
 
-  // 2. CALIBRATION
-  // If new team make the k-factor start high and then linearly drop to the normal level after 6 games
+  // 2. REGIONAL COMPRESSION
+  // If it's a standard regional game, we dampen it slightly (20 -> 15).
+  // We skip this if it's a Major or the team is in calibration.
+  if (!isMajor && gamesInCurrentRoster >= 6 && isRegional) {
+    k = 15;
+  }
+
+  // 3. CALIBRATION (The Rocket Fuel)
+  // If new team (<6 games), ignore the above and give them high volatility.
   if (gamesInCurrentRoster < 6) {
     k = 50 - (50 - 20) * (gamesInCurrentRoster / 6); // Linear drop 50 -> 20
   }
 
-  // 3. THE BULLY PENALTY
-  // If the overwhelming favourite wins in a regional match, slash the reward.
-  if (winnerElo > loserElo + 250 && !isMajor) {
+  // 4. THE BULLY PENALTY (Anti-Farming)
+  // If the overwhelming favourite wins, slash the reward.
+  if (winnerElo > loserElo + 250) {
     k *= 0.5;
   }
 
-  // 4. MARGIN OF VICTORY
-  // We apply a multiplier based on the Margin of Victory of the winner.
+  // 5. THE "STATEMENT WIN"
+  // We apply a multiplier based on the Margin of Victory of the winner, rewarding dominant victories
   k *= getMovMultiplier(scoreA, scoreB);
 
-  // 5. SAFETY FLOOR
+  // 6. SAFETY FLOOR
   // Ensure a match is always worth something
   return Math.max(k, 5);
 }
@@ -419,6 +439,11 @@ export function calculateRankings(
       scoreB_val,
     );
 
+    // Debug captures — computed before applying to ratings
+    const _movMultiplier = getMovMultiplier(scoreA_val, scoreB_val);
+    const _bullyPenalty = winnerRating > loserRating + 250 && !isMajor;
+    const _baseK = isMajor ? 60 : 20;
+
     const changeA = kA * (scoreA - expectedA);
     const changeB = kB * (scoreB - expectedB);
 
@@ -494,6 +519,19 @@ export function calculateRankings(
       details: {
         mvp: mvpData,
         maps: mapDetails,
+        debug: {
+          k_a: kA,
+          k_b: kB,
+          expected_a: expectedA,
+          expected_b: expectedB,
+          mov_multiplier: _movMultiplier,
+          bully_penalty: _bullyPenalty,
+          is_major: isMajor,
+          is_regional: isRegional,
+          games_in_roster_a: teamA.gamesInCurrentRoster,
+          games_in_roster_b: teamB.gamesInCurrentRoster,
+          base_k: _baseK,
+        },
       },
     });
 
@@ -665,8 +703,7 @@ export function calculateRankings(
   cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
 
   const filteredRankings = currentRankings.filter((t: any) => {
-    // Include them if they have played at least one game (wins + losses > 0)
-    if (t.rating < 1000) return false;
+    if (t.rating < 1000 || t.wins === 0) return false;
     const lastPlayed = t.history[t.history.length - 1];
     return lastPlayed && new Date(lastPlayed.date) >= cutoffDate;
   });
