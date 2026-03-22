@@ -703,7 +703,7 @@ export function calculateRankings(
   cutoffDate.setDate(cutoffDate.getDate() - INACTIVITY_DAYS);
 
   const filteredRankings = currentRankings.filter((t: any) => {
-    if (t.rating < 1000 || t.wins === 0) return false;
+    if (t.rating < 1000) return false;
     const lastPlayed = t.history[t.history.length - 1];
     return lastPlayed && new Date(lastPlayed.date) >= cutoffDate;
   });
