@@ -21,16 +21,6 @@
         "Japan",
     ];
 
-    // LFP-aligned — Bleu Électrique as the unified region signal color
-    const REGION_COLORS: Record<string, string> = {
-        Korea: "#085FFF",
-        "North America": "#085FFF",
-        EMEA: "#085FFF",
-        Pacific: "#085FFF",
-        China: "#085FFF",
-        Japan: "#085FFF",
-    };
-
     // RankTable.svelte
     $: allFiltered = teams.filter((t) => {
         // 1. Must match the selected region (if not "All")
@@ -214,7 +204,7 @@
                                 </span>
                                 {#if team.isPartner}
                                     <svg
-                                        class="w-3.5 h-3.5 shrink-0 text-[#085FFF] opacity-60"
+                                        class="w-3.5 h-3.5 shrink-0 text-[#FFF200] opacity-60"
                                         viewBox="0 0 24 24"
                                         fill="currentColor"
                                         title="OWCS Partner Team"

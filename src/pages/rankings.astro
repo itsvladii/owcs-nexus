@@ -83,7 +83,7 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         losses: team.losses,
         region: team.region || "Unknown",
         logo: team.logo_dark || team.logo,
-        isPartner: team.isPartner || false,
+        isPartner: team.is_partner || false,
         hasPage: !!localData,
         history: team.history,
         tournaments: team.tournaments,

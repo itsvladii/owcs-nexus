@@ -279,7 +279,7 @@
                                 >
                                     <!-- Fixed: was `color: blue88` (a literal string bug) — now correct -->
                                     <svg
-                                        class="w-3.5 h-3.5 shrink-0 text-[#085FFF] opacity-70"
+                                        class="w-3.5 h-3.5 shrink-0 text-[#FFF200] opacity-70"
                                         viewBox="0 0 24 24"
                                         fill="currentColor"
                                         title="Official OWCS Partner"

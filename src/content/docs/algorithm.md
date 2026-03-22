@@ -424,7 +424,7 @@ $$
 
 Where:
 - $R$ = Current rating
-- $W$ = Total wins
+- $M$ = Total matches played
 - $\Delta t_{\text{inactive}}$ = Days since their last match
 
 **Note**: The 90-day inactivity cutoff is calculated from the date of the most recent match in the database, not the current calendar date. This means the cutoff advances with the season rather than running in real-time.
