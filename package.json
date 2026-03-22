@@ -11,13 +11,13 @@
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/svelte": "^7.2.5",
-    "@astrojs/vercel": "^9.0.2",
+    "@astrojs/vercel": "^8.0.4",
     "@carbon/charts": "^1.27.2",
     "@carbon/charts-svelte": "^1.22.18",
     "@resvg/resvg-js": "^2.6.2",
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.1.17",
-    "@trigger.dev/sdk": "^4.4.2",
+    "@trigger.dev/sdk": "^4.4.0",
     "@vercel/speed-insights": "^1.2.0",
     "apexcharts": "^5.3.6",
     "astro": "^5.16.3",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "@trigger.dev/build": "^4.4.2",
+    "@trigger.dev/build": "^4.4.0",
     "gray-matter": "^4.0.3"
   }
 }
