@@ -145,7 +145,7 @@
                             src={resolvedMover.logoDark || resolvedMover.logo}
                             alt=""
                             class="absolute right-[-20%] top-1/2 -translate-y-1/2 w-36 h-36 object-contain"
-                            style="opacity:0.12; filter:grayscale(100%) brightness(8) contrast(100%)"
+                            style="opacity:0.12; brightness(10)"
                         />
                     </div>
                 {:else if devMode}
@@ -217,7 +217,7 @@
                             src={resolvedReign.logoDark || resolvedReign.logo}
                             alt=""
                             class="absolute right-[-20%] top-1/2 -translate-y-1/2 w-36 h-36 object-contain"
-                            style="opacity:0.12; filter:grayscale(100%) brightness(8) contrast(100%)"
+                            style="opacity:0.12; brightness(10)"
                         />
                     </div>
                 {:else if devMode}

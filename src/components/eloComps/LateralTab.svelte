@@ -75,7 +75,7 @@
                     ? 'bg-[#085FFF] text-white'
                     : 'bg-transparent text-white/25 hover:text-white/60 hover:bg-white/[0.03]'}"
             >
-                Avg. Region Power
+                Reg. Average Power
             </button>
         </div>
 
@@ -211,9 +211,9 @@
 
                     <!-- Footnote -->
                     <p
-                        class="text-[9px] font-mono text-white/15 uppercase leading-relaxed pt-3 border-t border-white/5 italic"
+                        class="text-[9px] font-mono text-white/15 uppercase leading-relaxed pt-3 italic"
                     >
-                        * Based on mean rating of top 5 active rosters per
+                        * Based on mean rating of top 3 active rosters per
                         region.
                     </p>
 
@@ -290,7 +290,7 @@
                                     </svg>
                                     <span
                                         class="text-[10px] font-mono text-white/50 uppercase tracking-wider"
-                                        >OWCS Partner</span
+                                        >OWCS Partner Team</span
                                     >
                                 </div>
                             </div>
