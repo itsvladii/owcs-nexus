@@ -116,7 +116,7 @@
                 <div class="flex flex-col gap-2 px-6 py-5 z-10 relative flex-1">
                     <span
                         class="font-mono text-[9px] uppercase tracking-[0.35em] text-[#085FFF]"
-                        >Biggest Mover</span
+                        >Biggest Mover (7d)</span
                     >
                     <span
                         class="font-title uppercase text-white text-2xl sm:text-3xl leading-none tracking-tight"
