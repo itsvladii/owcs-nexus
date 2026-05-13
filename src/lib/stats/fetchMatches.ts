@@ -39,7 +39,9 @@ export async function fetchAllSeasonMatches(
     endpoint.searchParams.set("order", "date ASC");
     endpoint.searchParams.set(
       "conditions",
-      `[[finished::1]] AND [[date::>${afterDate}]] AND ([[liquipediatier::1]] OR [[liquipediatier::2]]) AND ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])`,
+      `[[finished::1]] AND [[date::>${afterDate}]] AND
+      ([[liquipediatier::1]] OR [[liquipediatier::2]] AND NOT ([[liquipediatiertype::Qualifier]] OR [[liquipediatiertype::Showmatch]])) AND
+      ([[series::Overwatch Champions Series]] OR [[series::Esports World Cup]])`,
     );
 
     console.log(`[Liquipedia] Fetching season matches since ${afterDate}...`);
