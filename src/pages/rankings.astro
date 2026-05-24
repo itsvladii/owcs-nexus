@@ -89,6 +89,7 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         tournaments: team.tournaments,
         rankDelta: team.rank_delta,
         form: team.form,
+        roster: team.roster || [],
     };
 });
 
@@ -105,7 +106,7 @@ const regionalAverages = regions
         const regionalTeams = rankings
             .filter((t) => t.region === reg)
             .sort((a, b) => b.rating - a.rating)
-            .slice(0, 3);
+            .slice(0, 4);
 
         const avg =
             regionalTeams.length > 0

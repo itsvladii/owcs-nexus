@@ -1,12 +1,14 @@
 <script lang="ts">
     import ELOGraph from "./ELOGraph.svelte";
-    import { fade } from "svelte/transition";
+    import { fade, slide } from "svelte/transition";
     import { flip } from "svelte/animate";
+    import { code } from "country-emoji";
 
     export let teams: any[] = [];
     export let matches: any[] = [];
 
     let selectedTeam: any = null;
+    let expandedTeam: string | null = null;
     let regionFilter = "All Regions";
     let showAll = false;
     const PREVIEW_ROWS = 30;
@@ -21,6 +23,40 @@
         "Japan",
     ];
 
+    function toggleRoster(teamName: string) {
+        expandedTeam = expandedTeam === teamName ? null : teamName;
+    }
+
+    function getPlayerImage(player: any) {
+        if (!player.cloudinary_url) return "/favicon.svg";
+        return player.cloudinary_url.replace(
+            "/upload/",
+            "/upload/w_300,c_limit,q_auto,f_auto/",
+        );
+    }
+
+    function handleImageError(e: Event) {
+        const target = e.target as HTMLImageElement;
+        target.src = "/favicon.svg"; // Fallback to a placeholder
+        target.style.opacity = "0.4";
+    }
+
+    let loadedImages = new Set();
+    function handleImageLoad(id: string) {
+        loadedImages.add(id);
+        loadedImages = loadedImages;
+    }
+
+    function getFlagUrl(flagEmoji: string) {
+        try {
+            const countryCode = code(flagEmoji);
+            if (!countryCode) return null;
+            return `https://flagcdn.com/w640/${countryCode.toLowerCase()}.png`;
+        } catch (e) {
+            return null;
+        }
+    }
+
     // RankTable.svelte
     $: allFiltered = teams.filter((t) => {
         // 1. Must match the selected region (if not "All")
@@ -33,9 +69,17 @@
         return matchesRegion && hasWonMatch;
     });
 
-    $: filteredTeams = showAll
-        ? allFiltered
-        : allFiltered.slice(0, PREVIEW_ROWS);
+    $: displayTeams = (
+        showAll ? allFiltered : allFiltered.slice(0, PREVIEW_ROWS)
+    ).map((team) => ({
+        ...team,
+        isTop3: team.rank <= 3,
+        isExpanded: expandedTeam === team.name,
+        roster: (team.roster || []).map((p: any) => ({
+            ...p,
+            flagUrl: getFlagUrl(p.flag),
+        })),
+    }));
 
     function teleport(node: HTMLElement) {
         document.body.appendChild(node);
@@ -75,191 +119,299 @@
     </div>
 
     <!-- ── ROWS ── -->
-    {#if filteredTeams.length > 0}
+    {#if displayTeams.length > 0}
         <div class="flex flex-col">
-            {#each filteredTeams as team (team.name)}
-                {@const isTop3 = team.rank <= 3}
-
-                <div
-                    animate:flip={{ duration: 400 }}
-                    on:click={() => (selectedTeam = team)}
-                    on:keydown={(e) =>
-                        e.key === "Enter" && (selectedTeam = team)}
-                    role="button"
-                    tabindex="0"
-                    class="group grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 items-center
-                    cursor-pointer transition-all relative overflow-hidden
-                    border-b border-white/[0.04] hover:bg-white/[0.025]
-                    {team.rank === 1 ? 'bg-[rgba(8,95,255,0.05)]' : ''}"
-                >
-                    <!-- Left accent bar — Bleu Électrique, always on for rank 1, hover-reveal for rest -->
+            {#each displayTeams as team (team.name)}
+                <div animate:flip={{ duration: 400 }}>
                     <div
-                        class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#085FFF] transition-opacity duration-200
-                        {team.rank === 1
-                            ? 'opacity-50'
-                            : 'opacity-0 group-hover:opacity-100'}"
-                    ></div>
-
-                    <!-- ── RANK ── -->
-                    <div
-                        class="sm:col-span-1 text-center relative z-10 flex flex-col items-center gap-0.5"
+                        on:click={() => toggleRoster(team.name)}
+                        on:keydown={(e) =>
+                            e.key === "Enter" && toggleRoster(team.name)}
+                        role="button"
+                        tabindex="0"
+                        class="group grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 items-center
+                        cursor-pointer transition-all relative overflow-hidden
+                        border-b border-white/[0.04] hover:bg-white/[0.025]
+                        {team.rank === 1 ? 'bg-[rgba(8,95,255,0.05)]' : ''}
+                        {team.isExpanded
+                            ? 'bg-white/[0.03] border-l-2 border-l-[#085FFF]'
+                            : ''}"
                     >
-                        <span
-                            class="font-title leading-none transition-transform group-hover:scale-110
-                            {team.rank === 1
-                                ? 'text-[#FF7FDE] text-2xl sm:text-3xl'
-                                : team.rank === 2
-                                  ? 'text-[#085FFF] text-xl sm:text-2xl'
-                                  : team.rank === 3
-                                    ? 'text-[#085FFF] text-xl sm:text-2xl'
-                                    : 'text-white/25 text-lg sm:text-xl'}"
+                        <!-- Left accent bar — Bleu Électrique, always on for rank 1, hover-reveal for rest -->
+                        <div
+                            class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#085FFF] transition-opacity duration-200
+                        {team.rank === 1 || team.isExpanded
+                                ? 'opacity-50'
+                                : 'opacity-0 group-hover:opacity-100'}"
+                        ></div>
+
+                        <!-- ── RANK ── -->
+                        <div
+                            class="sm:col-span-1 text-center relative z-10 flex flex-col items-center gap-0.5"
                         >
-                            #{team.rank}
-                        </span>
-                        {#if team.rankDelta && team.rankDelta !== 0}
-                            <div
-                                class="flex items-center gap-0.5
+                            <span
+                                class="font-title leading-none transition-transform group-hover:scale-110
+                            {team.rank === 1
+                                    ? 'text-[#FF7FDE] text-2xl sm:text-3xl'
+                                    : team.rank === 2
+                                      ? 'text-[#085FFF] text-xl sm:text-2xl'
+                                      : team.rank === 3
+                                        ? 'text-[#085FFF] text-xl sm:text-2xl'
+                                        : 'text-white/25 text-lg sm:text-xl'}"
+                            >
+                                #{team.rank}
+                            </span>
+                            {#if team.rankDelta && team.rankDelta !== 0}
+                                <div
+                                    class="flex items-center gap-0.5
                                 {team.rankDelta > 0
-                                    ? 'text-[#0CD905]'
-                                    : 'text-[#D90000]'}"
+                                        ? 'text-[#0CD905]'
+                                        : 'text-[#D90000]'}"
+                                >
+                                    <svg
+                                        class="w-2.5 h-2.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        {#if team.rankDelta > 0}
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="3"
+                                                d="M5 15l7-7 7 7"
+                                            />
+                                        {:else}
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="3"
+                                                d="M19 9l-7 7-7-7"
+                                            />
+                                        {/if}
+                                    </svg>
+                                    <span class="font-mono text-[9px] font-bold"
+                                        >{Math.abs(team.rankDelta)}</span
+                                    >
+                                </div>
+                            {/if}
+                        </div>
+
+                        <!-- ── TEAM ── -->
+                        <div
+                            class="sm:col-span-5 relative z-10 flex items-center gap-2 sm:gap-3 min-w-0"
+                        >
+                            <!-- Logo container -->
+                            <div
+                                class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center relative"
+                            >
+                                <div
+                                    class="absolute inset-0 opacity-0 group-hover:opacity-15 blur-md transition-all duration-300 bg-[#085FFF]"
+                                ></div>
+                                {#if team.logo}
+                                    <img
+                                        src={team.logoDark || team.logo}
+                                        alt={team.name}
+                                        class="w-full h-full object-contain relative z-10 transition-all duration-300"
+                                    />
+                                {:else}
+                                    <span
+                                        class="font-title text-base text-white/30"
+                                    >
+                                        {team.name
+                                            .substring(0, 2)
+                                            .toUpperCase()}
+                                    </span>
+                                {/if}
+                            </div>
+
+                            <div class="flex flex-col min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="font-title uppercase text-base sm:text-lg leading-tight truncate transition-colors
+                                    {team.isTop3 || team.isExpanded
+                                            ? 'text-white'
+                                            : 'text-white/60 group-hover:text-white'}"
+                                    >
+                                        {team.name}
+                                    </span>
+                                    {#if team.wins + team.losses < 6}
+                                        <span
+                                            class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shrink-0"
+                                        ></span>
+                                    {/if}
+                                </div>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span
+                                        class="font-mono text-[10px] uppercase tracking-widest text-white/35 opacity-50"
+                                    >
+                                        {team.region}
+                                    </span>
+                                    {#if team.isPartner}
+                                        <svg
+                                            class="w-3.5 h-3.5 shrink-0 text-[#FFF200] opacity-60"
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                            title="OWCS Partner Team"
+                                        >
+                                            <path
+                                                d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.44 3.814 3.745 3.745 0 01-3.814.44A3.745 3.745 0 0112 21a3.745 3.745 0 01-3.153-1.593 3.745 3.745 0 01-3.814-.44 3.745 3.745 0 01-.44-3.814A3.745 3.745 0 013 12a3.745 3.745 0 011.593-3.153 3.745 3.745 0 01.44-3.814 3.745 3.745 0 013.814-.44A3.742 3.742 0 0112 3a3.745 3.745 0 013.153 1.593 3.745 3.745 0 013.814.44 3.745 3.745 0 01.44 3.814A3.745 3.745 0 0121 12z"
+                                            />
+                                        </svg>
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── RATING ── -->
+                        <div
+                            class="sm:col-span-2 text-right sm:text-center relative z-10"
+                        >
+                            <span
+                                class="font-mono font-black text-lg sm:text-xl tabular-nums transition-colors
+                            {team.isTop3
+                                    ? 'text-white'
+                                    : 'text-white/40 group-hover:text-white/80'}"
+                            >
+                                {Math.round(team.rating)}
+                            </span>
+                        </div>
+
+                        <!-- ── RECORD ── -->
+                        <div
+                            class="col-span-2 text-center relative z-10 hidden sm:flex flex-col items-center"
+                        >
+                            <span class="font-mono text-sm tabular-nums">
+                                <span class="text-white/70">{team.wins}W</span>
+                                <span class="text-white/20 mx-1">—</span>
+                                <span class="text-white/30">{team.losses}L</span
+                                >
+                            </span>
+                        </div>
+
+                        <!-- ── ACTIONS (Graph) ── -->
+                        <div
+                            class="col-span-2 relative z-10 hidden sm:flex items-center justify-center gap-1"
+                        >
+                            <button
+                                on:click|stopPropagation={() =>
+                                    (selectedTeam = team)}
+                                class="p-2 rounded-full hover:bg-[#085FFF]/20 text-white/30 hover:text-[#085FFF] transition-all"
+                                title="View ELO Graph"
                             >
                                 <svg
-                                    class="w-2.5 h-2.5"
+                                    class="w-5 h-5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
-                                    {#if team.rankDelta > 0}
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="3"
-                                            d="M5 15l7-7 7 7"
-                                        />
-                                    {:else}
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="3"
-                                            d="M19 9l-7 7-7-7"
-                                        />
-                                    {/if}
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                                    />
                                 </svg>
-                                <span class="font-mono text-[9px] font-bold"
-                                    >{Math.abs(team.rankDelta)}</span
-                                >
-                            </div>
-                        {/if}
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- ── TEAM ── -->
-                    <div
-                        class="sm:col-span-5 relative z-10 flex items-center gap-2 sm:gap-3 min-w-0"
-                    >
-                        <!-- Logo container -->
+                    <!-- ── ROSTER DROPDOWN ── -->
+                    {#if team.isExpanded}
                         <div
-                            class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center relative"
+                            transition:slide={{ duration: 300 }}
+                            class="bg-black/40 border-b border-white/5 overflow-hidden"
                         >
-                            <!-- Subtle blue glow on hover, unified across all regions -->
                             <div
-                                class="absolute inset-0 opacity-0 group-hover:opacity-15 blur-md transition-all duration-300 bg-[#085FFF]"
-                            ></div>
-                            {#if team.logo}
-                                <img
-                                    src={team.logoDark || team.logo}
-                                    alt={team.name}
-                                    class="w-full h-full object-contain relative z-10 transition-all duration-300"
-                                />
-                            {:else}
-                                <span
-                                    class="font-title text-base text-white/30"
-                                >
-                                    {team.name.substring(0, 2).toUpperCase()}
-                                </span>
-                            {/if}
-                        </div>
+                                class="px-4 sm:px-12 py-8 grid grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6"
+                            >
+                                {#if team.roster && team.roster.length > 0}
+                                    {#each team.roster as player, i}
+                                        <div
+                                            class="flex flex-col group/player bg-white/[0.02] border border-white/5 rounded-sm overflow-hidden transition-all hover:bg-white/[0.04] hover:border-[#085FFF]/30"
+                                        >
+                                            <!-- Portrait Container -->
+                                            <div
+                                                class="aspect-[4/5] w-full bg-white/[0.03] overflow-hidden relative"
+                                            >
+                                                <!-- Loading Skeleton -->
+                                                {#if !loadedImages.has(player.id + team.name)}
+                                                    <div
+                                                        class="absolute inset-0 z-30 animate-pulse bg-gradient-to-br from-white/5 to-white/[0.01]"
+                                                    ></div>
+                                                {/if}
 
-                        <div class="flex flex-col min-w-0">
-                            <div class="flex items-center gap-2">
-                                <span
-                                    class="font-title uppercase text-base sm:text-lg leading-tight truncate transition-colors
-                                    {isTop3
-                                        ? 'text-white'
-                                        : 'text-white/60 group-hover:text-white'}"
-                                >
-                                    {team.name}
-                                </span>
-                                <!-- Calibration dot: few matches played, still settling -->
-                                {#if team.wins + team.losses < 6}
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shrink-0"
-                                    ></span>
-                                {/if}
-                            </div>
-                            <div class="flex items-center gap-1.5 mt-0.5">
-                                <span
-                                    class="font-mono text-[10px] uppercase tracking-widest text-white/35 opacity-50"
-                                >
-                                    {team.region}
-                                </span>
-                                {#if team.isPartner}
-                                    <svg
-                                        class="w-3.5 h-3.5 shrink-0 text-[#FFF200] opacity-60"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                        title="OWCS Partner Team"
+                                                <!-- Flag Background -->
+                                                {#if player.flagUrl}
+                                                    <div
+                                                        class="absolute inset-0 z-0 opacity-[0.65] grayscale-[0.5] mix-blend-overlay"
+                                                    >
+                                                        <img
+                                                            src={player.flagUrl}
+                                                            alt=""
+                                                            loading="lazy"
+                                                            class="w-full h-full object-cover scale-110 blur-[2px]"
+                                                        />
+                                                    </div>
+                                                {/if}
+
+                                                <img
+                                                    src={getPlayerImage(player)}
+                                                    alt={player.gamertag}
+                                                    on:error={handleImageError}
+                                                    on:load={() =>
+                                                        handleImageLoad(
+                                                            player.id +
+                                                                team.name,
+                                                        )}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    class="w-full h-full object-cover object-top filter grayscale-[0.2] group-hover/player:grayscale-0 transition-all duration-500 relative z-10
+                                                    {loadedImages.has(
+                                                        player.id + team.name,
+                                                    )
+                                                        ? 'opacity-100'
+                                                        : 'opacity-0'}"
+                                                />
+                                                <div
+                                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 z-20"
+                                                ></div>
+                                            </div>
+
+                                            <!-- Player Info -->
+                                            <div
+                                                class="p-3 border-t border-white/5"
+                                            >
+                                                <div
+                                                    class="flex items-center gap-1.5 mb-0.5"
+                                                >
+                                                    <span
+                                                        class="font-mono text-[10px] opacity-60"
+                                                        >{player.flag}</span
+                                                    >
+                                                    <span
+                                                        class="font-title text-sm text-white uppercase tracking-tight truncate"
+                                                        >{player.gamertag}</span
+                                                    >
+                                                </div>
+                                                <p
+                                                    class="font-mono text-[9px] text-[#085FFF] uppercase tracking-widest opacity-80"
+                                                >
+                                                    {player.role}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    {/each}
+                                {:else}
+                                    <div
+                                        class="col-span-full py-4 text-center font-mono text-[10px] text-white/20 uppercase tracking-widest"
                                     >
-                                        <path
-                                            d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.44 3.814 3.745 3.745 0 01-3.814.44A3.745 3.745 0 0112 21a3.745 3.745 0 01-3.153-1.593 3.745 3.745 0 01-3.814-.44 3.745 3.745 0 01-.44-3.814A3.745 3.745 0 013 12a3.745 3.745 0 011.593-3.153 3.745 3.745 0 01.44-3.814 3.745 3.745 0 013.814-.44A3.742 3.742 0 0112 3a3.745 3.745 0 013.153 1.593 3.745 3.745 0 013.814.44 3.745 3.745 0 01.44 3.814A3.745 3.745 0 0121 12z"
-                                        />
-                                    </svg>
+                                        Roster data currently unavailable
+                                    </div>
                                 {/if}
                             </div>
                         </div>
-                    </div>
-
-                    <!-- ── RATING ── -->
-                    <div
-                        class="sm:col-span-2 text-right sm:text-center relative z-10"
-                    >
-                        <span
-                            class="font-mono font-black text-lg sm:text-xl tabular-nums transition-colors
-                            {isTop3
-                                ? 'text-white'
-                                : 'text-white/40 group-hover:text-white/80'}"
-                        >
-                            {Math.round(team.rating)}
-                        </span>
-                    </div>
-
-                    <!-- ── RECORD ── -->
-                    <div
-                        class="col-span-2 text-center relative z-10 hidden sm:block"
-                    >
-                        <span class="font-mono text-sm tabular-nums">
-                            <span class="text-white/70">{team.wins}W</span>
-                            <span class="text-white/20 mx-1">—</span>
-                            <span class="text-white/30">{team.losses}L</span>
-                        </span>
-                    </div>
-
-                    <!-- ── FORM ── -->
-                    <div
-                        class="col-span-2 relative z-10 hidden sm:flex items-center justify-center gap-1"
-                    >
-                        {#if team.form?.length > 0}
-                            {#each team.form.slice(-5) as result}
-                                <div
-                                    class="w-7 h-7 flex items-center justify-center font-mono text-[10px] font-bold border transition-all
-                                    {result === 'W'
-                                        ? 'bg-[rgba(0,217,133,0.08)] border-[rgba(0,217,133,0.25)] text-[#0CD905]'
-                                        : 'bg-[rgba(217,0,0,0.08)] border-[rgba(217,0,0,0.25)] text-[#D90000]'}"
-                                >
-                                    {result}
-                                </div>
-                            {/each}
-                        {/if}
-                    </div>
+                    {/if}
                 </div>
             {/each}
         </div>
