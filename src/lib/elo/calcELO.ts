@@ -71,11 +71,11 @@ const PARTNER_TEAMS_2025 = new Set([
   "JD Gaming",
 ]);
 //Alias Map for eventual team rebrandings happening during the season
-const TEAM_ALIASES: Record<string, string> = {};
+const TEAM_ALIASES: Record<string, string> = {"Anyone's Legend":"1234","The Gatos Guapos":"SHENGSHI","Rankers":"Naidorf","Quasar Esports":"Trap12","ONSIDE GAMING":"ZANSIDE GAMING"};
 //Regional starting ELO scores (calculated using calcStartELO.ts)
 const STARTING_ELO: Record<string, number> = {
   Korea: 1219,
-  "North America": 1199,
+  North America: 1199,
   EMEA: 1223,
   China: 1195,
   Japan: 1178,
@@ -83,7 +83,9 @@ const STARTING_ELO: Record<string, number> = {
   default: 1200,
 };
 //Record of all the roster resets (i.e the team doesn't keep more than 3 players of the original roster)
-const ROSTER_RESETS: { team: string; date: string; resetTo: number }[] = [];
+const ROSTER_RESETS: { team: string; date: string; resetTo: number }[] = [
+
+];
 //--- 2. HELPER FUNCTIONS---
 //Normalize team names based on the team aliases map (i.e Team CC(Chinese orgless team)-> Team CC)
 function getNormalizedTeamName(name: string): string {
