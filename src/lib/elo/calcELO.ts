@@ -73,8 +73,8 @@ const PARTNER_TEAMS_2025 = new Set([
 //Alias Map for eventual team rebrandings happening during the season
 const TEAM_ALIASES: Record<string, string> = {
   "Anyone's Legend": "1234",
-  "The Gatos Guapos": "SHENGSHI",
-  Rankers: "Naidorf",
+  "The Gatos Guapos": "SHENGSHI Esports",
+  "Rankers": "Najdorf Esports",
   "Quasar Esports": "Trap12",
   "ONSIDE GAMING": "ZANSIDE GAMING",
 };
