@@ -113,7 +113,7 @@
     >
         <div class="text-center sm:col-span-1">#</div>
         <div class="sm:col-span-5">Team</div>
-        <div class="text-right sm:text-center sm:col-span-2">Rating</div>
+        <div class="text-right sm:text-center sm:col-span-2">GPR</div>
         <div class="col-span-2 text-center hidden sm:block">Record</div>
         <div class="col-span-2 text-center hidden sm:block">Form</div>
     </div>
@@ -235,7 +235,7 @@
                                     >
                                         {team.name}
                                     </span>
-                                    {#if team.wins + team.losses < 6}
+                                    {#if team.rosterConfidence < 0.75}
                                         <span
                                             class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shrink-0"
                                         ></span>
@@ -273,7 +273,7 @@
                                     ? 'text-white'
                                     : 'text-white/40 group-hover:text-white/80'}"
                             >
-                                {Math.round(team.rating)}
+                                {Math.round(team.gpr)}
                             </span>
                         </div>
 

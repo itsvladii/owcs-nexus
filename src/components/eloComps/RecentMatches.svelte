@@ -9,8 +9,8 @@
         team_b: string;
         score_a: number;
         score_b: number;
-        elo_change_a: number;
-        elo_change_b: number;
+        gpr_change_a: number;
+        gpr_change_b: number;
     }
 
     interface TeamInfo {
@@ -119,8 +119,8 @@
                             {@const aWon =
                                 (match?.score_a ?? 0) > (match?.score_b ?? 0)}
                             {@const winner_elo = aWon
-                                ? (match?.elo_change_a ?? 0)
-                                : (match?.elo_change_b ?? 0)}
+                                ? (match?.gpr_change_a ?? 0)
+                                : (match?.gpr_change_b ?? 0)}
 
                             <div
                                 class="flex items-center justify-center gap-2 sm:gap-5 md:gap-6 shrink-0 min-w-0 px-1"

@@ -13,7 +13,7 @@ import { Image } from "astro:assets";
 const { data: rankings } = await supabase
     .from("rankings")
     .select("*")
-    .order("rating", { ascending: false });
+    .order("gpr", { ascending: false });
 
 const { data: statsData } = await supabase
     .from("global_stats")
@@ -78,7 +78,10 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         rank: index + 1,
         name: team.name,
         slug: localData?.id || team.name.toLowerCase().replace(/\s+/g, "-"),
-        rating: Math.round(team.rating),
+        gpr: Math.round(team.gpr),
+        rosterConfidence: team.roster_confidence ?? 0,
+        gprRaw: team.gpr_raw ?? null,
+        inactivityDecay: team.inactivity_decay ?? 1.0,
         wins: team.wins,
         losses: team.losses,
         region: team.region || "Unknown",
@@ -105,13 +108,13 @@ const regionalAverages = regions
     .map((reg) => {
         const regionalTeams = rankings
             .filter((t) => t.region === reg)
-            .sort((a, b) => b.rating - a.rating)
+            .sort((a, b) => b.gpr - a.gpr)
             .slice(0, 4);
 
         const avg =
             regionalTeams.length > 0
                 ? Math.round(
-                      regionalTeams.reduce((acc, t) => acc + t.rating, 0) /
+                      regionalTeams.reduce((acc, t) => acc + t.gpr, 0) /
                           regionalTeams.length,
                   )
                 : 1200;
@@ -127,8 +130,8 @@ const regionalAverages = regions
                 );
                 const change = lastMatch
                     ? lastMatch.team_a === t.name
-                        ? lastMatch.elo_change_a
-                        : lastMatch.elo_change_b
+                        ? lastMatch.gpr_change_a
+                        : lastMatch.gpr_change_b
                     : 0;
                 return acc + (change || 0);
             }, 0) / (regionalTeams.length || 1);

@@ -10,9 +10,9 @@
 
 import { logger, retry, schedules } from "@trigger.dev/sdk/v3";
 import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
-import { calculateGPR } from "../lib/elo/calcGPR";
+import { calculateGPR } from "../lib/gpr/calcGPR";
 import { supabase } from "../lib/contentScripts/supabase";
-import type { GPRTeam } from "../lib/elo/calcGPR";
+import type { GPRTeam } from "../lib/gpr/calcGPR";
 
 export const syncGPRTask = schedules.task({
   id: "sync-gpr-rankings",
@@ -195,22 +195,55 @@ export const syncGPRTask = schedules.task({
       updated_at: new Date().toISOString(),
     };
 
-    // ── 8. Persist to Supabase ───────────────────────────────────────────────
+    // ── 8. Map processedMatches to DB column shape ───────────────────────────
+    const cleanMatches = processedMatches.map((m) => ({
+      id: m.id,
+      date: m.date,
+      tournament: m.tournament,
+      team_a: m.team_a,
+      team_b: m.team_b,
+      score_a: m.score_a,
+      score_b: m.score_b,
+      winner_id: m.winner_id,
+      is_major: m.isMajor,
+      is_regional: m.isRegional,
+      gpr_change_a: m.gpr_change_a,
+      gpr_change_b: m.gpr_change_b,
+      team_a_gpr_after: m.team_a_gpr_after,
+      team_b_gpr_after: m.team_b_gpr_after,
+      details: m.details ?? null,
+    }));
+
+    // ── 9. Persist to Supabase ───────────────────────────────────────────────
     logger.info("Writing to Supabase...");
 
-    const [matchesResult, rankingsResult, accResult, statsResult] =
-      await Promise.all([
-        supabase.from("processed_matches").upsert(processedMatches),
-        supabase.from("rankings").upsert(cleanRankings, { onConflict: "name" }),
-        supabase.from("gpr_accumulators").upsert(cleanAccumulators, {
-          onConflict: "team_name",
-        }),
-        supabase.from("global_stats").upsert(cleanStats, { onConflict: "id" }),
-      ]);
-
-    if (matchesResult.error) {
-      throw new Error(`matches upsert: ${matchesResult.error.message}`);
+    // Batch processed_matches in chunks of 50 to avoid Supabase request size limits
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < cleanMatches.length; i += BATCH_SIZE) {
+      const batch = cleanMatches.slice(i, i + BATCH_SIZE);
+      const { error } = await supabase
+        .from("processed_matches")
+        .upsert(batch, { onConflict: "id" });
+      if (error) {
+        throw new Error(
+          `matches upsert (batch ${i / BATCH_SIZE + 1}): ${error.message}`,
+        );
+      }
     }
+    logger.info(
+      `Upserted ${cleanMatches.length} matches in ${
+        Math.ceil(cleanMatches.length / BATCH_SIZE)
+      } batches`,
+    );
+
+    const [rankingsResult, accResult, statsResult] = await Promise.all([
+      supabase.from("rankings").upsert(cleanRankings, { onConflict: "name" }),
+      supabase.from("gpr_accumulators").upsert(cleanAccumulators, {
+        onConflict: "team_name",
+      }),
+      supabase.from("global_stats").upsert(cleanStats, { onConflict: "id" }),
+    ]);
+
     if (rankingsResult.error) {
       throw new Error(`rankings upsert: ${rankingsResult.error.message}`);
     }
