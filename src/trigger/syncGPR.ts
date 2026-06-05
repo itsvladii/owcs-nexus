@@ -10,9 +10,9 @@
 
 import { logger, retry, schedules } from "@trigger.dev/sdk/v3";
 import { fetchAllSeasonMatches } from "../lib/stats/fetchMatches";
-import { calculateGPR } from "../lib/gpr/calcGPR";
+import { calculateGPR } from "../lib/elo/calcGPR";
 import { supabase } from "../lib/contentScripts/supabase";
-import type { GPRTeam } from "../lib/gpr/calcGPR";
+import type { GPRTeam } from "../lib/elo/calcGPR";
 
 export const syncGPRTask = schedules.task({
   id: "sync-gpr-rankings",
@@ -46,9 +46,8 @@ export const syncGPRTask = schedules.task({
     const lastSyncedAt: string | null = globalStatsRow?.last_synced_at ?? null;
 
     // ── 2. Incremental vs full recalc ────────────────────────────────────────
-    const isIncremental =
-      !!(lastSyncedAt && existingRankings?.length &&
-        existingAccumulators?.length);
+    const isIncremental = !!(lastSyncedAt && existingRankings?.length &&
+      existingAccumulators?.length);
 
     logger.info(
       isIncremental
