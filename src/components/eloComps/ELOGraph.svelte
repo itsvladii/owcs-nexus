@@ -559,7 +559,7 @@
                                         {@const _oppTierMe = isTeamADbg ? d.opp_tier_b : d.opp_tier_a}
                                         {@const _confMe = isTeamADbg ? d.roster_confidence_a : d.roster_confidence_b}
                                         {@const _confOpp = isTeamADbg ? d.roster_confidence_b : d.roster_confidence_a}
-                                        {@const _isWin = _change >= 0}
+                                        {@const _isWin = isTeamADbg ? m.score_a > m.score_b : m.score_b > m.score_a}
                                         {@const _movLabel =
                                             d.mov_multiplier >= 1.08
                                                 ? "Dominant (×1.10)"
@@ -598,15 +598,15 @@
                                                     <!-- Thin progress bar: P1 points earned this match vs a ~25pt reference -->
                                                     <div class="w-full h-[2px] bg-white/5 overflow-hidden">
                                                         <div
-                                                            class="h-full bg-[#085FFF] transition-all"
-                                                            style="width: {Math.min(100, (_p1 / 25) * 100)}%"
+                                                            class="h-full transition-all {_isWin ? 'bg-[#085FFF]' : 'bg-[#D90000]'}"
+                                                            style="width: {_isWin ? Math.min(100, (_p1 / 25) * 100) : Math.min(100, (Math.abs(_change) / 25) * 100)}%"
                                                         ></div>
                                                     </div>
                                                     <div class="space-y-1">
                                                         <div class="flex justify-between gap-1">
-                                                            <span class="text-[9px] text-white/25 font-mono">Points earned</span>
-                                                            <span class="text-[9px] font-mono {_isWin ? 'text-[#085FFF]' : 'text-white/20'} font-bold">
-                                                                {_isWin ? "+" : ""}{_p1.toFixed(1)}
+                                                            <span class="text-[9px] text-white/25 font-mono">{_isWin ? "Points earned" : "Points lost"}</span>
+                                                            <span class="text-[9px] font-mono {_isWin ? 'text-[#085FFF]' : 'text-[#D90000]'} font-bold">
+                                                                {_isWin ? "+" + _p1.toFixed(1) : Math.round(_change).toString()}
                                                             </span>
                                                         </div>
                                                         <div class="flex justify-between gap-1">

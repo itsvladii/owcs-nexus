@@ -98,12 +98,12 @@ const GPR_SCALE = 1000;
 // Regional seeds — output of calcStartGPR.ts (same calibration script, new name)
 // These represent "how strong is the average top team entering from this region"
 const REGIONAL_SEEDS: Record<string, number> = {
-  "Korea": 581,
-  "North America": 574,
-  "EMEA": 586,
-  "China": 576,
+  "Korea": 582,
+  "North America": 573,
+  "EMEA": 587,
+  "China": 575,
   "Japan": 556,
-  "Pacific": 547,
+  "Pacific": 545,
   "default": 590,
 };
 
@@ -560,7 +560,8 @@ export function calculateGPR(
     // =========================================================================
     let p2PerfA = 0, p2PerfB = 0;
     if (isMajor) {
-      const probA = getWinProbability(teamA.regionalSeed, teamB.regionalSeed);
+      // Use live GPR for win probability — regional seed is only for season calibration
+      const probA = getWinProbability(teamA.gpr, teamB.gpr);
       const probB = 1 - probA;
       const actualA = teamAWon ? 1 : 0;
       const actualB = teamAWon ? 0 : 1;
@@ -665,10 +666,10 @@ export function calculateGPR(
       },
     });
 
-    // Upset detection: winner was less than 35% to win
+    // Upset detection: winner was less than 35% to win (using live GPR)
     const winnerProb = teamAWon
-      ? getWinProbability(teamA.regionalSeed, teamB.regionalSeed)
-      : getWinProbability(teamB.regionalSeed, teamA.regionalSeed);
+      ? getWinProbability(teamA.gpr, teamB.gpr)
+      : getWinProbability(teamB.gpr, teamA.gpr);
     if (winnerProb < 0.35) {
       const winner = teamAWon ? teamA : teamB;
       const loser = teamAWon ? teamB : teamA;
