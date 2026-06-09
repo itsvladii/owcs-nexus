@@ -430,6 +430,21 @@
                                     </div>
                                 {/if}
                             </div>
+
+                            <!-- ── MOBILE: View Matches button ── -->
+                            <!-- Desktop has the graph button in the actions column (hidden sm:flex). -->
+                            <!-- On mobile that column is hidden, so we surface it here inside the expanded panel. -->
+                            <div class="sm:hidden px-4 pb-5 pt-1">
+                                <button
+                                    on:click|stopPropagation={() => (selectedTeam = team)}
+                                    class="w-full flex items-center justify-center gap-2 py-2.5 border border-white/10 hover:border-[#085FFF]/40 hover:bg-[#085FFF]/10 text-white/40 hover:text-[#085FFF] transition-all font-mono text-[10px] uppercase tracking-widest"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                    </svg>
+                                    View Match History
+                                </button>
+                            </div>
                         </div>
                     {/if}
                 </div>
