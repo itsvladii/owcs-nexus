@@ -13,7 +13,7 @@ import { Image } from "astro:assets";
 const { data: rankings } = await supabase
     .from("rankings")
     .select("*")
-    .order("gpr", { ascending: false });
+    .order("rating", { ascending: false });
 
 const { data: statsData } = await supabase
     .from("global_stats")
@@ -78,10 +78,7 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         rank: index + 1,
         name: team.name,
         slug: localData?.id || team.name.toLowerCase().replace(/\s+/g, "-"),
-        gpr: Math.round(team.gpr),
-        rosterConfidence: team.roster_confidence ?? 0,
-        gprRaw: team.gpr_raw ?? null,
-        inactivityDecay: team.inactivity_decay ?? 1.0,
+        rating: Math.round(team.rating),
         wins: team.wins,
         losses: team.losses,
         region: team.region || "Unknown",
@@ -93,6 +90,9 @@ const tableData: RankingTeam[] = rankings.map((team, index) => {
         rankDelta: team.rank_delta,
         form: team.form,
         roster: team.roster || [],
+        gamesInCurrentRoster: team.games_in_current_roster ?? 0,
+        lastMatchDate: team.last_match_date ?? null,
+        inactivityDecay: team.inactivity_decay ?? 1.0,
     };
 });
 
@@ -108,13 +108,13 @@ const regionalAverages = regions
     .map((reg) => {
         const regionalTeams = rankings
             .filter((t) => t.region === reg)
-            .sort((a, b) => b.gpr - a.gpr)
+            .sort((a, b) => b.rating - a.rating)
             .slice(0, 4);
 
         const avg =
             regionalTeams.length > 0
                 ? Math.round(
-                      regionalTeams.reduce((acc, t) => acc + t.gpr, 0) /
+                      regionalTeams.reduce((acc, t) => acc + t.rating, 0) /
                           regionalTeams.length,
                   )
                 : 1200;
@@ -130,8 +130,8 @@ const regionalAverages = regions
                 );
                 const change = lastMatch
                     ? lastMatch.team_a === t.name
-                        ? lastMatch.gpr_change_a
-                        : lastMatch.gpr_change_b
+                        ? lastMatch.elo_change_a
+                        : lastMatch.elo_change_b
                     : 0;
                 return acc + (change || 0);
             }, 0) / (regionalTeams.length || 1);

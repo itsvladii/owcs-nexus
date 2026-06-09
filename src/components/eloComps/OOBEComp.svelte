@@ -16,7 +16,7 @@
     $: allChecked = checks.math && checks.bias && checks.serious && checks.beta;
 
     onMount(() => {
-        const hasSeenOOBE = localStorage.getItem("owcs_nexus_gpr_oobe");
+        const hasSeenOOBE = localStorage.getItem("owcs_nexus_elo_oobe");
         if (!hasSeenOOBE) {
             setTimeout(() => {
                 isVisible = true;
@@ -26,7 +26,7 @@
 
     function handleEnter() {
         if (allChecked) {
-            localStorage.setItem("owcs_nexus_gpr_oobe", "true");
+            localStorage.setItem("owcs_nexus_elo_oobe", "true");
             isVisible = false;
         }
     }

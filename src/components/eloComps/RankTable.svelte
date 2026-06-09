@@ -79,6 +79,14 @@
             ...p,
             flagUrl: getFlagUrl(p.flag),
         })),
+        isInactive: (() => {
+            if (!team.lastMatchDate) return false;
+            const weeks = (Date.now() - new Date(team.lastMatchDate).getTime()) / (1000 * 60 * 60 * 24 * 7);
+            return weeks > 3;
+        })(),
+        weeksInactive: !team.lastMatchDate ? 0 : Math.floor(
+            (Date.now() - new Date(team.lastMatchDate).getTime()) / (1000 * 60 * 60 * 24 * 7)
+        ),
     }));
 
     function teleport(node: HTMLElement) {
@@ -113,7 +121,7 @@
     >
         <div class="text-center sm:col-span-1">#</div>
         <div class="sm:col-span-5">Team</div>
-        <div class="text-right sm:text-center sm:col-span-2">GPR</div>
+        <div class="text-right sm:text-center sm:col-span-2">Rating</div>
         <div class="col-span-2 text-center hidden sm:block">Record</div>
         <div class="col-span-2 text-center hidden sm:block">Form</div>
     </div>
@@ -132,6 +140,7 @@
                         class="group grid grid-cols-[2rem_1fr_auto] sm:grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 items-center
                         cursor-pointer transition-all relative overflow-hidden
                         border-b border-white/[0.04] hover:bg-white/[0.025]
+                        {team.isInactive ? 'opacity-40 hover:opacity-75 transition-opacity' : ''}
                         {team.rank === 1 ? 'bg-[rgba(8,95,255,0.05)]' : ''}
                         {team.isExpanded
                             ? 'bg-white/[0.03] border-l-2 border-l-[#085FFF]'
@@ -229,15 +238,24 @@
                                 <div class="flex items-center gap-2">
                                     <span
                                         class="font-title uppercase text-base sm:text-lg leading-tight truncate transition-colors
-                                    {team.isTop3 || team.isExpanded
-                                            ? 'text-white'
-                                            : 'text-white/60 group-hover:text-white'}"
+                                    {team.isInactive
+                                            ? 'text-white/25'
+                                            : team.isTop3 || team.isExpanded
+                                              ? 'text-white'
+                                              : 'text-white/60 group-hover:text-white'}"
                                     >
                                         {team.name}
                                     </span>
-                                    {#if team.rosterConfidence < 0.75}
+                                    {#if team.gamesInCurrentRoster < 8}
                                         <span
                                             class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shrink-0"
+                                            title="New roster — calibrating"
+                                        ></span>
+                                    {/if}
+                                    {#if team.isInactive}
+                                        <span
+                                            class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"
+                                            title="Inactive — last seen {team.weeksInactive}w ago"
                                         ></span>
                                     {/if}
                                 </div>
@@ -269,11 +287,13 @@
                         >
                             <span
                                 class="font-mono font-black text-lg sm:text-xl tabular-nums transition-colors
-                            {team.isTop3
-                                    ? 'text-white'
-                                    : 'text-white/40 group-hover:text-white/80'}"
+                            {team.isInactive
+                                    ? 'text-white/20'
+                                    : team.isTop3
+                                      ? 'text-white'
+                                      : 'text-white/40 group-hover:text-white/80'}"
                             >
-                                {Math.round(team.gpr)}
+                                {Math.round(team.rating)}
                             </span>
                         </div>
 

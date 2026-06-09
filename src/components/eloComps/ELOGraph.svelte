@@ -45,7 +45,7 @@
                       x: new Date(
                           new Date(h.date).getTime() + index * 60000,
                       ).getTime(),
-                      y: Math.round(h.gpr),
+                      y: Math.round(h.elo),
                   }))
             : [],
     );
@@ -65,7 +65,7 @@
     );
 
     let peakRating = $derived(
-        team?.history ? Math.max(...team.history.map((h: any) => h.gpr)) : 0,
+        team?.history ? Math.max(...team.history.map((h: any) => h.elo)) : 0,
     );
 
     $effect(() => {
@@ -135,7 +135,7 @@
                 tooltip: {
                     theme: "dark",
                     x: { format: "dd MMM yyyy hh:mm" },
-                    y: { formatter: (val: number) => `${val} GPR` },
+                    y: { formatter: (val: number) => `${val} ELO` },
                 },
                 markers: {
                     size: 3,
@@ -239,11 +239,11 @@
                             <div class="flex flex-col">
                                 <span
                                     class="text-[9px] text-white/20 uppercase tracking-widest"
-                                    >GPR</span
+                                    >Rating</span
                                 >
                                 <span
                                     class="text-xl text-[#085FFF] font-black tabular-nums leading-tight"
-                                    >{Math.round(team.gpr)}</span
+                                    >{Math.round(team.rating)}</span
                                 >
                             </div>
                             <div
@@ -300,7 +300,7 @@
                     {#each [...teamHistory].reverse() as m (m.id)}
                         {@const isTeamA = m.team_a === team.name}
                         {@const change = Math.round(
-                            isTeamA ? m.gpr_change_a : m.gpr_change_b,
+                            isTeamA ? m.elo_change_a : m.elo_change_b,
                         )}
                         {@const isWin = change >= 0}
                         {@const opponent = isTeamA ? m.team_b : m.team_a}
@@ -549,240 +549,351 @@
                                         </div>
                                     {/each}
 
-                                    <!-- ── GPR BREAKDOWN PANEL ── -->
+                                    <!-- ── ELO BREAKDOWN PANEL ── -->
                                     {#if m.details?.debug}
                                         {@const d = m.details.debug}
-                                        {@const isTeamADbg = m.team_a === team.name}
-                                        {@const _change = isTeamADbg ? m.gpr_change_a : m.gpr_change_b}
-                                        {@const _p1 = isTeamADbg ? d.p1_points_a : d.p1_points_b}
-                                        {@const _p2 = isTeamADbg ? d.p2_perf_a : d.p2_perf_b}
-                                        {@const _oppTierMe = isTeamADbg ? d.opp_tier_b : d.opp_tier_a}
-                                        {@const _confMe = isTeamADbg ? d.roster_confidence_a : d.roster_confidence_b}
-                                        {@const _confOpp = isTeamADbg ? d.roster_confidence_b : d.roster_confidence_a}
-                                        {@const _isWin = isTeamADbg ? m.score_a > m.score_b : m.score_b > m.score_a}
+                                        {@const isTeamADbg =
+                                            m.team_a === team.name}
+                                        {@const _k = isTeamADbg ? d.k_a : d.k_b}
+                                        {@const _exp = isTeamADbg
+                                            ? d.expected_a
+                                            : d.expected_b}
+                                        {@const _expOpp = isTeamADbg
+                                            ? d.expected_b
+                                            : d.expected_a}
+                                        {@const _actual = isTeamADbg ? (m.score_a > m.score_b ? 1 : 0) : (m.score_b > m.score_a ? 1 : 0)}
+                                        {@const _change = isTeamADbg
+                                            ? m.elo_change_a
+                                            : m.elo_change_b}
+                                        {@const _roster = isTeamADbg
+                                            ? d.games_in_roster_a
+                                            : d.games_in_roster_b}
+                                        {@const _rosterOpp = isTeamADbg
+                                            ? d.games_in_roster_b
+                                            : d.games_in_roster_a}
                                         {@const _movLabel =
-                                            d.mov_multiplier >= 1.08
-                                                ? "Dominant (×1.10)"
+                                            d.mov_multiplier >= 1.15
+                                                ? "Dominant (×1.2)"
                                                 : d.mov_multiplier >= 0.95
-                                                  ? "Solid (×1.00)"
-                                                  : "Close (×0.90)"}
-                                        {@const _tierLabel =
-                                            _oppTierMe === "elite"   ? "Elite (top 5) · ×2.5"   :
-                                            _oppTierMe === "strong"  ? "Strong (top 10) · ×1.8" :
-                                            _oppTierMe === "solid"   ? "Solid (top 25) · ×1.2"  :
-                                                                       "Weak · ×0.7"}
-                                        {@const _tierColor =
-                                            _oppTierMe === "elite"  ? "text-[#FF7FDE]" :
-                                            _oppTierMe === "strong" ? "text-orange-400" :
-                                            _oppTierMe === "solid"  ? "text-yellow-400" :
-                                                                      "text-white/30"}
+                                                  ? "Solid (×1.0)"
+                                                  : "Close (×0.85)"}
 
-                                        <div class="mt-2 pt-3 border-t border-white/5 p-3 space-y-3">
-
+                                        <div
+                                            class="mt-2 pt-3 border-t border-white/5 p-3 space-y-3"
+                                        >
                                             <!-- Section label -->
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-1 h-1 bg-[#085FFF]"></div>
-                                                <span class="text-[9px] font-mono font-bold text-white/20 uppercase tracking-widest"
-                                                    >GPR impact breakdown</span>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <div
+                                                    class="w-1 h-1 bg-[#085FFF]"
+                                                ></div>
+                                                <span
+                                                    class="text-[9px] font-mono font-bold text-white/20 uppercase tracking-widest"
+                                                    >How this rating change was
+                                                    calculated</span
+                                                >
                                             </div>
 
-                                            <!-- ── ROW 1: three pillar cards ── -->
-                                            <div class="grid grid-cols-3 gap-2">
-
-                                                <!-- P1 · Consistency -->
-                                                <div class="bg-black/30 border border-white/5 p-2.5 space-y-2">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-[8px] text-white/20 uppercase tracking-widest font-mono">P1 · Consistency</span>
-                                                        <span class="text-[8px] font-mono text-white/20">40%</span>
+                                            <div
+                                                class="grid grid-cols-2 sm:grid-cols-3 gap-2"
+                                            >
+                                                <!-- Match weight -->
+                                                <div
+                                                    class="bg-black/30 border border-white/5 p-2.5"
+                                                >
+                                                    <div
+                                                        class="text-[8px] text-white/20 uppercase tracking-widest mb-2 font-mono"
+                                                    >
+                                                        Match Weight
                                                     </div>
-                                                    <!-- Thin progress bar: P1 points earned this match vs a ~25pt reference -->
-                                                    <div class="w-full h-[2px] bg-white/5 overflow-hidden">
+                                                    <div class="space-y-1">
                                                         <div
-                                                            class="h-full transition-all {_isWin ? 'bg-[#085FFF]' : 'bg-[#D90000]'}"
-                                                            style="width: {_isWin ? Math.min(100, (_p1 / 25) * 100) : Math.min(100, (Math.abs(_change) / 25) * 100)}%"
-                                                        ></div>
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono"
+                                                                >Stage</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] font-mono {d.is_major
+                                                                    ? 'text-orange-400'
+                                                                    : 'text-white/50'}"
+                                                                >{d.is_major
+                                                                    ? "International Major"
+                                                                    : d.is_regional
+                                                                      ? "Regional"
+                                                                      : "International"}</span
+                                                            >
+                                                        </div>
+                                                        <div
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono"
+                                                                >Base points</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] text-white/50 font-mono"
+                                                                >{d.base_k}</span
+                                                            >
+                                                        </div>
+                                                        <div
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono"
+                                                                >Score margin</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] text-white/50 font-mono"
+                                                                >{_movLabel}</span
+                                                            >
+                                                        </div>
+                                                        <div
+                                                            class="flex justify-between gap-2 border-t border-white/5 pt-1 mt-1"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/40 font-mono"
+                                                                >Final weight</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] text-[#085FFF] font-mono font-bold"
+                                                                >{_k.toFixed(
+                                                                    1,
+                                                                )}</span
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Expected outcome -->
+                                                <div
+                                                    class="bg-black/30 border border-white/5 p-2.5"
+                                                >
+                                                    <div
+                                                        class="text-[8px] text-white/20 uppercase tracking-widest mb-2 font-mono"
+                                                    >
+                                                        Expected Outcome
                                                     </div>
                                                     <div class="space-y-1">
-                                                        <div class="flex justify-between gap-1">
-                                                            <span class="text-[9px] text-white/25 font-mono">{_isWin ? "Points earned" : "Points lost"}</span>
-                                                            <span class="text-[9px] font-mono {_isWin ? 'text-[#085FFF]' : 'text-[#D90000]'} font-bold">
-                                                                {_isWin ? "+" + _p1.toFixed(1) : Math.round(_change).toString()}
-                                                            </span>
+                                                        <div
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono truncate"
+                                                                >{team.name}</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] text-[#085FFF] font-mono font-bold"
+                                                                >{(
+                                                                    _exp * 100
+                                                                ).toFixed(
+                                                                    1,
+                                                                )}%</span
+                                                            >
                                                         </div>
-                                                        <div class="flex justify-between gap-1">
-                                                            <span class="text-[9px] text-white/25 font-mono">Opp. tier</span>
-                                                            <span class="text-[9px] font-mono {_tierColor}">{_oppTierMe.charAt(0).toUpperCase() + _oppTierMe.slice(1)}</span>
+                                                        <div
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono truncate"
+                                                                >{opponent}</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] text-white/40 font-mono"
+                                                                >{(
+                                                                    _expOpp *
+                                                                    100
+                                                                ).toFixed(
+                                                                    1,
+                                                                )}%</span
+                                                            >
                                                         </div>
-                                                        <div class="flex justify-between gap-1">
-                                                            <span class="text-[9px] text-white/25 font-mono">Score margin</span>
-                                                            <span class="text-[9px] text-white/40 font-mono">{_movLabel.split(" ")[0]}</span>
+                                                        <div
+                                                            class="pt-1 mt-1 border-t border-white/5"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/20 font-mono leading-relaxed"
+                                                                >Win chances
+                                                                based on the ELO
+                                                                gap before this
+                                                                match</span
+                                                            >
                                                         </div>
-                                                        {#if d.is_regional && !d.is_major}
-                                                            <div class="flex justify-between gap-1">
-                                                                <span class="text-[9px] text-white/25 font-mono">Context</span>
-                                                                <span class="text-[9px] text-white/30 font-mono">Regional ×0.6</span>
-                                                            </div>
-                                                        {/if}
                                                     </div>
                                                 </div>
 
-                                                <!-- P2 · International -->
-                                                <div class="bg-black/30 border border-white/5 p-2.5 space-y-2 {!d.is_major ? 'opacity-35' : ''}">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-[8px] text-white/20 uppercase tracking-widest font-mono">P2 · International</span>
-                                                        <span class="text-[8px] font-mono text-white/20">45%</span>
-                                                    </div>
-                                                    {#if d.is_major}
-                                                        <!-- Bar: perf is [-1, +1], map to 0–100% centred -->
-                                                        <div class="w-full h-[2px] bg-white/5 overflow-hidden relative">
-                                                            <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/10"></div>
-                                                            <div
-                                                                class="h-full absolute top-0 transition-all {_p2 >= 0 ? 'bg-[#0CD905]' : 'bg-[#D90000]'}"
-                                                                style="{_p2 >= 0
-                                                                    ? `left: 50%; width: ${Math.min(50, _p2 * 50)}%`
-                                                                    : `right: 50%; width: ${Math.min(50, Math.abs(_p2) * 50)}%`}"
-                                                            ></div>
-                                                        </div>
-                                                        <div class="space-y-1">
-                                                            <div class="flex justify-between gap-1">
-                                                                <span class="text-[9px] text-white/25 font-mono">Over-expectation</span>
-                                                                <span class="text-[9px] font-mono font-bold {_p2 >= 0 ? 'text-[#0CD905]' : 'text-[#D90000]'}">
-                                                                    {_p2 >= 0 ? "+" : ""}{(_p2 * 100).toFixed(1)}%
-                                                                </span>
-                                                            </div>
-                                                            <div class="flex justify-between gap-1">
-                                                                <span class="text-[9px] text-white/25 font-mono">Context</span>
-                                                                <span class="text-[9px] text-orange-400 font-mono">Major · scored</span>
-                                                            </div>
-                                                            <div class="pt-1 border-t border-white/5">
-                                                                <span class="text-[9px] text-white/15 font-mono leading-relaxed">
-                                                                    {_p2 >= 0.3
-                                                                        ? "Strong upset — large positive shift"
-                                                                        : _p2 >= 0
-                                                                          ? "Expected win — modest positive shift"
-                                                                          : _p2 >= -0.3
-                                                                            ? "Expected loss — modest negative shift"
-                                                                            : "Surprise loss — large negative shift"}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    {:else}
-                                                        <div class="h-[2px] bg-white/5"></div>
-                                                        <div class="space-y-1">
-                                                            <div class="flex justify-between gap-1">
-                                                                <span class="text-[9px] text-white/25 font-mono">Stage</span>
-                                                                <span class="text-[9px] text-white/25 font-mono">{d.is_regional ? "Regional" : "Cross-region"}</span>
-                                                            </div>
-                                                            <div class="pt-1 border-t border-white/5">
-                                                                <span class="text-[9px] text-white/15 font-mono leading-relaxed">
-                                                                    Only Major matches affect the International pillar
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    {/if}
-                                                </div>
-
-                                                <!-- P3 · Momentum -->
-                                                <div class="bg-black/30 border border-white/5 p-2.5 space-y-2">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-[8px] text-white/20 uppercase tracking-widest font-mono">P3 · Momentum</span>
-                                                        <span class="text-[8px] font-mono text-white/20">15%</span>
-                                                    </div>
-                                                    <div class="w-full h-[2px] bg-white/5 overflow-hidden">
-                                                        <div class="h-full {_isWin ? 'bg-[#0CD905]' : 'bg-[#D90000]'} w-full opacity-40"></div>
+                                                <!-- Roster age -->
+                                                <div
+                                                    class="bg-black/30 border border-white/5 p-2.5"
+                                                >
+                                                    <div
+                                                        class="text-[8px] text-white/20 uppercase tracking-widest mb-2 font-mono"
+                                                    >
+                                                        Roster Stability
                                                     </div>
                                                     <div class="space-y-1">
-                                                        <div class="flex justify-between gap-1">
-                                                            <span class="text-[9px] text-white/25 font-mono">Result</span>
-                                                            <span class="text-[9px] font-mono font-bold {_isWin ? 'text-[#0CD905]' : 'text-[#D90000]'}">{_isWin ? "Win (+1)" : "Loss (+0)"}</span>
+                                                        <div
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono truncate"
+                                                                >{team.name}</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] font-mono {_roster <
+                                                                8
+                                                                    ? 'text-yellow-400'
+                                                                    : 'text-white/40'}"
+                                                                >{_roster} matches{_roster <
+                                                                8
+                                                                    ? " · settling"
+                                                                    : ""}</span
+                                                            >
                                                         </div>
-                                                        <div class="flex justify-between gap-1">
-                                                            <span class="text-[9px] text-white/25 font-mono">Decay window</span>
-                                                            <span class="text-[9px] text-white/30 font-mono">8 weeks · ×0.75/wk</span>
+                                                        <div
+                                                            class="flex justify-between gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/30 font-mono truncate"
+                                                                >{opponent}</span
+                                                            >
+                                                            <span
+                                                                class="text-[9px] font-mono {_rosterOpp <
+                                                                8
+                                                                    ? 'text-yellow-400'
+                                                                    : 'text-white/40'}"
+                                                                >{_rosterOpp} matches{_rosterOpp <
+                                                                8
+                                                                    ? " · settling"
+                                                                    : ""}</span
+                                                            >
                                                         </div>
-                                                        <div class="pt-1 border-t border-white/5">
-                                                            <span class="text-[9px] text-white/15 font-mono leading-relaxed">
-                                                                This result will fade over the next 8 weeks
+                                                        <div
+                                                            class="pt-1 mt-1 border-t border-white/5"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/20 font-mono leading-relaxed"
+                                                                >New rosters
+                                                                have higher
+                                                                volatility for
+                                                                the first 8
+                                                                matches</span
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Result breakdown -->
+                                                <div
+                                                    class="bg-black/30 border border-white/5 p-2.5 sm:col-span-3"
+                                                >
+                                                    <div
+                                                        class="text-[8px] text-white/20 uppercase tracking-widest mb-2 font-mono"
+                                                    >
+                                                        Rating Change · {team.name}
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center gap-3 flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="flex flex-col items-center"
+                                                        >
+                                                            <span
+                                                                class="text-[8px] text-white/20 font-mono uppercase tracking-widest mb-1"
+                                                                >Weight</span
+                                                            >
+                                                            <span
+                                                                class="text-sm text-[#085FFF] font-mono font-black"
+                                                                >{_k.toFixed(
+                                                                    1,
+                                                                )}</span
+                                                            >
+                                                        </div>
+                                                        <span
+                                                            class="text-white/20 font-mono"
+                                                            >×</span
+                                                        >
+                                                        <div
+                                                            class="flex flex-col items-center"
+                                                        >
+                                                            <span
+                                                                class="text-[8px] text-white/20 font-mono uppercase tracking-widest mb-1"
+                                                                >Actual</span
+                                                            >
+                                                            <span
+                                                                class="text-sm text-white/60 font-mono font-black"
+                                                                >({_actual}</span
+                                                            >
+                                                        </div>
+                                                        <span
+                                                            class="text-white/20 font-mono"
+                                                            >−</span
+                                                        >
+                                                        <div
+                                                            class="flex flex-col items-center"
+                                                        >
+                                                            <span
+                                                                class="text-[8px] text-white/20 font-mono uppercase tracking-widest mb-1"
+                                                                >Expected</span
+                                                            >
+                                                            <span
+                                                                class="text-sm text-purple-400 font-mono font-black"
+                                                                >{_exp.toFixed(
+                                                                    2,
+                                                                )})</span
+                                                            >
+                                                        </div>
+                                                        <span
+                                                            class="text-white/20 font-mono"
+                                                            >=</span
+                                                        >
+                                                        <div
+                                                            class="flex flex-col items-center"
+                                                        >
+                                                            <span
+                                                                class="text-[8px] text-white/20 font-mono uppercase tracking-widest mb-1"
+                                                                >Change</span
+                                                            >
+                                                            <span
+                                                                class="text-sm font-mono font-black {_change >=
+                                                                0
+                                                                    ? 'text-[#0CD905]'
+                                                                    : 'text-[#D90000]'}"
+                                                                >{_change >= 0
+                                                                    ? "+"
+                                                                    : ""}{Math.round(
+                                                                    _change,
+                                                                )}</span
+                                                            >
+                                                        </div>
+                                                        <div
+                                                            class="ml-auto text-right"
+                                                        >
+                                                            <span
+                                                                class="text-[9px] text-white/15 font-mono leading-relaxed max-w-[180px] block"
+                                                            >
+                                                                {#if _change >= 0}
+                                                                    {_actual ===
+                                                                        1 &&
+                                                                    _exp < 0.5
+                                                                        ? "Upset win — larger gain since the win was unexpected"
+                                                                        : _actual ===
+                                                                            1
+                                                                          ? "Expected win — smaller gain since the result was anticipated"
+                                                                          : "Unexpected loss — smaller penalty"}
+                                                                {:else}
+                                                                    {_actual ===
+                                                                        0 &&
+                                                                    _exp > 0.5
+                                                                        ? "Unexpected loss — larger penalty since the loss was a surprise"
+                                                                        : "Expected loss — smaller penalty since the result was anticipated"}
+                                                                {/if}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <!-- ── ROW 2: match context + roster confidence + net change ── -->
-                                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-
-                                                <!-- Match context -->
-                                                <div class="bg-black/30 border border-white/5 p-2.5 space-y-1">
-                                                    <div class="text-[8px] text-white/20 uppercase tracking-widest mb-2 font-mono">Match Context</div>
-                                                    <div class="flex justify-between gap-2">
-                                                        <span class="text-[9px] text-white/30 font-mono">Stage</span>
-                                                        <span class="text-[9px] font-mono {d.is_major ? 'text-orange-400' : 'text-white/40'}">
-                                                            {d.is_major ? "Major" : d.is_regional ? "Regional" : "Cross-region"}
-                                                        </span>
-                                                    </div>
-                                                    <div class="flex justify-between gap-2">
-                                                        <span class="text-[9px] text-white/30 font-mono">Score margin</span>
-                                                        <span class="text-[9px] text-white/40 font-mono">{_movLabel}</span>
-                                                    </div>
-                                                    <div class="flex justify-between gap-2">
-                                                        <span class="text-[9px] text-white/30 font-mono">Opp. tier</span>
-                                                        <span class="text-[9px] font-mono {_tierColor}">{_tierLabel}</span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Roster confidence -->
-                                                <div class="bg-black/30 border border-white/5 p-2.5 space-y-1">
-                                                    <div class="text-[8px] text-white/20 uppercase tracking-widest mb-2 font-mono">Roster Confidence</div>
-                                                    <div class="flex justify-between gap-2">
-                                                        <span class="text-[9px] text-white/30 font-mono truncate">{team.name}</span>
-                                                        <span class="text-[9px] font-mono {_confMe < 0.75 ? 'text-yellow-400' : 'text-white/40'}">
-                                                            {Math.round(_confMe * 100)}%{_confMe < 0.75 ? " · settling" : ""}
-                                                        </span>
-                                                    </div>
-                                                    <div class="flex justify-between gap-2">
-                                                        <span class="text-[9px] text-white/30 font-mono truncate">{opponent}</span>
-                                                        <span class="text-[9px] font-mono {_confOpp < 0.75 ? 'text-yellow-400' : 'text-white/40'}">
-                                                            {Math.round(_confOpp * 100)}%{_confOpp < 0.75 ? " · settling" : ""}
-                                                        </span>
-                                                    </div>
-                                                    <div class="pt-1 border-t border-white/5">
-                                                        <span class="text-[9px] text-white/15 font-mono leading-relaxed">
-                                                            Low confidence scales down P1 points earned
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Net GPR change -->
-                                                <div class="bg-black/30 border border-white/5 p-2.5 col-span-2 sm:col-span-1">
-                                                    <div class="text-[8px] text-white/20 uppercase tracking-widest mb-3 font-mono">
-                                                        Net GPR · {team.name}
-                                                    </div>
-                                                    <div class="flex items-end justify-between">
-                                                        <div>
-                                                            <span class="text-[9px] text-white/20 font-mono block mb-1">Composite change</span>
-                                                            <span class="text-2xl font-mono font-black tabular-nums {_isWin ? 'text-[#0CD905]' : 'text-[#D90000]'}">
-                                                                {_isWin ? "+" : ""}{Math.round(_change)}
-                                                            </span>
-                                                        </div>
-                                                        <div class="text-right space-y-0.5 pb-0.5">
-                                                            <!-- Pillar weight mini-summary -->
-                                                            <div class="flex items-center justify-end gap-1.5">
-                                                                <span class="w-1.5 h-1.5 rounded-full bg-[#085FFF] shrink-0"></span>
-                                                                <span class="text-[8px] text-white/20 font-mono">Consistency 40%</span>
-                                                            </div>
-                                                            <div class="flex items-center justify-end gap-1.5">
-                                                                <span class="w-1.5 h-1.5 rounded-full {d.is_major ? 'bg-orange-400' : 'bg-white/10'} shrink-0"></span>
-                                                                <span class="text-[8px] {d.is_major ? 'text-orange-400/60' : 'text-white/10'} font-mono">International 45%</span>
-                                                            </div>
-                                                            <div class="flex items-center justify-end gap-1.5">
-                                                                <span class="w-1.5 h-1.5 rounded-full {_isWin ? 'bg-[#0CD905]' : 'bg-[#D90000]'} shrink-0 opacity-50"></span>
-                                                                <span class="text-[8px] text-white/20 font-mono">Momentum 15%</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
                                             </div>
                                         </div>
                                     {/if}

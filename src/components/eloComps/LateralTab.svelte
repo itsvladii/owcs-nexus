@@ -254,16 +254,26 @@
                                 <span
                                     class="text-[9px] font-mono text-white/20 uppercase tracking-widest block"
                                 >
-                                    Calibration
+                                    Status
                                 </span>
                                 <div class="flex items-center gap-2">
-                                    <!-- Dot matches RankTable calibration dot exactly -->
+                                    <!-- Calibration dot -->
                                     <span
                                         class="w-1.5 h-1.5 rounded-full bg-[#085FFF] animate-pulse shadow-[0_0_6px_rgba(8,95,255,0.5)]"
                                     ></span>
                                     <span
                                         class="text-[10px] font-mono text-white/50 uppercase tracking-wider"
                                         >New Team</span
+                                    >
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <!-- Inactive dot -->
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"
+                                    ></span>
+                                    <span
+                                        class="text-[10px] font-mono text-white/50 uppercase tracking-wider"
+                                        >Inactive</span
                                     >
                                 </div>
                             </div>
