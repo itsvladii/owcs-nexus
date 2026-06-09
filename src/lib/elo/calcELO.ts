@@ -127,7 +127,13 @@ const PARTNER_TEAMS = new Set([
 ]);
 
 // Team name aliases — rebrandings during the season
-const TEAM_ALIASES: Record<string, string> = {};
+const TEAM_ALIASES: Record<string, string> = {
+  "Anyone's Legend": "1234",
+  "The Gatos Guapos": "SHENGSHI Esports",
+  "Rankers": "Najdorf Esports",
+  "Quasar Esports": "Trap12",
+  "ONSIDE GAMING": "ZANSIDE GAMING",
+};
 
 // --- 3. HELPERS ---
 
