@@ -6,7 +6,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync:players": "tsx src/bin/runSyncPlayers.ts"
+  },
+  "bin": {
+    "owcs-sync-players": "src/bin/runSyncPlayers.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",

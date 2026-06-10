@@ -12,7 +12,6 @@ const PLAYER_FIELDS = [
   "nationality",
   "teampagename",
   "status",
-  "earnings",
   "extradata",
   "image",
 ].join(",");
@@ -87,14 +86,14 @@ async function fetchPlayers(
 
   const data = await res.json();
   if (Array.isArray(data.result)) return data.result;
-  if (data.result && typeof data.result === "object")
+  if (data.result && typeof data.result === "object") {
     return Object.values(data.result);
+  }
   return [];
 }
 
 export async function runSyncPlayers() {
-  const API_KEY =
-    import.meta.env?.LIQUIPEDIA_API_KEY_PLAYERS ||
+  const API_KEY = import.meta.env?.LIQUIPEDIA_API_KEY_PLAYERS ||
     process.env.LIQUIPEDIA_API_KEY_PLAYERS;
   if (!API_KEY) {
     throw new Error("Missing LIQUIPEDIA_API_KEY environment variable");
@@ -141,6 +140,7 @@ export async function runSyncPlayers() {
     const conditions = [
       `(${teamConditions})`,
       `([[extradata_role::tank]] OR [[extradata_role::dps]] OR [[extradata_role::support]] OR [[extradata_role::flex]])`,
+      `[[status::Active]]`, // Exclude former/inactive players
     ].join(" AND ");
 
     console.log(`  Fetching batch ${Math.floor(i / BATCH_SIZE) + 1}...`);
@@ -220,6 +220,17 @@ export async function runSyncPlayers() {
     `Updating rosters for ${Object.keys(rosterByTeam).length} teams...`,
   );
 
+  // Warn about any ranked teams that got zero players — likely a name mismatch
+  const teamsWithNoRoster = rankings
+    .map((r) => r.name)
+    .filter((name) => !rosterByTeam[name]);
+  if (teamsWithNoRoster.length > 0) {
+    console.warn(
+      `⚠️  No players found for ${teamsWithNoRoster.length} ranked team(s):`,
+    );
+    teamsWithNoRoster.forEach((name) => console.warn(`   · "${name}"`));
+  }
+
   for (const [teamName, roster] of Object.entries(rosterByTeam)) {
     const { error: updateError } = await supabase
       .from("rankings")
@@ -230,6 +241,8 @@ export async function runSyncPlayers() {
       console.warn(
         `Could not update roster for team ${teamName}: ${updateError.message}`,
       );
+    } else {
+      console.log(`  ✓ ${teamName}: ${roster.length} player(s)`);
     }
   }
 
