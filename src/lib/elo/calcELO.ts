@@ -133,6 +133,7 @@ const TEAM_ALIASES: Record<string, string> = {
   "Rankers": "Najdorf Esports",
   "Quasar Esports": "Trap12",
   "ONSIDE GAMING": "ZANSIDE GAMING",
+  "Extinction": "The Kafe",
 };
 
 // --- 3. HELPERS ---

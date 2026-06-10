@@ -4,6 +4,15 @@
     import { flip } from "svelte/animate";
     import { code } from "country-emoji";
 
+    const ROLE_PRIORITY = (role?: string) => {
+        if (!role) return 3;
+        const r = role.toLowerCase();
+        if (r.includes("dps") || r.includes("damage")) return 0;
+        if (r.includes("tank")) return 1;
+        if (r.includes("support") || r.includes("sup")) return 2;
+        return 3;
+    };
+
     export let teams: any[] = [];
     export let matches: any[] = [];
 
@@ -28,7 +37,7 @@
     }
 
     function getPlayerImage(player: any) {
-        if (!player.cloudinary_url) return "/favicon.svg";
+        if (!player.cloudinary_url) return "/placeholder.png";
         return player.cloudinary_url.replace(
             "/upload/",
             "/upload/w_300,c_limit,q_auto,f_auto/",
@@ -37,8 +46,10 @@
 
     function handleImageError(e: Event) {
         const target = e.target as HTMLImageElement;
-        target.src = "/favicon.svg"; // Fallback to a placeholder
-        target.style.opacity = "0.4";
+        target.src = "/placeholder.png"; // Fallback to a placeholder
+        // mark fallback so we can style it smaller / monochrome
+        target.style.opacity = "0.8";
+        target.classList.add("placeholder-image");
     }
 
     let loadedImages = new Set();
@@ -75,10 +86,18 @@
         ...team,
         isTop3: team.rank <= 3,
         isExpanded: expandedTeam === team.name,
-        roster: (team.roster || []).map((p: any) => ({
-            ...p,
-            flagUrl: getFlagUrl(p.flag),
-        })),
+        roster: (team.roster || [])
+            .slice()
+            .sort((a: any, b: any) => {
+                const ra = ROLE_PRIORITY(a.role);
+                const rb = ROLE_PRIORITY(b.role);
+                if (ra !== rb) return ra - rb;
+                return (a.gamertag || "").localeCompare(b.gamertag || "");
+            })
+            .map((p: any) => ({
+                ...p,
+                flagUrl: getFlagUrl(p.flag),
+            })),
         isInactive: (() => {
             if (!team.lastMatchDate) return false;
             const weeks = (Date.now() - new Date(team.lastMatchDate).getTime()) / (1000 * 60 * 60 * 24 * 7);
@@ -386,12 +405,13 @@
                                                         )}
                                                     loading="lazy"
                                                     decoding="async"
-                                                    class="w-full h-full object-cover object-top filter grayscale-[0.2] group-hover/player:grayscale-0 transition-all duration-500 relative z-10
+                                                    class="w-full h-full object-cover object-top transition-all duration-500 relative z-10
                                                     {loadedImages.has(
                                                         player.id + team.name,
                                                     )
                                                         ? 'opacity-100'
-                                                        : 'opacity-0'}"
+                                                        : 'opacity-0'}
+                                                    {player.cloudinary_url ? 'filter grayscale-[0.2] group-hover/player:grayscale-0' : 'placeholder-image'}"
                                                 />
                                                 <div
                                                     class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 z-20"
