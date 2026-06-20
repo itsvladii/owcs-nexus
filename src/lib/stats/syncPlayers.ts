@@ -1,4 +1,5 @@
 import { supabase } from "../contentScripts/supabase";
+import { TEAM_ALIASES } from "../elo/calcELO";
 
 const API_BASE = "https://api.liquipedia.net/api/v3";
 const USER_AGENT = "OWCSNexus/1.0 (owcsnexus.gg)";
@@ -122,10 +123,27 @@ export async function runSyncPlayers() {
     teamNamesMap[r.name.toLowerCase()] = r.name;
   });
 
-  const uniqueTeamNames = rankings.flatMap((t) => [
-    t.name,
-    t.name.replace(/\s+/g, "_"),
-  ]);
+  // Liquipedia player profiles often lag a team-page rebrand — a player can
+  // still have `teampagename` pointing at the org's old name for a while
+  // after the roster moved under a new banner. Resolve those legacy
+  // pagenames to the current ranked name too, otherwise only whichever
+  // players already got their profile updated show up in the roster.
+  const rebrandedTeamNames = Object.entries(TEAM_ALIASES).filter(
+    ([, newName]) => rankings.some((r) => r.name === newName),
+  );
+  rebrandedTeamNames.forEach(([oldName, newName]) => {
+    const underscoreOld = oldName.replace(/\s+/g, "_");
+    teamNamesMap[oldName.toLowerCase()] = newName;
+    teamNamesMap[underscoreOld.toLowerCase()] = newName;
+  });
+
+  const uniqueTeamNames = [
+    ...rankings.flatMap((t) => [t.name, t.name.replace(/\s+/g, "_")]),
+    ...rebrandedTeamNames.flatMap(([oldName]) => [
+      oldName,
+      oldName.replace(/\s+/g, "_"),
+    ]),
+  ];
 
   // 2. Fetch players in batches to avoid overly long URLs
   const BATCH_SIZE = 20;

@@ -106,9 +106,8 @@
         };
     }
 
-    // ── Build one column per stage+region, merging all tournament keys in that group ──
-    $: columns = (() => {
-        // group: stage → region → string[]
+    // group: stage → region → tournament keys
+    $: stageGroups = (() => {
         const groups: Record<string, Record<string, string[]>> = {};
         for (const opt of tournamentOptions) {
             if (opt.value === "All") continue;
@@ -117,14 +116,28 @@
             if (!groups[stage][region]) groups[stage][region] = [];
             groups[stage][region].push(opt.value);
         }
+        return groups;
+    })();
 
+    $: availableStages = STAGE_ORDER.filter((s) => stageGroups[s]);
+
+    // Default to the most recent stage with data instead of throwing every
+    // stage/region into one massive table — "All Stages" stays one tap away.
+    let selectedStage: string | null = null;
+    $: if (selectedStage === null && availableStages.length) {
+        selectedStage = availableStages[availableStages.length - 1];
+    }
+
+    // ── Build one column per stage+region, merging all tournament keys in that group ──
+    $: columns = (() => {
         const cols: RegionColumn[] = [];
         for (const stage of STAGE_ORDER) {
-            if (!groups[stage]) continue;
+            if (selectedStage !== "All" && stage !== selectedStage) continue;
+            if (!stageGroups[stage]) continue;
             const regionList =
                 stage === "Majors" ? REGION_MAJORS : REGION_STAGES;
             for (const region of regionList) {
-                const keys = groups[stage]?.[region];
+                const keys = stageGroups[stage]?.[region];
                 if (!keys?.length) continue;
                 const key = `${stage}|${region}`;
                 // single tournament: use it directly; multiple: merge
@@ -134,7 +147,10 @@
                         : mergeStats(keys);
                 cols.push({
                     key,
-                    label: `OWCS '26 –\n${region} ${stage}`,
+                    label:
+                        selectedStage === "All"
+                            ? `OWCS '26 –\n${region} ${stage}`
+                            : `OWCS '26 –\n${region}`,
                     stats,
                 });
             }
@@ -142,7 +158,16 @@
         return cols;
     })();
 
-    $: heroes = [...allStats.bans]
+    // Hero order + "Total" column reflect the selected stage's data, not
+    // the all-time aggregate — so ranking stays meaningful for what's shown.
+    $: scopedStats = (() => {
+        if (selectedStage === "All" || !stageGroups[selectedStage])
+            return allStats;
+        const keys = Object.values(stageGroups[selectedStage]).flat();
+        return mergeStats(keys);
+    })();
+
+    $: heroes = [...scopedStats.bans]
         .sort((a, b) => b.count - a.count)
         .map((b) => b.hero);
 
@@ -221,7 +246,7 @@
 
 <div class="mt-8">
     <!--header-->
-    <div class="flex items-center gap-3 mb-6">
+    <div class="flex items-center gap-3 mb-4">
         <p
             class="text-white/30 font-mono text-xs uppercase tracking-[0.3em] shrink-0"
         >
@@ -234,6 +259,41 @@
             Ban frequency per tournament
         </p>
     </div>
+
+    <!-- stage tabs — keeps the table to one stage at a time by default,
+         instead of every stage/region ever played landing in one table -->
+    {#if availableStages.length > 1}
+        <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-0 border border-white/8 w-fit">
+                <button
+                    on:click={() => (selectedStage = "All")}
+                    class="px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all border-r border-white/8
+                    {selectedStage === 'All'
+                        ? 'bg-[#7B2FFF] text-white'
+                        : 'bg-transparent text-white/25 hover:text-white/60 hover:bg-white/[0.03]'}"
+                >
+                    All Stages
+                </button>
+                {#each availableStages as stage, i}
+                    <button
+                        on:click={() => (selectedStage = stage)}
+                        class="px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all
+                        {i < availableStages.length - 1 ? 'border-r' : ''} border-white/8
+                        {selectedStage === stage
+                            ? 'bg-[#7B2FFF] text-white'
+                            : 'bg-transparent text-white/25 hover:text-white/60 hover:bg-white/[0.03]'}"
+                    >
+                        {stage}
+                    </button>
+                {/each}
+            </div>
+            <p
+                class="text-white/15 font-mono text-[9px] uppercase tracking-widest"
+            >
+                {columns.length} region{columns.length === 1 ? "" : "s"} shown
+            </p>
+        </div>
+    {/if}
 
     {#if columns.length === 0}
         <div
@@ -296,8 +356,8 @@
                 <tbody>
                     {#each visibleHeroes as hero}
                         {@const totalBans =
-                            allStats.bans.find((b) => b.hero === hero)?.count ??
-                            0}
+                            scopedStats.bans.find((b) => b.hero === hero)
+                                ?.count ?? 0}
                         <tr
                             class="group border-b border-white/[0.04] last:border-0"
                         >
@@ -363,7 +423,8 @@
                                     class="font-mono font-bold text-sm"
                                     style="color: rgba(123,47,255,{0.5 +
                                         (totalBans /
-                                            (allStats.bans[0]?.count ?? 1)) *
+                                            (scopedStats.bans[0]?.count ??
+                                                1)) *
                                             0.5})"
                                 >
                                     {totalBans}

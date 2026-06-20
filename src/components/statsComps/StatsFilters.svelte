@@ -62,7 +62,28 @@
     $: if (teamList.length && !selectedTeam) selectedTeam = teamList[0];
     let dropdownOpen = false;
     let teamSearch = "";
-    $: filteredTeams = teamList.filter((t) =>
+
+    // Only list teams that actually have ban data in the currently selected
+    // stage/region — picking a team that never played there just dead-ends
+    // on a "no data" message, so narrow the options before that can happen.
+    $: scopedTeamList = (() => {
+        if (!activeTournamentKeys) return teamList;
+        const present = new Set<string>();
+        for (const key of activeTournamentKeys) {
+            const teams = teamBansPerTournament[key];
+            if (!teams) continue;
+            for (const team of Object.keys(teams)) present.add(team);
+        }
+        return teamList.filter((t) => present.has(t));
+    })();
+
+    // If the previously selected team falls outside the new scope,
+    // land on the first team that's actually valid for it instead.
+    $: if (scopedTeamList.length && !scopedTeamList.includes(selectedTeam)) {
+        selectedTeam = scopedTeamList[0];
+    }
+
+    $: filteredTeams = scopedTeamList.filter((t) =>
         t.toLowerCase().includes(teamSearch.toLowerCase()),
     );
 
@@ -101,6 +122,7 @@
         else if (n.includes("korea")) region = "Korea";
         else if (n.includes("japan")) region = "Japan";
         else if (n.includes("pacific")) region = "Pacific";
+        else if (n.includes("asia")) region = "Asia";
         return { stage, region };
     }
 
@@ -112,6 +134,7 @@
         "Korea",
         "Japan",
         "Pacific",
+        "Asia",
         "Other",
     ];
     const REGION_MAJORS = [
@@ -739,6 +762,11 @@
                 class="text-white/25 font-mono text-[10px] uppercase tracking-widest mb-3"
             >
                 Select Team
+                {#if activeTournamentKeys}
+                    <span class="text-white/15 normal-case tracking-normal">
+                        · {scopedTeamList.length} played in {contextLabel}
+                    </span>
+                {/if}
             </p>
 
             <!-- Trigger -->
@@ -825,7 +853,9 @@
                             <p
                                 class="px-4 py-3 text-white/20 font-mono text-xs"
                             >
-                                No teams found
+                                {teamSearch
+                                    ? "No teams found"
+                                    : "No teams have ban data for this stage/region"}
                             </p>
                         {/if}
                     </div>

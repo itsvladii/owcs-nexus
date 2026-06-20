@@ -103,8 +103,12 @@ export const syncELOTask = schedules.task({
       roster_fingerprint:     r.rosterFingerprint,
       last_match_date:        r.lastMatchDate ?? null,
       inactivity_decay:       r.inactivityDecay,
-      roster:                 (r as any).roster ?? [],
       updated_at:             new Date().toISOString(),
+      // NOTE: deliberately NOT writing `roster` here. It isn't part of
+      // RatedTeam / calculateRankings — it's owned exclusively by
+      // syncPlayers.ts. Including it (even as `[] `) would clobber the
+      // real roster every hour on this job's upsert, racing against
+      // syncPlayers' 6-hourly run and leaving rosters empty half the time.
     }));
 
     const cleanMatches = processedMatches.map(m => ({
