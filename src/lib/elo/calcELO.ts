@@ -556,8 +556,13 @@ export function calculateRankings(
         Math.pow(INACTIVITY_DECAY_RATE, decayWeeks),
       );
       if (decay < team.inactivityDecay) {
+        // Apply only the *incremental* drop since the last time this ran —
+        // team.rating already has the previously-stored decay baked in
+        // (this function reruns hourly against a value loaded from the DB),
+        // so multiplying by the full cumulative `decay` again here would
+        // double-apply it every single run while a team stays inactive.
+        team.rating *= decay / team.inactivityDecay;
         team.inactivityDecay = decay;
-        team.rating *= decay;
       }
     }
   }
